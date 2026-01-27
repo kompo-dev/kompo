@@ -1,0 +1,15 @@
+{
+  "id": "tailwind",
+  "name": "Tailwind CSS",
+  "type": "feature",
+  "description": "Tailwind CSS design system for Next.js",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_TAILWIND_MODE": {
+      "validation": "z.string()",
+      "default": "jit",
+      "side": "client",
+      "description": "Tailwind JIT mode"
+    }
+  }
+}

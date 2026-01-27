@@ -1,0 +1,7 @@
+{
+  "name": "Posthog Analytics Adapter",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "analytics",
+  "id": "posthog"
+}

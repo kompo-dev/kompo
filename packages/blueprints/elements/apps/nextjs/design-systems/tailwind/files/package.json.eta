@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@<%= it.scope %>/ui": "workspace:*",
+    "@<%= it.scope %>/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "catalog:",
+    "tailwindcss": "catalog:"
+  }
+}

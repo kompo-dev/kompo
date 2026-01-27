@@ -1,0 +1,14 @@
+{
+  "description": "Minimal Next.js application with Material UI",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "mui"
+    }
+  ],
+  "name": "Blank",
+  "id": "nextjs.mui.blank"
+}

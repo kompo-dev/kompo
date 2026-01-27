@@ -1,0 +1,14 @@
+{
+  "name": "mysql",
+  "sharedDriver": "mysql",
+  "env": {
+    "DATABASE_URL": {
+      "description": "MySQL connection string",
+      "validation": "z.string().url()",
+      "side": "server",
+      "mapTo": "url",
+      "default": "mysql://user:password@localhost:3306/db"
+    }
+  },
+  "id": "mysql"
+}

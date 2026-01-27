@@ -1,0 +1,6 @@
+/**
+ * <%= it.pascalDomain %> Domain
+ */
+
+export * from './ports.js'
+export { <%= it.camelUseCase %> } from './use-cases/<%= it.useCase %>.js'

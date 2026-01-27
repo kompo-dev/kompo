@@ -1,0 +1,30 @@
+/**
+ * <%= it.pascalUseCase %> Use Case
+ */
+
+import type { TokenAllowanceReader } from '../ports.js'
+
+export type <%= it.pascalUseCase %>Input = {
+  owner: `0x${string}`
+  spender: `0x${string}`
+  token: `0x${string}`
+}
+
+export type <%= it.pascalUseCase %>Output = {
+  allowance: bigint
+  isApproved: boolean
+}
+
+/**
+ * Check token allowance
+ */
+export const <%= it.camelUseCase %> =
+  (tokenAllowanceReader: TokenAllowanceReader) =>
+  async (input: <%= it.pascalUseCase %>Input): Promise<<%= it.pascalUseCase %>Output> => {
+    const allowance = await tokenAllowanceReader(input)
+
+    return {
+      allowance,
+      isApproved: allowance > 0n,
+    }
+  }

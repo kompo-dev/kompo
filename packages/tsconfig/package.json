@@ -1,0 +1,15 @@
+{
+  "name": "@kompo/tsconfig",
+  "version": "0.1.0-beta.1",
+  "private": true,
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "react.json"
+  ],
+  "scripts": {
+    "format": "prettier --write \"*.json\"",
+    "format:check": "prettier --check \"*.json\"",
+    "clean": "rimraf .turbo node_modules tsconfig.tsbuildinfo"
+  }
+}

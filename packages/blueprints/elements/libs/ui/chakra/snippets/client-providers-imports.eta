@@ -1,0 +1,1 @@
+import { Provider as ChakraProvider } from '@<%= it.scope %>/ui/components/provider';

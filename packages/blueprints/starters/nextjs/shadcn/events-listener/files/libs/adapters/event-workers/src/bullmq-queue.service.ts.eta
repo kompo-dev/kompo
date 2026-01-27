@@ -1,0 +1,39 @@
+import type { RedisConnectionOptions } from '@<%= it.org%>/event-redis'
+import { Queue, type QueueOptions } from 'bullmq'
+
+import type { NotificationJob, ProcessTokenJob, QueueService } from '@<%= it.org%>/events'
+
+// BullMQ Queue Service Adapter
+export type BullMQQueueServiceConfig = {
+  redis: RedisConnectionOptions
+}
+
+export const createBullMQQueueService = (config: BullMQQueueServiceConfig): QueueService => {
+  const queueOptions: QueueOptions = {
+    connection: config.redis,
+  }
+
+  const processTokenQueue = new Queue<ProcessTokenJob>('process-token', queueOptions)
+  const notificationQueue = new Queue<NotificationJob>('notification', queueOptions)
+
+  return {
+    addProcessTokenJob: async (job) => {
+      // Convert BigInt to string for JSON serialization
+      const serializedJob = {
+        ...job,
+        blockNumber: job.blockNumber.toString(),
+      }
+      await processTokenQueue.add('process', serializedJob as any, {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+      })
+    },
+
+    addNotificationJob: async (job) => {
+      await notificationQueue.add('notify', job, {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      })
+    },
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "@radix-ui/react-dialog": "catalog:",
+    "@radix-ui/react-dropdown-menu": "catalog:",
+    "clsx": "catalog:",
+    "tailwind-merge": "catalog:",
+    "@<%= it.scope %>/ui": "workspace:*",
+    "@<%= it.scope %>/config": "workspace:*"
+  },
+  "devDependencies": {
+     "tailwindcss": "catalog:",
+     "postcss": "catalog:",
+     "autoprefixer": "catalog:"
+  }
+}

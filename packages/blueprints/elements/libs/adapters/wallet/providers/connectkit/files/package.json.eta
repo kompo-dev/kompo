@@ -1,0 +1,21 @@
+{
+  "name": "@<%= it.scope %>/<%= it.packetName %>",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/<%= it.name %>.adapter.ts",
+  "types": "src/<%= it.name %>.adapter.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@<%= it.scope %>/domains": "workspace:*",
+    "connectkit": "catalog:",
+    "wagmi": "catalog:",
+    "@wagmi/core": "catalog:",
+    "viem": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

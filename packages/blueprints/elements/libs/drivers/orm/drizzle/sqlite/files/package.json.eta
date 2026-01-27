@@ -1,0 +1,19 @@
+{
+  "name": "@<%= it.scope %>/driver-<%= it.driver %>",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev:watch": "tsc -w",
+    "dev:up": "docker-compose up",
+    "dev": "pnpm dev:watch & pnpm dev:up"
+  },
+  "dependencies": {
+    "better-sqlite3": "catalog:",
+    "@types/better-sqlite3": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

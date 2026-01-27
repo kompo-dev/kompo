@@ -1,0 +1,24 @@
+import type { Config } from 'drizzle-kit'
+
+<%
+// Determine whether to use serverEnv or clientEnv based on the driver's blueprint
+const dbUrlEnv = it.driverConfig?.env?.DATABASE_URL
+const isClient = dbUrlEnv?.side === 'client'
+const envObject = isClient ? 'clientEnv' : 'serverEnv'
+%>
+import { <%= envObject %> } from '@<%= it.scope %>/config/<%= isClient ? 'client' : 'server' %>'
+
+const connectionString = <%= envObject %>.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_DATABASE_URL
+
+if (connectionString?.startsWith('memory://') || connectionString?.startsWith('idb://')) {
+  console.warn('⚠️ [Drizzle Studio] You are using an in-memory or IndexedDB database. Studio will be empty and might not work as expected.')
+}
+
+export default {
+  schema: './src/schema.ts',
+  out: './drizzle',
+<%~ include(`libs/drivers/orm/drizzle/${it.driver}/snippets/config.eta`, it) %>
+  dbCredentials: {
+    url: connectionString,
+  },
+} satisfies Config

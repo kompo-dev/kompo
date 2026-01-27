@@ -1,0 +1,104 @@
+{
+  "id": "drizzle",
+  "name": "Drizzle",
+  "version": "1.0.0",
+  "capability": "orm",
+  "type": "adapter",
+  "family": "orm",
+  "env": {
+    "DATABASE_URL": {
+      "side": "server",
+      "validation": "z.string().url()",
+      "default": "postgres://USER:PASSWORD@HOST:PORT/DATABASE"
+    }
+  },
+  "drivers": [
+    {
+      "id": "postgres",
+      "name": "PostgreSQL",
+      "sharedDriver": "postgres",
+      "runtime": true
+    },
+    {
+      "id": "neon",
+      "name": "Neon",
+      "runtime": true
+    },
+    {
+      "id": "vercel-pg",
+      "name": "Vercel Postgres",
+      "runtime": true
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase",
+      "sharedDriver": "postgres",
+      "runtime": true
+    },
+    {
+      "id": "xata",
+      "name": "Xata",
+      "runtime": true
+    },
+    {
+      "id": "pglite",
+      "name": "PGLite",
+      "runtime": true
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "runtime": true
+    },
+    {
+      "id": "planetscale",
+      "name": "PlanetScale",
+      "runtime": true
+    },
+    {
+      "id": "tidb",
+      "name": "TiDB",
+      "sharedDriver": "mysql",
+      "runtime": true
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "runtime": true
+    },
+    {
+      "id": "turso",
+      "name": "Turso",
+      "runtime": true
+    },
+    {
+      "id": "cloudflare-d1",
+      "name": "Cloudflare D1",
+      "sharedDriver": "d1",
+      "runtime": true
+    },
+    {
+      "id": "bun-sqlite",
+      "name": "Bun SQLite",
+      "runtime": true
+    },
+    {
+      "id": "expo",
+      "name": "Expo SQLite",
+      "sharedDriver": "sqlite",
+      "runtime": true
+    },
+    {
+      "id": "op-sqlite",
+      "name": "OP SQLite",
+      "sharedDriver": "sqlite",
+      "runtime": true
+    },
+    {
+      "id": "react-native-sqlite",
+      "name": "React Native SQLite",
+      "sharedDriver": "sqlite",
+      "runtime": true
+    }
+  ]
+}

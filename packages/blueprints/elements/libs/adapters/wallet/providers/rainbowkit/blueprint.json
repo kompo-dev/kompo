@@ -1,0 +1,28 @@
+{
+  "id": "rainbowkit",
+  "name": "Rainbowkit",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "wallet",
+  "capability": "wallet",
+  "env": {
+    "PROJECT_ID": {
+      "side": "client",
+      "description": "WalletConnect Project ID",
+      "validation": "z.string()",
+      "mapTo": "projectId",
+      "default": "demo_project_id"
+    },
+    "APP_NAME": {
+      "side": "client",
+      "description": "Display name for the application",
+      "validation": "z.string()",
+      "mapTo": "appName",
+      "default": "My App"
+    }
+  },
+  "hooks": {
+    "providers-wrap": "snippets/hooks/providers.eta",
+    "port-interface": "snippets/hooks/port-interface.eta"
+  }
+}

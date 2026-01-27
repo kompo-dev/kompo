@@ -1,0 +1,7 @@
+/**
+ * Auth Adapter - <%= it.name %>
+ * Provider: Privy
+ */
+
+export { PrivyProvider } from './provider.js'
+export { usePrivy, useLogin, useLogout } from '@privy-io/react-auth'

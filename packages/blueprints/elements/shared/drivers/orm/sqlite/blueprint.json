@@ -1,0 +1,7 @@
+{
+  "name": "sqlite",
+  "provides": {
+    "driver": "sqlite"
+  },
+  "id": "sqlite"
+}

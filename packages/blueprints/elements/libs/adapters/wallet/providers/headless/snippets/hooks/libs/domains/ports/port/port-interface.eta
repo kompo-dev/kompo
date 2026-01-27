@@ -1,0 +1,5 @@
+  address: string | undefined
+  isConnected: boolean
+  chainId: number | undefined
+  connect(): Promise<void>
+  disconnect(): Promise<void>

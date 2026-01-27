@@ -1,0 +1,33 @@
+'use client'
+
+import { Card, CardContent, CardHeader, CardTitle } from '@smartt/ui'
+import { useAccount, useBalance } from 'wagmi'
+
+export function BalanceDisplay() {
+  const { address, isConnected } = useAccount()
+  const { data: balance, isLoading, isError } = useBalance({ address })
+
+  if (!isConnected) return null
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>My Balance (Gateway Capability)</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="animate-pulse h-8 bg-slate-100 rounded w-1/3"></div>
+        ) : isError ? (
+          <div className="text-red-500">Error fetching balance</div>
+        ) : (
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold tracking-tight">
+              {parseFloat(balance?.formatted || '0').toFixed(4)}
+            </span>
+            <span className="text-lg text-muted-foreground font-medium">{balance?.symbol}</span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@<%= it.scope %>/utils",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint . --list-files-only --ext .ts,.tsx"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

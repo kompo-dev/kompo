@@ -1,0 +1,6 @@
+import { XataClient } from './xata' // User needs to generate this using xata cli usually, but for now we export a helper to accept client
+import { drizzle } from 'drizzle-orm/xata-http'
+
+export function createXataClient(client: any) {
+  return drizzle(client)
+}

@@ -1,0 +1,74 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { wagmiNetworkReader } from '../wagmi-<%= it.domain %>-adapter'
+import type { NetworkReader } from '../../../domains/<%= it.domain %>/ports'
+
+// Mock wagmi
+vi.mock('wagmi', () => ({
+  getChainId: vi.fn(),
+  getChain: vi.fn(),
+}))
+
+describe('Wagmi <%= it.pascalDomain %> Adapter', () => {
+  let networkReader: NetworkReader
+
+  beforeEach(() => {
+    // Reset mocks
+    vi.clearAllMocks()
+    
+    // Create the adapter
+    networkReader = wagmiNetworkReader()
+  })
+
+  describe('wagmiNetworkReader', () => {
+    it('should read current network from wagmi', async () => {
+      // Arrange
+      const { getChainId, getChain } = await import('wagmi')
+      
+      vi.mocked(getChainId).mockResolvedValue(1)
+      vi.mocked(getChain).mockResolvedValue({
+        id: 1,
+        name: 'Ethereum',
+        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      })
+
+      // Act
+      const result = await networkReader({})
+
+      // Assert
+      expect(result).toEqual({
+        chainId: 1,
+        name: 'Ethereum',
+      })
+      expect(getChainId).toHaveBeenCalled()
+      expect(getChain).toHaveBeenCalledWith(1)
+    })
+
+    it('should handle unknown chain', async () => {
+      // Arrange
+      const { getChainId, getChain } = await import('wagmi')
+      
+      vi.mocked(getChainId).mockResolvedValue(999)
+      vi.mocked(getChain).mockResolvedValue(null)
+
+      // Act
+      const result = await networkReader({})
+
+      // Assert
+      expect(result).toEqual({
+        chainId: 999,
+        name: 'Unknown Chain',
+      })
+    })
+
+    it('should handle wagmi errors', async () => {
+      // Arrange
+      const { getChainId } = await import('wagmi')
+      
+      const error = new Error('Wallet not connected')
+      vi.mocked(getChainId).mockRejectedValue(error)
+
+      // Act & Assert
+      await expect(networkReader({})).rejects.toThrow('Wallet not connected')
+    })
+  })
+})

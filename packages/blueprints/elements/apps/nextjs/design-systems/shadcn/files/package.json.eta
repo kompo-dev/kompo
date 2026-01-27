@@ -1,0 +1,27 @@
+{
+  "name": "<%= it.packageName %>",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "lucide-react": "catalog:",
+    "tailwind-merge": "catalog:",
+    "next-themes": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "@<%= it.scope %>/ui": "workspace:*",
+    "@<%= it.scope %>/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "@radix-ui/react-icons": "catalog:"
+  }
+}

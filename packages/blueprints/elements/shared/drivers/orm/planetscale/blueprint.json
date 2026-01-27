@@ -1,0 +1,7 @@
+{
+  "name": "planetscale",
+  "provides": {
+    "driver": "planetscale"
+  },
+  "id": "planetscale"
+}

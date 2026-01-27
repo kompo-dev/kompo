@@ -1,0 +1,22 @@
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { getUserNotificationsUseCase } from '@/lib/dependencies'
+
+// GET /api/notifications/[userId] - Get user notifications
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+) {
+  try {
+    const { userId } = await params
+    const { searchParams } = new URL(request.url)
+    const limit = Number.parseInt(searchParams.get('limit') || '50')
+
+    const notifications = await getUserNotificationsUseCase(userId, limit)
+
+    return NextResponse.json(notifications)
+  } catch (error) {
+    console.error('Error fetching notifications:', error)
+    return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 })
+  }
+}

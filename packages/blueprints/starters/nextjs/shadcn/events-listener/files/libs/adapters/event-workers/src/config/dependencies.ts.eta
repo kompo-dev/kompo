@@ -1,0 +1,62 @@
+import {
+  type BlockchainService,
+  type NotificationRepository,
+  type QueueService,
+  type TokenEventRepository,
+  type UserFilterRepository,
+  createProcessNewTokenUseCase,
+} from '@<%= it.org%>/events'
+
+import {
+  createTokenEventRepository,
+  createUserFilterRepository,
+  createNotificationRepository,
+  db
+} from '@<%= it.org%>/event-db'
+
+import { createViemBlockchainService } from '@<%= it.org%>/event-blockchain'
+import { createBullMQQueueService } from '../bullmq-queue.service'
+import { getBullMQRedisConfig } from '@<%= it.org%>/event-redis'
+
+// Initialize dependencies
+export const createDependencies = () => {
+  // Blockchain service
+  const blockchainService: BlockchainService = createViemBlockchainService({
+    rpcUrls: {
+      base: process.env.BASE_RPC_URL!,
+      arbitrum: process.env.ARBITRUM_RPC_URL!,
+      linea: process.env.LINEA_RPC_URL!,
+    },
+  })
+
+  // Queue service
+  const queueService: QueueService = createBullMQQueueService({
+    redis: getBullMQRedisConfig(),
+  })
+
+  // Repositories (using Drizzle)
+  const tokenEventRepository: TokenEventRepository = createTokenEventRepository()
+  const userFilterRepository: UserFilterRepository = createUserFilterRepository()
+  const notificationRepository: NotificationRepository = createNotificationRepository()
+
+  // Use cases
+  const processNewTokenUseCase = createProcessNewTokenUseCase({
+    tokenEventRepository,
+    userFilterRepository,
+    notificationRepository,
+    blockchainService,
+    queueService,
+  })
+
+  return {
+    db,
+    blockchainService,
+    queueService,
+    tokenEventRepository,
+    userFilterRepository,
+    notificationRepository,
+    processNewTokenUseCase,
+  }
+}
+
+export type Dependencies = ReturnType<typeof createDependencies>

@@ -1,0 +1,113 @@
+'use client'
+
+import { Button } from '@<%= it.org%>/ui/components/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@<%= it.org%>/ui/components/card'
+import { Navbar } from '@<%= it.org%>/ui/components/navbar'
+import { PricingCard } from '@<%= it.org%>/ui/components/pricing-card'
+import { Stat } from '@<%= it.org%>/ui/components/stat'
+import { Ticker } from '@<%= it.org%>/ui/components/ticker'
+import { Box, Zap } from 'lucide-react'
+
+export default function TestComponentsPage() {
+  return (
+    <div className="min-h-screen bg-slate-950 pb-20">
+      <Navbar />
+
+      <div className="container mx-auto space-y-12 px-6 pt-32">
+        <section>
+          <h2 className="mb-6 text-2xl font-bold text-white">Buttons</h2>
+          <div className="flex flex-wrap gap-4">
+            <Button variant="default">Default (Primary)</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="destructive">Destructive</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="link">Link</Button>
+            <Button variant="glow">Glow Effect</Button>
+            <Button size="lg">Large</Button>
+            <Button size="sm">Small</Button>
+            <Button size="icon">
+              <Box />
+            </Button>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="mb-6 text-2xl font-bold text-white">Cards</h2>
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>Standard Card</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-400">
+                  This is a standard card with glassmorphism and hover effects.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-emerald-500/30">
+              <CardHeader>
+                <CardTitle className="text-emerald-500">Active Card</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-400">Card with custom border color.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="mb-6 text-2xl font-bold text-white">Ticker</h2>
+          <div className="border-y border-slate-800 bg-slate-900">
+            <Ticker>
+              <div className="flex gap-12 font-mono text-sm text-slate-400">
+                <span>🟢 ETHEREUM</span>
+                <span>🔵 BASE</span>
+                <span>🟣 POLYGON</span>
+                <span>🔴 ARBITRUM</span>
+                <span>🟡 OPTIMISM</span>
+                <span>⚫ BSC</span>
+                <span>🟢 UNISWAP V3 INTEGRATED</span>
+                <span>⚡ REAL-TIME UPDATES</span>
+              </div>
+            </Ticker>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="mb-6 text-2xl font-bold text-white">Stats</h2>
+          <div className="flex gap-12 rounded-xl border border-slate-800 bg-slate-900 p-6">
+            <Stat label="Total Tokens" value="12,847" trend="+12%" />
+            <Stat label="24h Volume" value="$2.4M" trend="+5.2%" />
+            <Stat label="Active Users" value="842" />
+          </div>
+        </section>
+
+        <section>
+          <h2 className="mb-6 text-2xl font-bold text-white">Pricing Cards</h2>
+          <div className="grid gap-8 md:grid-cols-3">
+            <PricingCard
+              name="Explorer"
+              price="Free"
+              features={['1 Blockchain', '100 Tokens', '5min Updates']}
+              cta="Start Free"
+            />
+            <PricingCard
+              name="Trader"
+              price="$49"
+              features={['8 Blockchains', 'Unlimited Tokens', 'Real-time', 'API Access']}
+              cta="Get Started"
+              highlight
+            />
+            <PricingCard
+              name="Whale"
+              price="Custom"
+              features={['Dedicated Support', 'SLA', 'White-label']}
+              cta="Contact Sales"
+            />
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}

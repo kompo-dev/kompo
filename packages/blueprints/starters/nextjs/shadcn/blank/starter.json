@@ -1,0 +1,14 @@
+{
+  "name": "Blank",
+  "description": "Next.js fullstack application configured with Shadcn/ui",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "shadcn"
+    }
+  ],
+  "id": "nextjs.shadcn.blank"
+}

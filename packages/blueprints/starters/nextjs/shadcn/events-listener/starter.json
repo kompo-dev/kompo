@@ -1,0 +1,51 @@
+{
+  "description": "Event listener application using Next.js, Drizzle, Redis, Ponder, and BullMQ",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "tailwind"
+    },
+    {
+      "command": "add",
+      "type": "domain",
+      "name": "events"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "db",
+      "port": "events",
+      "driver": "postgres",
+      "alias": "main"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "redis",
+      "port": "events",
+      "driver": "redis",
+      "alias": "cache"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "blockchain",
+      "port": "events",
+      "driver": "ponder",
+      "alias": "indexer"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "workers",
+      "port": "events",
+      "driver": "bullmq",
+      "alias": "jobs"
+    }
+  ],
+  "name": "Events Listener",
+  "id": "nextjs.shadcn.events-listener"
+}

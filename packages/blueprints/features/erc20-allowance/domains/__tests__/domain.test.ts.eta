@@ -1,0 +1,64 @@
+import { describe, it, expect } from 'vitest'
+import type { TokenAllowanceReader } from '../ports'
+import { checkTokenAllowance, type CheckTokenAllowanceInput } from '../use-cases/check-token-allowance'
+
+describe('Token Allowance Domain', () => {
+  describe('checkTokenAllowance', () => {
+    it('should return allowance information', async () => {
+      // Arrange
+      const allowance = 1000000n
+      const mockTokenAllowanceReader: TokenAllowanceReader = async () => allowance
+      
+      const input: CheckTokenAllowanceInput = {
+        owner: '0x1234567890123456789012345678901234567890' as const,
+        spender: '0x0987654321098765432109876543210987654321' as const,
+        token: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd' as const,
+      }
+
+      // Act
+      const result = await checkTokenAllowance(mockTokenAllowanceReader)(input)
+
+      // Assert
+      expect(result).toEqual({
+        allowance,
+        isApproved: allowance > 0n,
+      })
+    })
+
+    it('should return isApproved: false for zero allowance', async () => {
+      // Arrange
+      const mockTokenAllowanceReader: TokenAllowanceReader = async () => 0n
+      
+      const input: CheckTokenAllowanceInput = {
+        owner: '0x1234567890123456789012345678901234567890' as const,
+        spender: '0x0987654321098765432109876543210987654321' as const,
+        token: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd' as const,
+      }
+
+      // Act
+      const result = await checkTokenAllowance(mockTokenAllowanceReader)(input)
+
+      // Assert
+      expect(result.isApproved).toBe(false)
+      expect(result.allowance).toBe(0n)
+    })
+
+    it('should return isApproved: true for non-zero allowance', async () => {
+      // Arrange
+      const mockTokenAllowanceReader: TokenAllowanceReader = async () => 42n
+      
+      const input: CheckTokenAllowanceInput = {
+        owner: '0x1234567890123456789012345678901234567890' as const,
+        spender: '0x0987654321098765432109876543210987654321' as const,
+        token: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd' as const,
+      }
+
+      // Act
+      const result = await checkTokenAllowance(mockTokenAllowanceReader)(input)
+
+      // Assert
+      expect(result.isApproved).toBe(true)
+      expect(result.allowance).toBe(42n)
+    })
+  })
+})

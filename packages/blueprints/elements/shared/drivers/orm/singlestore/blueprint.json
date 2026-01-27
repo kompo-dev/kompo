@@ -1,0 +1,7 @@
+{
+  "name": "singlestore",
+  "provides": {
+    "driver": "singlestore"
+  },
+  "id": "singlestore"
+}

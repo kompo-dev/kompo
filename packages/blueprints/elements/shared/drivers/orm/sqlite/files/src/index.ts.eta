@@ -1,0 +1,7 @@
+import Database from 'better-sqlite3'
+
+export function createSqliteClient(url: string) {
+  return new Database(url)
+}
+
+export { Database }

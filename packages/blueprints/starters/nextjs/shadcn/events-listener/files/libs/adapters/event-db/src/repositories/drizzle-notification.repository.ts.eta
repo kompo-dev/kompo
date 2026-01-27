@@ -1,0 +1,65 @@
+import { db, desc, eq, notifications } from '@<%= it.org%>/event-db'
+
+import type { TokenCreatedEvent, TokenNotification } from '@/domain/types/token.types'
+import type {
+  CreateNotificationInput,
+  NotificationRepository,
+} from '@/ports/repositories/notification.repository'
+
+export const createNotificationRepository = (): NotificationRepository => {
+  return {
+    create: async (notification: CreateNotificationInput): Promise<TokenNotification> => {
+      const [created] = await db.insert(notifications).values(notification).returning()
+      return {
+        id: created.id,
+        userId: created.userId,
+        tokenEvent: created.tokenEvent as unknown as TokenCreatedEvent,
+        filterId: created.filterId || '', // Handle potential null filterId if domain requires string
+        status: created.status as 'pending' | 'sent' | 'failed',
+        sentAt: created.sentAt || undefined,
+      }
+    },
+
+    findById: async (id: string): Promise<TokenNotification | null> => {
+      const [notification] = await db.select().from(notifications).where(eq(notifications.id, id))
+
+      if (!notification) return null
+
+      return {
+        id: notification.id,
+        userId: notification.userId,
+        tokenEvent: notification.tokenEvent as unknown as TokenCreatedEvent,
+        filterId: notification.filterId || '',
+        status: notification.status as 'pending' | 'sent' | 'failed',
+        sentAt: notification.sentAt || undefined,
+      }
+    },
+
+    findByUserId: async (userId: string, limit = 50): Promise<TokenNotification[]> => {
+      const userNotifications = await db.query.notifications.findMany({
+        where: eq(notifications.userId, userId),
+        orderBy: [desc(notifications.createdAt)],
+        limit,
+      })
+
+      return userNotifications.map((n) => ({
+        id: n.id,
+        userId: n.userId,
+        tokenEvent: n.tokenEvent as unknown as TokenCreatedEvent,
+        filterId: n.filterId || '',
+        status: n.status as 'pending' | 'sent' | 'failed',
+        sentAt: n.sentAt || undefined,
+      }))
+    },
+
+    updateStatus: async (id: string, status: 'pending' | 'sent' | 'failed'): Promise<void> => {
+      await db
+        .update(notifications)
+        .set({
+          status,
+          sentAt: status === 'sent' ? new Date() : undefined,
+        })
+        .where(eq(notifications.id, id))
+    },
+  }
+}

@@ -1,0 +1,161 @@
+'use client'
+
+import { Card } from '@<%= it.org%>/ui/components/card'
+import { motion } from 'framer-motion'
+import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer } from 'recharts'
+
+const mockLiquidityData = [
+  { value: 100 },
+  { value: 120 },
+  { value: 110 },
+  { value: 140 },
+  { value: 130 },
+  { value: 160 },
+  { value: 180 },
+  { value: 170 },
+  { value: 200 },
+  { value: 230 },
+  { value: 210 },
+  { value: 240 },
+]
+
+const mockChainData = [
+  { name: 'ETH', value: 400, color: '#627EEA' },
+  { name: 'BASE', value: 300, color: '#0052FF' },
+  { name: 'ARB', value: 300, color: '#2D374B' },
+]
+
+export function AnalyticsSection() {
+  return (
+    <section className="bg-slate-900 py-24">
+      <div className="container mx-auto px-6">
+        <motion.div
+          className="mb-16 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="mb-4 text-4xl font-bold text-white">
+            Professional Grade
+            <br />
+            <span className="text-emerald-500">Data Visualization</span>
+          </h2>
+          <p className="mx-auto max-w-2xl text-slate-400">
+            Make informed decisions with institutional-grade analytics tools directly in your
+            dashboard.
+          </p>
+        </motion.div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {/* Card 1: Liquidity Analysis */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card className="h-full border-slate-700 bg-slate-800 p-6">
+              <h3 className="mb-4 text-xl font-bold text-white">Liquidity Depth</h3>
+              <div className="h-[200px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={mockLiquidityData}>
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={true}
+                      animationDuration={2000}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Card 2: Key Metrics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="h-full border-slate-700 bg-slate-800 p-6">
+              <h3 className="mb-6 text-xl font-bold text-white">Token Metrics</h3>
+              <div className="space-y-6">
+                <MetricRow label="Market Cap" value="$2.4M" trend="+12%" />
+                <MetricRow label="24h Volume" value="$847K" trend="+5.2%" />
+                <MetricRow label="Holders" value="1,247" trend="+34" />
+                <MetricRow label="Liquidity" value="$420K" trend="+2.1%" />
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Card 3: Chain Distribution */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="h-full border-slate-700 bg-slate-800 p-6">
+              <h3 className="mb-4 text-xl font-bold text-white">Chain Distribution</h3>
+              <div className="flex h-[200px] w-full items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={mockChainData}
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                      isAnimationActive={true}
+                      animationDuration={1500}
+                      animationBegin={500}
+                    >
+                      {mockChainData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 flex justify-center gap-4">
+                {mockChainData.map((entry) => (
+                  <div key={entry.name} className="flex items-center gap-2 text-xs text-slate-400">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    {entry.name}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function MetricRow({
+  label,
+  value,
+  trend,
+}: {
+  label: string
+  value: string
+  trend: string
+}) {
+  return (
+    <div className="flex items-end justify-between border-b border-slate-700/50 pb-2 last:border-0 last:pb-0">
+      <span className="text-sm text-slate-400">{label}</span>
+      <div className="text-right">
+        <div className="font-mono font-bold text-white">{value}</div>
+        <div className="text-xs text-emerald-500">{trend}</div>
+      </div>
+    </div>
+  )
+}

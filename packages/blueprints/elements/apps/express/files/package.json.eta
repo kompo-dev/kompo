@@ -1,0 +1,24 @@
+{
+  "name": "<%= it.packageName %>",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "express": "catalog:",
+    "cors": "catalog:",
+    "@<%= it.scope %>/domains": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/express": "catalog:",
+    "@types/cors": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

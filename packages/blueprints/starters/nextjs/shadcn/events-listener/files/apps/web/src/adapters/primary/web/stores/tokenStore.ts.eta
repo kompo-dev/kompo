@@ -1,0 +1,22 @@
+import type { Token } from '@<%= it.org%>/events/client'
+import { create } from 'zustand'
+
+type TokenStore = {
+  readonly tokens: readonly Token[]
+  readonly isLoading: boolean
+  readonly error: string | null
+  readonly setTokens: (tokens: readonly Token[]) => void
+  readonly setIsLoading: (loading: boolean) => void
+  readonly setError: (error: string | null) => void
+  readonly addToken: (token: Token) => void
+}
+
+export const useTokenStore = create<TokenStore>((set) => ({
+  tokens: [],
+  isLoading: false,
+  error: null,
+  setTokens: (tokens) => set({ tokens }),
+  setIsLoading: (isLoading) => set({ isLoading }),
+  setError: (error) => set({ error }),
+  addToken: (token) => set((state) => ({ tokens: [token, ...state.tokens] })),
+}))

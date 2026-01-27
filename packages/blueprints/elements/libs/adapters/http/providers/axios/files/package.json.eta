@@ -1,0 +1,16 @@
+{
+  "name": "@<%= it.scope %>/http-client-axios",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "<%= it.infraPackageName %>": "workspace:*",
+    "axios": "catalog:",
+    "@<%= it.scope %>/config": "workspace:*",
+    "@<%= it.scope %>/domains": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

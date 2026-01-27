@@ -1,0 +1,7 @@
+{
+  "id": "connectkit",
+  "name": "Connectkit",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "wallet"
+}

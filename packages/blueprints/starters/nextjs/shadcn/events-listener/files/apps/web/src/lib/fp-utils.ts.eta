@@ -1,0 +1,50 @@
+// Pipe: Compose functions left-to-right
+export const pipe =
+  <T>(...fns: Array<(arg: T) => T>) =>
+  (value: T): T =>
+    fns.reduce((acc, fn) => fn(acc), value)
+
+// Compose: Compose functions right-to-left
+export const compose =
+  <T>(...fns: Array<(arg: T) => T>) =>
+  (value: T): T =>
+    fns.reduceRight((acc, fn) => fn(acc), value)
+
+// Maybe monad for safe operations
+export type Maybe<T> = T | null | undefined
+
+export const map =
+  <T, U>(fn: (value: T) => U) =>
+  (maybe: Maybe<T>): Maybe<U> =>
+    maybe != null ? fn(maybe) : null
+
+export const flatMap =
+  <T, U>(fn: (value: T) => Maybe<U>) =>
+  (maybe: Maybe<T>): Maybe<U> =>
+    maybe != null ? fn(maybe) : null
+
+export const getOrElse =
+  <T>(defaultValue: T) =>
+  (maybe: Maybe<T>): T =>
+    maybe ?? defaultValue
+
+// Result type for error handling
+export type Result<T, E = Error> =
+  | { readonly success: true; readonly value: T }
+  | { readonly success: false; readonly error: E }
+
+export const ok = <T>(value: T): Result<T> => ({
+  success: true,
+  value,
+})
+
+export const err = <E = Error>(error: E): Result<never, E> => ({
+  success: false,
+  error,
+})
+
+export const isOk = <T, E>(result: Result<T, E>): result is { success: true; value: T } =>
+  result.success === true
+
+export const isErr = <T, E>(result: Result<T, E>): result is { success: false; error: E } =>
+  result.success === false

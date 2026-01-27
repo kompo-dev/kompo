@@ -1,0 +1,2 @@
+import { Provider as ChakraProvider } from '@<%= it.scope %>/ui/components/provider';
+// Chakra v3 usually uses a generated provider in the project

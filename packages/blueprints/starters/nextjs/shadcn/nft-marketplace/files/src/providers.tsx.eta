@@ -1,0 +1,36 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
+
+import { createConfig, http, WagmiProvider } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+import { coinbaseWallet, metaMask } from 'wagmi/connectors'
+
+const queryClient = new QueryClient()
+
+const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [
+    metaMask(),
+    coinbaseWallet({
+      appName: 'NFT Marketplace',
+      preference: { options: 'all' },
+    }),
+  ],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+interface ProvidersProps {
+  children: ReactNode
+}
+
+export function Providers({ children }: ProvidersProps) {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}

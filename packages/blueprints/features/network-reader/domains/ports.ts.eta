@@ -1,0 +1,12 @@
+/**
+ * Network Domain Ports
+ */
+
+export type NetworkReader = () => Promise<{
+  chainId: number
+  name: string
+}>
+
+export type <%= it.pascalDomain %>Ports = {
+  networkReader: NetworkReader
+}

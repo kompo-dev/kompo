@@ -1,0 +1,7 @@
+{
+  "next-auth": "^4.24.11",
+  "@auth/core": "^0.34.2",
+  "@auth/drizzle-adapter": "^1.7.4",
+  "typescript": "^5.9.3",
+  "vitest": "^3.2.4"
+}

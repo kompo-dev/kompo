@@ -1,0 +1,7 @@
+{
+  "id": "chakra",
+  "name": "Chakra UI",
+  "type": "feature",
+  "description": "Chakra UI design system for Vite",
+  "framework": "vite"
+}

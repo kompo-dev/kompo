@@ -1,0 +1,15 @@
+{
+  "id": "shadcn",
+  "name": "Shadcn UI",
+  "type": "feature",
+  "description": "Shadcn UI design system for Next.js",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_SHADCN_THEME": {
+      "validation": "z.string()",
+      "default": "zinc",
+      "side": "client",
+      "description": "Shadcn UI color theme"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+export interface FetchAdapterConfig {
+  baseUrl?: string;
+  headers?: Record<string, string>;
+}
+
+export type FetchAdapter = (url: string, init?: RequestInit) => Promise<Response>;
+
+export function createFetchAdapter(config?: FetchAdapterConfig): FetchAdapter {
+  const baseUrl = config?.baseUrl || '';
+  const defaultHeaders = config?.headers || {};
+
+  return async (path: string, init?: RequestInit) => {
+    const url = path.startsWith('http') ? path : `${baseUrl}${path}`;
+    
+    return fetch(url, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...defaultHeaders,
+        ...init?.headers,
+      },
+    });
+  };
+}

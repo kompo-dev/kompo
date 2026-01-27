@@ -1,0 +1,27 @@
+/**
+ * <%= it.pascalName %> Indexer Adapter
+ * Provider: <%= it.provider %>
+ */
+
+export type <%= it.pascalName %>Event = {
+  blockNumber: number
+  transactionHash: string
+  logIndex: number
+  args: Record<string, unknown>
+}
+
+export type <%= it.pascalName %>Indexer = {
+  getEvents: (filter: Record<string, unknown>) => Promise<<%= it.pascalName %>Event[]>
+  getLatestBlock: () => Promise<number>
+}
+
+export function <%~ it.camelName %>(): <%= it.pascalName %>Indexer {
+  return {
+    async getEvents(_filter) {
+      throw new Error('Not implemented: getEvents')
+    },
+    async getLatestBlock() {
+      throw new Error('Not implemented: getLatestBlock')
+    },
+  }
+}

@@ -1,0 +1,96 @@
+import { db, eq, userFilters } from '@<%= it.org%>/event-db'
+
+import type { Chain, UserFilter } from '@/domain/types/token.types'
+import type {
+  CreateUserFilterInput,
+  UserFilterRepository,
+} from '@/ports/repositories/user-filter.repository'
+
+export const createUserFilterRepository = (): UserFilterRepository => {
+  return {
+    create: async (filter: CreateUserFilterInput): Promise<UserFilter> => {
+      const [created] = await db.insert(userFilters).values(filter).returning()
+      return {
+        id: created.id,
+        userId: created.userId,
+        chains: created.chains as unknown as Chain[],
+        minSupply: created.minSupply || undefined,
+        creatorAddresses: created.creatorAddresses || undefined,
+        isActive: created.isActive,
+        createdAt: created.createdAt,
+      }
+    },
+
+    findById: async (id: string): Promise<UserFilter | null> => {
+      const [filter] = await db.select().from(userFilters).where(eq(userFilters.id, id))
+
+      if (!filter) return null
+
+      return {
+        id: filter.id,
+        userId: filter.userId,
+        chains: filter.chains as unknown as Chain[],
+        minSupply: filter.minSupply || undefined,
+        creatorAddresses: filter.creatorAddresses || undefined,
+        isActive: filter.isActive,
+        createdAt: filter.createdAt,
+      }
+    },
+
+    findByUserId: async (userId: string): Promise<UserFilter[]> => {
+      const filters = await db.query.userFilters.findMany({
+        where: eq(userFilters.userId, userId),
+      })
+
+      return filters.map((filter) => ({
+        id: filter.id,
+        userId: filter.userId,
+        chains: filter.chains as unknown as Chain[],
+        minSupply: filter.minSupply || undefined,
+        creatorAddresses: filter.creatorAddresses || undefined,
+        isActive: filter.isActive,
+        createdAt: filter.createdAt,
+      }))
+    },
+
+    findActiveFilters: async (): Promise<UserFilter[]> => {
+      const filters = await db.query.userFilters.findMany({
+        where: eq(userFilters.isActive, true),
+      })
+
+      return filters.map((filter) => ({
+        id: filter.id,
+        userId: filter.userId,
+        chains: filter.chains as unknown as Chain[],
+        minSupply: filter.minSupply || undefined,
+        creatorAddresses: filter.creatorAddresses || undefined,
+        isActive: filter.isActive,
+        createdAt: filter.createdAt,
+      }))
+    },
+
+    update: async (id: string, data: Partial<UserFilter>): Promise<UserFilter> => {
+      const [updated] = await db
+        .update(userFilters)
+        .set(data)
+        .where(eq(userFilters.id, id))
+        .returning()
+
+      if (!updated) throw new Error('Filter not found')
+
+      return {
+        id: updated.id,
+        userId: updated.userId,
+        chains: updated.chains as unknown as Chain[],
+        minSupply: updated.minSupply || undefined,
+        creatorAddresses: updated.creatorAddresses || undefined,
+        isActive: updated.isActive,
+        createdAt: updated.createdAt,
+      }
+    },
+
+    delete: async (id: string): Promise<void> => {
+      await db.delete(userFilters).where(eq(userFilters.id, id))
+    },
+  }
+}

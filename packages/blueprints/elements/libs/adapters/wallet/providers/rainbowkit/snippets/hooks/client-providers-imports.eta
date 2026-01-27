@@ -1,0 +1,16 @@
+import { WagmiProvider, createConfig, http } from 'wagmi';
+import { mainnet } from 'wagmi/chains';
+import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import '@rainbow-me/rainbowkit/styles.css';
+
+const config = getDefaultConfig({
+  appName: '<%= it.projectName %>',
+  projectId: 'YOUR_PROJECT_ID', // TODO: Get from env
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http(),
+  },
+  ssr: true, // Required for Next.js
+});

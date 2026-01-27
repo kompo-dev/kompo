@@ -1,0 +1,18 @@
+/**
+ * Specialized Explorer Client: <%= it.aliasName %>
+ * 
+ * Pre-configured explorer API client for <%= it.aliasName %>.
+ * Uses environment variables for API URL and key.
+ * 
+ * Usage:
+ *   import { <%= it.aliasNameCamel %>Client } from '@<%= it.scope %>/adapters/<%= it.adapterName %>';
+ */
+
+import { http } from 'viem';
+import { createRpcAdapter } from '../index';
+
+// Pre-configured client for <%= it.aliasName %> explorer API
+export const <%= it.aliasNameCamel %>Client = createRpcAdapter({
+  transport: http(process.env.<%= it.aliasEnvPrefix %>_RPC_URL),
+  chain: undefined,
+});

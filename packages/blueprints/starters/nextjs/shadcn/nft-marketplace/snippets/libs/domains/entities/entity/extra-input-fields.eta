@@ -1,0 +1,5 @@
+  chainId?: number
+  metadata?: NftMetadata
+  tokenAddress?: string
+  tokenURI?: string
+  type?: string

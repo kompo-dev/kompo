@@ -1,0 +1,110 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import { Check, X } from 'lucide-react'
+
+export function ComparisonSection() {
+  return (
+    <section className="bg-slate-950 py-24">
+      <div className="container mx-auto px-6">
+        <motion.div
+          className="mb-16 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="mb-4 text-4xl font-bold text-white">
+            Stop Searching.
+            <br />
+            <span className="text-emerald-500">Start Finding.</span>
+          </h2>
+        </motion.div>
+
+        <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-2">
+          {/* Before (Red Theme) */}
+          <motion.div
+            className="relative overflow-hidden rounded-xl border border-red-900/30 bg-slate-900/50 p-8"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="absolute top-0 left-0 h-1 w-full bg-red-500/50" />
+            <h3 className="mb-6 flex items-center gap-3 text-2xl font-bold text-red-400">
+              <X className="h-6 w-6" />
+              WITHOUT kompo
+            </h3>
+            <ul className="space-y-4">
+              <ComparisonItem
+                icon={<X className="text-red-500" />}
+                text="Manual Etherscan refreshing"
+              />
+              <ComparisonItem
+                icon={<X className="text-red-500" />}
+                text="Fragmented information sources"
+              />
+              <ComparisonItem
+                icon={<X className="text-red-500" />}
+                text="Missed 100x opportunities"
+              />
+              <ComparisonItem
+                icon={<X className="text-red-500" />}
+                text="Hours wasted on analysis"
+              />
+            </ul>
+          </motion.div>
+
+          {/* After (Green Theme) */}
+          <motion.div
+            className="relative overflow-hidden rounded-xl border border-emerald-900/30 bg-slate-900 p-8 shadow-[0_0_30px_rgba(16,185,129,0.1)]"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="absolute top-0 left-0 h-1 w-full bg-emerald-500" />
+            <h3 className="mb-6 flex items-center gap-3 text-2xl font-bold text-emerald-400">
+              <Check className="h-6 w-6" />
+              WITH kompo
+            </h3>
+            <ul className="space-y-4">
+              <ComparisonItem
+                icon={<Check className="text-emerald-500" />}
+                text="Automated multi-chain detection"
+              />
+              <ComparisonItem
+                icon={<Check className="text-emerald-500" />}
+                text="Centralized real-time dashboard"
+              />
+              <ComparisonItem
+                icon={<Check className="text-emerald-500" />}
+                text="Smart custom alerts"
+              />
+              <ComparisonItem
+                icon={<Check className="text-emerald-500" />}
+                text="Save 10+ hours per week"
+              />
+            </ul>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ComparisonItem({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode
+  text: string
+}) {
+  return (
+    <li className="flex items-center gap-3 text-slate-300">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center">{icon}</span>
+      <span>{text}</span>
+    </li>
+  )
+}

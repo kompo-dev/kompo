@@ -1,0 +1,6 @@
+import { pgTable, uuid, timestamp } from 'drizzle-orm/pg-core';
+
+export const <%= it.domainName || it.portCamelName %> = pgTable('<%= it.domainName || it.portCamelName %>', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});

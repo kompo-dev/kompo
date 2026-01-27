@@ -1,0 +1,11 @@
+{
+  "extends": "@kompo/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "module": "ESNext",
+    "target": "ES2022"
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}

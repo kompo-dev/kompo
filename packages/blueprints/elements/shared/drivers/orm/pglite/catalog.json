@@ -1,0 +1,4 @@
+{
+  "@electric-sql/pglite": "^0.3.15",
+  "typescript": "^5.9.3"
+}

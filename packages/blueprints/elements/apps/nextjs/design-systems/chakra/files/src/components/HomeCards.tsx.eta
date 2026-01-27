@@ -1,0 +1,106 @@
+import { Box, SimpleGrid, Card, CardHeader, CardBody, Heading, Text, Button, Code, HStack, VStack } from '@<%= it.scope %>/ui'
+import { Link } from 'react-router-dom'
+
+export function HomeCards() {
+  return (
+    <Box maxW="6xl" mx="auto" px={6} pb={6}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        {/* Architecture Card */}
+        <Card
+          bg="rgba(17, 24, 39, 0.5)"
+          borderColor="gray.700"
+          borderWidth="1px"
+          _hover={{ borderColor: 'emerald.500' }}
+          transition="border-color 0.2s"
+        >
+          <CardHeader pb={2}>
+            <HStack spacing={3}>
+              <Text fontSize="2xl"><%= it.icons.hexagon %></Text>
+              <Heading size="md" color="emerald.400"><%= it.texts.features.architecture.title %></Heading>
+            </HStack>
+          </CardHeader>
+          <CardBody pt={0}>
+            <Text color="gray.400" fontSize="sm" mb={2}><%= it.texts.features.architecture.description %></Text>
+            <Text color="gray.300" fontSize="sm" mb={4}><%= it.texts.features.architecture.details %></Text>
+            <Button as={Link} to="<%= it.texts.features.architecture.url %>" variant="outline" size="sm" colorScheme="gray">
+              <%= it.texts.features.architecture.linkText %>
+            </Button>
+          </CardBody>
+        </Card>
+
+        {/* Get Started Card */}
+        <Card
+          bg="rgba(17, 24, 39, 0.5)"
+          borderColor="gray.700"
+          borderWidth="1px"
+          _hover={{ borderColor: 'blue.500' }}
+          transition="border-color 0.2s"
+        >
+          <CardHeader pb={2}>
+            <HStack spacing={3}>
+              <Text fontSize="2xl"><%= it.icons.rocket %></Text>
+              <Heading size="md" color="blue.400"><%= it.texts.features.getStarted.title %></Heading>
+            </HStack>
+          </CardHeader>
+          <CardBody pt={0}>
+            <Text color="gray.400" fontSize="sm" mb={2}><%= it.texts.features.getStarted.description %></Text>
+            <VStack align="start" spacing={1} mb={4}>
+<% it.texts.features.getStarted.commands.forEach(cmd => { %>
+              <Code bg="gray.800" color="emerald.300" px={2} py={1} borderRadius="md"><%= cmd %></Code>
+<% }) %>
+            </VStack>
+            <Button as={Link} to="<%= it.texts.features.getStarted.url %>" variant="outline" size="sm" colorScheme="gray">
+              <%= it.texts.features.getStarted.linkText %>
+            </Button>
+          </CardBody>
+        </Card>
+
+        {/* Docs Card */}
+        <Card
+          bg="rgba(17, 24, 39, 0.5)"
+          borderColor="gray.700"
+          borderWidth="1px"
+          _hover={{ borderColor: 'purple.500' }}
+          transition="border-color 0.2s"
+        >
+          <CardHeader pb={2}>
+            <HStack spacing={3}>
+              <Text fontSize="2xl"><%= it.icons.book %></Text>
+              <Heading size="md" color="purple.400"><%= it.texts.features.docs.title %></Heading>
+            </HStack>
+          </CardHeader>
+          <CardBody pt={0}>
+            <Text color="gray.400" fontSize="sm" mb={2}><%= it.texts.features.docs.description %></Text>
+            <Text color="gray.300" fontSize="sm" mb={4}><%= it.texts.features.docs.details %></Text>
+            <Button as="a" href="<%= it.texts.features.docs.url %>" target="_blank" variant="outline" size="sm" colorScheme="gray">
+              Open Docs
+            </Button>
+          </CardBody>
+        </Card>
+
+        {/* Studio Card */}
+        <Card
+          bg="rgba(17, 24, 39, 0.5)"
+          borderColor="gray.700"
+          borderWidth="1px"
+          _hover={{ borderColor: 'orange.500' }}
+          transition="border-color 0.2s"
+        >
+          <CardHeader pb={2}>
+            <HStack spacing={3}>
+              <Text fontSize="2xl"><%= it.icons.palette %></Text>
+              <Heading size="md" color="orange.400"><%= it.texts.features.studio.title %></Heading>
+            </HStack>
+          </CardHeader>
+          <CardBody pt={0}>
+            <Text color="gray.400" fontSize="sm" mb={2}><%= it.texts.features.studio.description %></Text>
+            <Text color="gray.300" fontSize="sm" mb={4}><%= it.texts.features.studio.details %></Text>
+            <Button as={Link} to="<%= it.texts.features.studio.url %>" variant="outline" size="sm" colorScheme="gray">
+              Open Studio
+            </Button>
+          </CardBody>
+        </Card>
+      </SimpleGrid>
+    </Box>
+  )
+}

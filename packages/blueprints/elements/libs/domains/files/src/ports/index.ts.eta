@@ -1,0 +1,5 @@
+<% it.ports.forEach(function(port) { 
+  const portName = typeof port === 'string' ? port : port.name
+%>
+export * from './<%= portName %>/<%= portName %>.port'
+<% }) %>

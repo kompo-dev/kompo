@@ -1,0 +1,13 @@
+/**
+ * Specialized ORM Client: <%= it.aliasName %>
+ * 
+ * Pre-configured database client for <%= it.aliasName %>.
+ * Uses environment variables for database connection.
+ * 
+ * Usage:
+ *   import { <%= it.aliasNameCamel %>Db } from '@<%= it.scope %>/adapters/<%= it.adapterName %>';
+ */
+
+<%~ include(`libs/drivers/orm/drizzle/${it.driver}/snippets/client.ts.eta`, it) %>
+
+

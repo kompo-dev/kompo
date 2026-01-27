@@ -1,0 +1,29 @@
+/**
+ * <%= it.pascalUseCase %> Use Case
+ */
+
+import type { NetworkReader } from '../ports.js'
+
+export type <%= it.pascalUseCase %>Input = void
+
+export type <%= it.pascalUseCase %>Output = {
+  chainId: number
+  name: string
+  isMainnet: boolean
+  isTestnet: boolean
+}
+
+/**
+ * Resolve current network
+ */
+export const <%= it.camelUseCase %> =
+  (networkReader: NetworkReader) =>
+  async (): Promise<<%= it.pascalUseCase %>Output> => {
+    const network = await networkReader()
+
+    return {
+      ...network,
+      isMainnet: network.chainId === 1,
+      isTestnet: network.chainId !== 1,
+    }
+  }

@@ -1,0 +1,5 @@
+{
+  "drizzle-orm": "^0.45.1",
+  "@cloudflare/workers-types": "^4.20260116.0",
+  "typescript": "^5.9.3"
+}

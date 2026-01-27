@@ -1,0 +1,17 @@
+name: <%= it.scope %>
+
+services:
+  <%= it.ormDriver %>-<%= it.alias %>:
+    image: postgres:15-alpine
+    container_name: <%= it.ormDriver %>-<%= it.alias %>
+    ports:
+      - "<%= it.databasePort %>:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: <%= it.alias %>
+    volumes:
+      - <%= it.ormDriver %>_<%= it.alias %>_data:/var/lib/postgresql/data
+
+volumes:
+  <%= it.ormDriver %>_<%= it.alias %>_data:

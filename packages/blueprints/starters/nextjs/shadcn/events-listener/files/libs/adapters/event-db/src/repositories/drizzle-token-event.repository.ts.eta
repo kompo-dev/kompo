@@ -1,0 +1,116 @@
+import { and, db, desc, eq, inArray, tokenEvents } from '@<%= it.org%>/event-db'
+
+import type { Chain, TokenCreatedEvent } from '@/domain/types/token.types'
+import type {
+  SaveTokenEventInput,
+  TokenEventRepository,
+} from '@/ports/repositories/token-event.repository'
+
+export const createTokenEventRepository = (): TokenEventRepository => {
+  return {
+    save: async (event: SaveTokenEventInput): Promise<TokenCreatedEvent> => {
+      const [savedEvent] = await db
+        .insert(tokenEvents)
+        .values({
+          chain: event.chain,
+          tokenAddress: event.tokenAddress,
+          creator: event.creator,
+          blockNumber: event.blockNumber.toString(),
+          transactionHash: event.transactionHash,
+          timestamp: event.timestamp,
+          metadata: event.metadata,
+        })
+        .returning()
+
+      return {
+        id: savedEvent.id,
+        chain: savedEvent.chain as unknown as Chain,
+        tokenAddress: savedEvent.tokenAddress,
+        creator: savedEvent.creator,
+        blockNumber: BigInt(savedEvent.blockNumber),
+        transactionHash: savedEvent.transactionHash,
+        timestamp: savedEvent.timestamp,
+        metadata: savedEvent.metadata ?? undefined,
+      }
+    },
+
+    findById: async (id: string): Promise<TokenCreatedEvent | null> => {
+      const event = await db.query.tokenEvents.findFirst({
+        where: eq(tokenEvents.id, id),
+      })
+
+      if (!event) return null
+
+      return {
+        id: event.id,
+        chain: event.chain as unknown as Chain,
+        tokenAddress: event.tokenAddress,
+        creator: event.creator,
+        blockNumber: BigInt(event.blockNumber),
+        transactionHash: event.transactionHash,
+        timestamp: event.timestamp,
+        metadata: event.metadata ?? undefined,
+      }
+    },
+
+    findByTokenAddress: async (
+      chain: Chain,
+      tokenAddress: string
+    ): Promise<TokenCreatedEvent | null> => {
+      const event = await db.query.tokenEvents.findFirst({
+        where: and(eq(tokenEvents.chain, chain), eq(tokenEvents.tokenAddress, tokenAddress)),
+      })
+
+      if (!event) return null
+
+      return {
+        id: event.id,
+        chain: event.chain as unknown as Chain,
+        tokenAddress: event.tokenAddress,
+        creator: event.creator,
+        blockNumber: BigInt(event.blockNumber),
+        transactionHash: event.transactionHash,
+        timestamp: event.timestamp,
+        metadata: (event.metadata as any) || undefined,
+      }
+    },
+
+    findByChain: async (chain: Chain, limit = 50): Promise<TokenCreatedEvent[]> => {
+      const events = await db.query.tokenEvents.findMany({
+        where: eq(tokenEvents.chain, chain),
+        orderBy: [desc(tokenEvents.blockNumber)],
+        limit,
+      })
+
+      return events.map((event) => ({
+        id: event.id,
+        chain: event.chain as unknown as Chain,
+        tokenAddress: event.tokenAddress,
+        creator: event.creator,
+        blockNumber: BigInt(event.blockNumber),
+        transactionHash: event.transactionHash,
+        timestamp: event.timestamp,
+        metadata: event.metadata ?? undefined,
+      }))
+    },
+
+    findRecent: async (chains: Chain[], limit = 50): Promise<TokenCreatedEvent[]> => {
+      const events = await db.query.tokenEvents.findMany({
+        where: inArray(tokenEvents.chain, chains),
+        orderBy: [desc(tokenEvents.blockNumber)],
+        limit,
+      })
+
+      return events.map((event) => ({
+        id: event.id,
+        chain: event.chain as unknown as Chain,
+        tokenAddress: event.tokenAddress,
+        creator: event.creator,
+        blockNumber: BigInt(event.blockNumber),
+        transactionHash: event.transactionHash,
+        timestamp: event.timestamp,
+        metadata: event.metadata ?? undefined,
+      }))
+    },
+  }
+}

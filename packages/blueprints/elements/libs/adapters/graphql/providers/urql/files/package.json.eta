@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@urql/core": "catalog:",
+    "graphql": "catalog:"
+  }
+}

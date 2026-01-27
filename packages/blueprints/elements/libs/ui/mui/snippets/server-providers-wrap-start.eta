@@ -1,0 +1,3 @@
+<AppRouterCacheProvider>
+  <ThemeProvider theme={theme}>
+    <CssBaseline />

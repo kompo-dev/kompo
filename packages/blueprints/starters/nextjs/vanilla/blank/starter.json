@@ -1,0 +1,13 @@
+{
+  "id": "nextjs.vanilla.blank",
+  "name": "Blank",
+  "description": "Minimal Next.js application without any CSS framework",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs"
+    }
+  ]
+}

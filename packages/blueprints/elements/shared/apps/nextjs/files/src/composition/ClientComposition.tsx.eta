@@ -1,0 +1,49 @@
+'use client'
+import React from 'react';
+<% Object.values(it.adapters || {}).forEach(adapter => { %>
+  <% if (it.hasSnippet(adapter.path, 'client-providers-imports')) { %>
+    <%~ include(`${adapter.path}/snippets/client-providers-imports.eta`, it) %>
+  <% } %>
+<% }) %>
+<% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'client-providers-imports')) { %>
+  <%~ include(`${it.designSystem.path}/snippets/client-providers-imports.eta`, it) %>
+<% } %>
+<%~ await it.hook('imports') %>
+
+/**
+ * ClientComposition
+ *
+ * This is a client-side composition root. It's used to wrap the application with
+ * providers that require browser-only globals (like window, document, or indexedDB).
+ */
+export const ClientComposition = ({ children }: { children: React.ReactNode }) => {
+  return <Providers>{children}</Providers>
+};
+
+/**
+ * Providers Assembler
+ * 
+ * Blueprints inject their specific providers here via hooks.
+ */
+const Providers = ({ children }: { children: React.ReactNode }) => {
+  <%~ await it.hook('client-providers-logic') %>
+  return (
+<% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'client-providers-wrap-start')) { %>
+    <%~ include(`${it.designSystem.path}/snippets/client-providers-wrap-start.eta`, it) %>
+<% } %>
+<% Object.values(it.adapters || {}).forEach(adapter => { %>
+  <% if (it.hasSnippet(adapter.path, 'client-providers-wrap-start')) { %>
+    <%~ include(`${adapter.path}/snippets/client-providers-wrap-start.eta`, it) %>
+  <% } %>
+<% }) %>
+        {children}
+<% Object.values(it.adapters || {}).reverse().forEach(adapter => { %>
+  <% if (it.hasSnippet(adapter.path, 'client-providers-wrap-end')) { %>
+    <%~ include(`${adapter.path}/snippets/client-providers-wrap-end.eta`, it) %>
+  <% } %>
+<% }) %>
+<% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'client-providers-wrap-end')) { %>
+    <%~ include(`${it.designSystem.path}/snippets/client-providers-wrap-end.eta`, it) %>
+<% } %>
+  );
+};

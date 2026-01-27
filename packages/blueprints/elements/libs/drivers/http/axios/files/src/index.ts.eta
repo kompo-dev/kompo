@@ -1,0 +1,22 @@
+import axios, { type AxiosInstance, type CreateAxiosDefaults, type AxiosRequestConfig } from 'axios';
+
+export type { AxiosInstance, AxiosRequestConfig, CreateAxiosDefaults };
+
+export type AxiosInfraConfig = CreateAxiosDefaults & {
+  apiKey?: string;
+  headerKey?: string;
+}
+
+export function createAxiosClient(config?: AxiosInfraConfig): AxiosInstance {
+  const client = axios.create({
+    timeout: 10000,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(config?.apiKey ? { [config.headerKey || 'Authorization']: config.apiKey } : {}),
+      ...config?.headers,
+    },
+    ...config,
+  });
+  
+  return client;
+}

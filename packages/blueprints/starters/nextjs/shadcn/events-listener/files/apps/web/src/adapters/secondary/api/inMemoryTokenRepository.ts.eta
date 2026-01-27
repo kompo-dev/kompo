@@ -1,0 +1,31 @@
+import type { ChainId, Token, TokenRepository } from '@<%= it.org%>/events/client'
+
+// In-memory implementation (for development)
+export const createInMemoryTokenRepository = (): TokenRepository => {
+  const tokens: Token[] = []
+
+  return {
+    save: async (token: Token): Promise<void> => {
+      tokens.push(token)
+    },
+
+    saveAll: async (newTokens: readonly Token[]): Promise<readonly Token[]> => {
+      tokens.push(...newTokens)
+      return newTokens
+    },
+
+    findByChainAndAddress: async (chainId: ChainId, address: string): Promise<Token | null> => {
+      return (
+        tokens.find(
+          (t) => t.address.toLowerCase() === address.toLowerCase() && t.chainId === chainId
+        ) ?? null
+      )
+    },
+
+    findRecent: async (limit: number): Promise<readonly Token[]> => {
+      return [...tokens]
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, limit)
+    },
+  }
+}

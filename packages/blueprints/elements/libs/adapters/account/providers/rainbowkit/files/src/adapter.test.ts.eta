@@ -1,0 +1,8 @@
+import { describe, it, expect } from 'vitest'
+import { <%= it.adapterCamelName %> } from './adapter'
+
+describe('<%= it.adapterCamelName %>', () => {
+  it('should be defined', () => {
+    expect(<%= it.adapterCamelName %>).toBeDefined()
+  })
+})

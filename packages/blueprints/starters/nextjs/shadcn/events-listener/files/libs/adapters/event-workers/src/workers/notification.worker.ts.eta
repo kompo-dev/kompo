@@ -1,0 +1,42 @@
+import type { NotificationJob } from '@<%= it.org%>/events'
+import { getBullMQRedisConfig } from '@<%= it.org%>/event-redis'
+import { type Job, Worker } from 'bullmq'
+
+import type { Dependencies } from '@/config/dependencies'
+
+// Notification Worker
+export const createNotificationWorker = (deps: Dependencies) => {
+  const { notificationRepository } = deps
+
+  const redis = getBullMQRedisConfig()
+
+  return new Worker<NotificationJob>(
+    'notification',
+    async (job: Job<NotificationJob>) => {
+      const { notificationId, userId, tokenAddress, chain } = job.data
+
+      console.log(`[Notification Worker] Sending notification ${notificationId} to user ${userId}`)
+
+      try {
+        // TODO: Implement actual notification sending (e.g., email, push, webhook)
+        // For now, just update the status
+        await notificationRepository.updateStatus(notificationId, 'sent')
+
+        console.log(`[Notification Worker] Notification ${notificationId} sent successfully`)
+      } catch (error) {
+        console.error(`[Notification Worker] Failed to send notification ${notificationId}:`, error)
+
+        // Mark as failed
+        await notificationRepository.updateStatus(notificationId, 'failed')
+
+        throw error // Re-throw to allow BullMQ retry logic
+      }
+    },
+    {
+      connection: redis,
+      concurrency: 10,
+      removeOnComplete: { count: 100 },
+      removeOnFail: { count: 500 },
+    }
+  )
+}

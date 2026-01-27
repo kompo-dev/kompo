@@ -1,0 +1,2 @@
+export type GraphqlQueryOptions = Record<string, any>;
+export type GraphqlMutationOptions = Record<string, any>;

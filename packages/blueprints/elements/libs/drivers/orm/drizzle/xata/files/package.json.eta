@@ -1,0 +1,17 @@
+{
+  "name": "@<%= it.scope %>/driver-<%= it.driver %>",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "dependencies": {
+    "@xata.io/client": "catalog:",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

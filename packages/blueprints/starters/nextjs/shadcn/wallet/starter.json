@@ -1,0 +1,60 @@
+{
+  "description": "Next.js application with Shadcn/UI and RainbowKit wallet connection",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "shadcn"
+    },
+    {
+      "command": "add",
+      "type": "domain",
+      "name": "wallet",
+      "app": "web"
+    },
+    {
+      "command": "add",
+      "type": "port",
+      "name": "explorer",
+      "domain": "wallet",
+      "portType": "gateway"
+    },
+    {
+      "command": "add",
+      "type": "port",
+      "name": "account",
+      "domain": "wallet",
+      "portType": "provider",
+      "capability": "wallet"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "viem",
+      "driver": "http",
+      "port": "explorer-gateway",
+      "domain": "wallet",
+      "capability": "rpc",
+      "app": "web"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "rainbowkit",
+      "port": "account-provider",
+      "domain": "wallet",
+      "capability": "wallet",
+      "app": "web"
+    },
+    {
+      "command": "wire",
+      "type": "domain",
+      "name": "wallet",
+      "app": "web"
+    }
+  ],
+  "name": "Wallet",
+  "id": "nextjs.shadcn.wallet"
+}

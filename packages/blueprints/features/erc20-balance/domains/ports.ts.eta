@@ -1,0 +1,12 @@
+/**
+ * Token Balance Domain Ports
+ */
+
+export type TokenBalanceReader = (input: {
+  account: `0x${string}`
+  token: `0x${string}`
+}) => Promise<bigint>
+
+export type <%= it.pascalDomain %>Ports = {
+  tokenBalanceReader: TokenBalanceReader
+}

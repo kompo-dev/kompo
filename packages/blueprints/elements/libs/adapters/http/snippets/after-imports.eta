@@ -1,0 +1,4 @@
+export type HttpRequestOptions = {
+  headers?: Record<string, string>
+  params?: Record<string, string | number | boolean>
+}

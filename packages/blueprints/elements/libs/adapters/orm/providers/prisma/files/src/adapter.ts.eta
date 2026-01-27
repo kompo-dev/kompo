@@ -1,0 +1,15 @@
+import type { <%= it.portName %> } from '<%= it.portImportPath %>'
+import { prisma } from '<%= it.infraPackageName %>'
+
+export function <%~ it.camelName %>(): <%= it.portName %> {
+  return {
+    // TODO: Implement port methods using Prisma
+    // Example:
+    // async findById(id) {
+    //   return prisma.user.findUnique({ where: { id } })
+    // },
+    // async save(entity) {
+    //   return prisma.user.create({ data: entity })
+    // },
+  } as <%= it.portName %>
+}

@@ -1,0 +1,64 @@
+import { Link } from 'react-router-dom'
+
+import { useNFTs } from '@/hooks/useNFTs'
+import { ipfsToHttp } from '@<%= it.scope %>/utils/nft'
+
+interface RelatedNftProps {
+  currentNftId?: string
+}
+
+export const RelatedNft = ({ currentNftId }: RelatedNftProps) => {
+  const { data: nfts, isLoading } = useNFTs()
+
+  // Filter out the current NFT and limit to 4 items
+  const relatedNfts = nfts?.filter((nft) => nft.id !== currentNftId).slice(0, 4)
+
+  if (isLoading) {
+    return (
+      <section className="mt-16 sm:mt-24">
+        <div className="h-6 w-48 animate-pulse rounded bg-gray-200" />
+        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="aspect-square w-full rounded-md bg-gray-200" />
+              <div className="mt-4 h-4 w-24 rounded bg-gray-200" />
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  if (!relatedNfts?.length) {
+    return null
+  }
+
+  return (
+    <section aria-labelledby="related-heading" className="mt-16 sm:mt-24">
+      <h2 id="related-heading" className="text-lg font-medium text-gray-900">
+        Other NFTs
+      </h2>
+
+      <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+        {relatedNfts.map((nft) => (
+          <div key={nft.id} className="group relative">
+            <img
+              alt={nft.metadata.name}
+              src={ipfsToHttp(nft.metadata.image)}
+              className="aspect-square w-full rounded-md object-cover group-hover:opacity-75"
+            />
+            <div className="mt-4">
+              <h3 className="text-sm text-gray-700">
+                <Link to={`/nft/${nft.id}`}>
+                  <span aria-hidden="true" className="absolute inset-0" />
+                  {nft.metadata.name}
+                </Link>
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">#{nft.id}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}

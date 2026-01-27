@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "dev": "ponder dev",
+    "start": "ponder start",
+    "codegen": "ponder codegen",
+    "build": "mkdir -p dist && echo 'Ponder does not require a build step' > dist/.keep"
+  },
+  "dependencies": {
+    "@ponder/core": "^0.7.17",
+    "@<%= it.org%>/events": "workspace:*",
+    "@<%= it.org%>/config": "workspace:*",
+    "@<%= it.org%>/event-cache-redis": "workspace:*",
+    "@<%= it.org%>/event-queue-bullmq": "workspace:*",
+    "@<%= it.org%>/event-rpc-viem": "workspace:*",
+    "hono": "^4.0.0",
+    "viem": "catalog:"
+  }
+}

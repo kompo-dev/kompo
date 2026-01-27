@@ -1,0 +1,28 @@
+/**
+ * <%= it.pascalName %> Cache Adapter
+ * Provider: <%= it.provider %>
+ */
+
+export type <%= it.pascalName %>Config = {
+  // Add configuration options here
+}
+
+export type <%= it.pascalName %>Cache = {
+  get: (key: string) => Promise<string | null>
+  set: (key: string, value: string, ttl?: number) => Promise<void>
+  delete: (key: string) => Promise<void>
+}
+
+export function <%~ it.camelName %>(config: <%= it.pascalName %>Config = {}): <%= it.pascalName %>Cache {
+  return {
+    async get(_key) {
+      throw new Error('Not implemented: get')
+    },
+    async set(_key, _value, _ttl) {
+      throw new Error('Not implemented: set')
+    },
+    async delete(_key) {
+      throw new Error('Not implemented: delete')
+    },
+  }
+}

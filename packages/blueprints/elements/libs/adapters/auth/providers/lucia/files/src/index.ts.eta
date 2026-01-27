@@ -1,0 +1,6 @@
+/**
+ * Auth Adapter - <%= it.name %>
+ * Provider: Lucia
+ */
+
+export { lucia, validateSession, createSession, invalidateSession } from './server.js'

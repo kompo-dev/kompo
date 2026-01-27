@@ -1,0 +1,21 @@
+{
+  "name": "core-<%= it.alias %>",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "db:push": "prisma db push",
+    "db:pull": "prisma db pull",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio --port <%= it.studioPort %>",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@prisma/client": "catalog:"
+  },
+  "devDependencies": {
+    "prisma": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

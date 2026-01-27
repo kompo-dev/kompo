@@ -1,0 +1,18 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "<%= ['postgres', 'neon', 'supa', 'cockroachdb'].includes(it.driver) ? 'postgresql' : it.driver === 'mysql' || it.driver === 'planetscale' ? 'mysql' : it.driver === 'sqlserver' ? 'sqlserver' : it.driver === 'mongodb' ? 'mongodb' : 'sqlite' %>"
+  url      = env("<%= it.alias.toUpperCase().replace(/-/g, '_') %>_DATABASE_URL")
+  <% if (it.driver === 'planetscale') { %>relationMode = "prisma"<% } %>
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}

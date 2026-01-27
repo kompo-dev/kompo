@@ -1,0 +1,53 @@
+{
+  "description": "NFT Marketplace with buying, selling and minting features",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "vite",
+      "designSystem": "shadcn"
+    },
+    {
+      "command": "add",
+      "type": "port",
+      "name": "nft",
+      "domain": "nft",
+      "capability": "orm"
+    },
+    {
+      "command": "add",
+      "type": "domain",
+      "name": "nft"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "viem",
+      "port": "nft"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "drizzle",
+      "port": "database",
+      "driver": "pglite"
+    },
+    {
+      "command": "wire",
+      "type": "adapter",
+      "name": "viem",
+      "port": "nft",
+      "app": "web"
+    },
+    {
+      "command": "wire",
+      "type": "adapter",
+      "name": "drizzle",
+      "port": "database",
+      "app": "web"
+    }
+  ],
+  "name": "Nft Marketplace",
+  "id": "nextjs.shadcn.nft-marketplace"
+}

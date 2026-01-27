@@ -1,0 +1,2 @@
+  dialect: 'postgresql',
+  driver: 'pglite',

@@ -1,0 +1,1 @@
+<%~ include('libs/drivers/orm/_common/xata/files/index.ts.eta', it) %>

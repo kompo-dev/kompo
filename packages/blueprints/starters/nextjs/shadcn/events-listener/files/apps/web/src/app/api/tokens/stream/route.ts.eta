@@ -1,0 +1,106 @@
+import type { Chain } from '@<%= it.org%>/events'
+import { createRedisSubscriber } from '@<%= it.org%>/event-redis'
+
+import { tokenEventRepository } from '@/lib/dependencies'
+
+// Safely stringify data that may contain bigint values by converting them to strings
+const safeStringify = (value: unknown): string =>
+  JSON.stringify(value, (_key, v) => (typeof v === 'bigint' ? v.toString() : v))
+
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
+// SSE endpoint for real-time token updates
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const chains = (searchParams.get('chains')?.split(',') as Chain[]) || [
+    'base',
+    'arbitrum',
+    'linea',
+  ]
+
+  const chainsSet = new Set<Chain>(chains)
+
+  const encoder = new TextEncoder()
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      // Send initial data
+      try {
+        const tokens = await tokenEventRepository.findRecent(chains, 100)
+        const data = safeStringify({ type: 'initial', tokens })
+        controller.enqueue(encoder.encode(`data: ${data}\n\n`))
+      } catch (error) {
+        console.error('[SSE] Error fetching initial tokens:', error)
+        const errorData = safeStringify({
+          type: 'error',
+          message: 'Failed to fetch tokens',
+        })
+        controller.enqueue(encoder.encode(`data: ${errorData}\n\n`))
+      }
+
+      // Subscribe to Redis Pub/Sub for live token events
+      const subscriber = createRedisSubscriber()
+
+      try {
+        await subscriber.subscribe('token-events:new')
+      } catch (error) {
+        console.error('[SSE] Failed to subscribe to Redis channel:', error)
+      }
+
+      subscriber.on('message', (_channel: string, message: string) => {
+        try {
+          // Message shape produced by the worker:
+          // { type: 'new_tokens', tokens: Token[] }
+          const parsed = JSON.parse(message) as {
+            type: string
+            tokens?: Array<{ chain: Chain } & Record<string, unknown>>
+          }
+
+          if (parsed.type === 'new_tokens' && parsed.tokens) {
+            const filteredTokens = parsed.tokens.filter((t) => chainsSet.has(t.chain))
+
+            if (filteredTokens.length === 0) return
+
+            const data = safeStringify({
+              type: 'new_tokens',
+              tokens: filteredTokens,
+            })
+            controller.enqueue(encoder.encode(`data: ${data}\n\n`))
+          } else {
+            // Fallback: forward any unexpected messages as-is
+            controller.enqueue(encoder.encode(`data: ${message}\n\n`))
+          }
+        } catch (error) {
+          console.error('[SSE] Failed to forward Redis message:', error)
+        }
+      })
+
+      // Send heartbeat periodically to keep connection alive
+      const heartbeatId = setInterval(() => {
+        controller.enqueue(encoder.encode(`: heartbeat\n\n`))
+      }, 15000)
+
+      // Cleanup on close
+      request.signal.addEventListener('abort', () => {
+        clearInterval(heartbeatId)
+        subscriber
+          .unsubscribe('token-events:new')
+          .finally(() => subscriber.quit())
+          .catch(() => {
+            // ignore
+          })
+        controller.close()
+      })
+    },
+  })
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no', // Disable nginx buffering
+    },
+  })
+}

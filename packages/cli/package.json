@@ -1,0 +1,50 @@
+{
+  "name": "@kompo/cli",
+  "version": "0.1.0-beta.1",
+  "description": "Kompo CLI - Web3 Component as a Service",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "kompo": "src/bin/kompo.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "test": "vitest run -c ../vitest.config.ts",
+    "kompo": "tsx src/bin/kompo.ts",
+    "clean": "rimraf .turbo node_modules dist build .next coverage"
+  },
+  "dependencies": {
+    "@clack/prompts": "1.0.0-alpha.9",
+    "@kompo/blueprints": "workspace:*",
+    "@kompo/kit": "workspace:*",
+    "cfonts": "^3.3.1",
+    "commander": "^11.1.0",
+    "dotenv": "^16.6.1",
+    "eta": "^3.2.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "openai": "^6.15.0",
+    "picocolors": "^1.1.1",
+    "ts-morph": "^27.0.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.19.29",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.0",
+    "vitest": "^3.2.4"
+  }
+}

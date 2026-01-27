@@ -1,0 +1,13 @@
+{
+  "description": "Minimal React + Vite application without any CSS framework",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "vite"
+    }
+  ],
+  "name": "Blank",
+  "id": "vite.vanilla.blank"
+}

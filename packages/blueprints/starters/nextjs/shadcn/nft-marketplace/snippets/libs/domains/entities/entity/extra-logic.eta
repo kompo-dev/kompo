@@ -1,0 +1,5 @@
+    chainId: input.chainId ?? 1,
+    metadata: input.metadata ?? { name: '', description: '', image: '', attributes: [] },
+    tokenAddress: input.tokenAddress ?? '',
+    tokenURI: input.tokenURI ?? '',
+    type: input.type ?? '',

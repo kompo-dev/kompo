@@ -1,0 +1,18 @@
+name: <%= it.scope %>
+
+services:
+  <%= it.ormDriver %>-<%= it.alias %>:
+    image: mysql:8
+    container_name: <%= it.ormDriver %>-<%= it.alias %>
+    ports:
+      - "<%= it.port %>:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: <%= it.alias %>
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - <%= it.ormDriver %>_<%= it.alias %>_data:/var/lib/mysql
+
+volumes:
+  <%= it.ormDriver %>_<%= it.alias %>_data:

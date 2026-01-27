@@ -1,0 +1,204 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kompo Configuration",
+  "description": "Configuration file for Kompo projects",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "integer",
+      "description": "Configuration version",
+      "minimum": 1
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "org": { "type": "string" }
+      },
+      "required": ["name", "org"]
+    },
+    "catalog": {
+      "type": "object",
+      "properties": {
+        "lastUpdated": { "type": "string", "format": "date-time" },
+        "sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["lastUpdated", "sources"]
+    },
+    "adapters": {
+      "type": "object",
+      "description": "Registry of all adapters with unique IDs",
+      "additionalProperties": {
+        "$ref": "#/definitions/AdapterConfig"
+      }
+    },
+    "apps": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/AppConfig"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/stepEntry"
+      }
+    },
+    "domains": {
+      "type": "object",
+      "description": "Registry of all domains",
+      "additionalProperties": {
+        "$ref": "#/definitions/DomainConfig"
+      }
+    },
+    "libsDir": {
+      "type": "string",
+      "description": "Directory for libs (default: libs)"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["version", "project", "catalog", "apps", "steps"],
+  "definitions": {
+    "AdapterConfig": {
+      "type": "object",
+      "description": "Configuration for a single adapter instance",
+      "properties": {
+        "port": {
+          "type": "string",
+          "description": "Port type (orm, cache, storage, etc.)"
+        },
+        "engine": {
+          "type": "string",
+          "description": "Engine/provider (drizzle, redis, s3, ipfs, etc.)"
+        },
+        "driver": {
+          "type": "string",
+          "description": "Specific driver (postgres, neon-http, pinata, etc.)"
+        },
+        "alias": {
+          "type": "string",
+          "description": "Human-readable alias used for folder naming"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path to adapter directory relative to repo root"
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["port", "engine", "driver", "path"]
+    },
+    "DomainConfig": {
+      "type": "object",
+      "description": "Configuration for a domain",
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "type": { "type": "string" }
+                },
+                "required": ["name", "type"]
+              }
+            ]
+          }
+        },
+        "useCases": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "entities": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "useCasesList": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["ports", "entities"]
+    },
+    "AppConfig": {
+      "type": "object",
+      "properties": {
+        "packageName": { "type": "string" },
+        "profileId": { "type": "string" },
+        "frontend": { "type": "string", "enum": ["nextjs", "vite"] },
+        "backend": {
+          "type": "string",
+          "enum": ["nextjs", "nestjs", "express", "none"]
+        },
+        "designSystem": { "type": "string", "enum": ["shadcn", "tailwind"] },
+        "ports": {
+          "type": "object",
+          "description": "Map of port type to array of adapter IDs",
+          "additionalProperties": {
+            "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
+          }
+        },
+        "chains": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["packageName", "frontend", "backend", "designSystem", "ports"]
+    },
+    "HistoryEntry": {
+      "type": "object",
+      "properties": {
+        "action": { "type": "string", "enum": ["new", "add", "remove"] },
+        "plugin": { "type": "string" },
+        "adapterId": { "type": "string", "description": "Unique adapter ID" },
+        "adapter": { "type": "string", "description": "Legacy: adapter type" },
+        "app": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["action", "plugin", "app", "timestamp"]
+    },
+    "stepEntry": {
+      "type": "object",
+      "description": "A step/command entry in the project history",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "The CLI command executed (e.g., 'add', 'new')"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of resource (e.g., 'app', 'adapter', 'port')"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the resource"
+        },
+        "driver": {
+          "type": "string",
+          "description": "Driver/provider used (e.g., 'nextjs', 'vite')"
+        },
+        "app": {
+          "type": "string",
+          "description": "Path to the app this step relates to"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the step was executed"
+        }
+      },
+      "required": ["command", "type", "timestamp"]
+    }
+  }
+}

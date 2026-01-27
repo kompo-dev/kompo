@@ -1,0 +1,48 @@
+import { describe, it, expect } from 'vitest'
+import type { NetworkReader } from '../ports'
+import { resolveCurrentNetwork, type ResolveCurrentNetworkInput } from '../use-cases/resolve-current-network'
+
+describe('Network Domain', () => {
+  describe('resolveCurrentNetwork', () => {
+    it('should return network information', async () => {
+      // Arrange
+      const chainId = 1
+      const networkName = 'Ethereum Mainnet'
+      const mockNetworkReader: NetworkReader = async () => ({
+        chainId,
+        name: networkName,
+      })
+      
+      const input: ResolveCurrentNetworkInput = {} // No input required
+
+      // Act
+      const result = await resolveCurrentNetwork(mockNetworkReader)(input)
+
+      // Assert
+      expect(result).toEqual({
+        chainId,
+        name: networkName,
+      })
+    })
+
+    it('should handle different networks', async () => {
+      // Arrange
+      const testCases = [
+        { chainId: 1, name: 'Ethereum Mainnet' },
+        { chainId: 137, name: 'Polygon' },
+        { chainId: 56, name: 'BSC' },
+        { chainId: 42161, name: 'Arbitrum One' },
+      ]
+
+      for (const testCase of testCases) {
+        const mockNetworkReader: NetworkReader = async () => testCase
+        
+        // Act
+        const result = await resolveCurrentNetwork(mockNetworkReader)({})
+
+        // Assert
+        expect(result).toEqual(testCase)
+      }
+    })
+  })
+})

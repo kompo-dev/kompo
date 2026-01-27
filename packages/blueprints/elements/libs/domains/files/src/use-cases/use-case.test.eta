@@ -1,0 +1,24 @@
+import { test, expect } from 'vitest'
+import { <%= it.camelName %>, <%= it.pascalName %>Input, <%= it.pascalName %>Output } from './<%= it.name %>.use-case'
+
+test('<%= it.pascalName %> should return output', async () => {
+  // 🔹 Example of mocked ports
+  const mockPorts = {
+    // Replace with actual ports required by the use-case
+    // walletPort: { getAddress: async () => '0x1234', signMessage: async (msg: string) => 'signature' },
+  }
+
+  // 🔹 Example of minimal input
+  const input: <%= it.pascalName %>Input = {
+    // TODO: complete with test values
+  }
+
+  // 🔹 Call the use-case
+
+  const useCase = <%= it.camelName %>(mockPorts)
+  const result: <%= it.pascalName %>Output = await useCase(input)
+
+  // 🔹 Basic assertions
+  expect(result).toBeUndefined()
+  // TODO: add other assertions based on expected output
+})

@@ -1,0 +1,9 @@
+<% if (it.entities && it.entities.length > 0) { %>
+export * as Entities from './entities'
+<% } %>
+<% if (it.ports && it.ports.length > 0) { %>
+export * as Ports from './ports'
+<% } %>
+<% if (it.useCases && it.useCases.length > 0) { %>
+export * as UseCases from './use-cases'
+<% } %>

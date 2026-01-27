@@ -1,0 +1,40 @@
+import {
+  createConfig,
+  getEnsAvatar,
+  getEnsName,
+  http,
+  signMessage
+} from '@wagmi/core'
+import { mainnet } from '@wagmi/core/chains'
+import { Ports } from '<%= it.portImportPath %>'
+
+export type <%= it.className %>Config = {
+  projectId: string
+  appName: string
+}
+
+// Basic config for wagmi core actions if not provided by UI context
+const defaultConfig = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http(),
+  },
+})
+
+export const <%= it.adapterCamelName %> = (config: <%= it.className %>Config): Ports.<%= it.portPascalName %> => {
+  return {
+    getAccountProfile: async (address: string) => {
+       const ensName = await getEnsName(defaultConfig, { address: address as `0x${string}` })
+       const avatar = ensName ? await getEnsAvatar(defaultConfig, { name: ensName }) : undefined
+       
+       return {
+         address,
+         ensName: ensName || undefined,
+         avatar: avatar || undefined
+       }
+    },
+    signMessage: async (message: string) => {
+        return await signMessage(defaultConfig, { message })
+    }
+  }
+}

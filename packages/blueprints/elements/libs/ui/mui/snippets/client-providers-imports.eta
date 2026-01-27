@@ -1,0 +1,2 @@
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { theme } from '@<%= it.scope %>/ui';

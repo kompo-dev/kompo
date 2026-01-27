@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@mui/material": "catalog:",
+    "@mui/icons-material": "catalog:",
+    "@mui/material-nextjs": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "@<%= it.scope %>/ui": "workspace:*",
+    "@<%= it.scope %>/config": "workspace:*"
+  }
+}

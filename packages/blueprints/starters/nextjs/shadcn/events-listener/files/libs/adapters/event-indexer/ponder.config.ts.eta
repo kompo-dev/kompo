@@ -1,0 +1,159 @@
+import { env } from '@<%= it.org%>/config'
+import { createConfig } from '@ponder/core'
+import { http, createPublicClient, fallback, webSocket } from 'viem'
+import { arbitrum, base, linea } from 'viem/chains'
+
+import { UniswapV3FactoryAbi } from './abis/UniswapV3Factory'
+
+// Fetch current block number from RPC to start syncing from near-realtime
+const getStartBlock = async (
+  networkName: string,
+  rpcUrl: string,
+  fallbackBlock: number
+): Promise<number> => {
+  try {
+    const client = createPublicClient({
+      transport: http(rpcUrl),
+    })
+    const blockNumber = await client.getBlockNumber()
+    // Start 100 blocks behind to ensure the block exists and allow some buffer
+    const startBlock = Number(blockNumber) - 100
+    console.log(
+      `[Ponder] Starting ${networkName} sync from block ${startBlock} (current: ${blockNumber})`
+    )
+    return startBlock
+  } catch (error) {
+    console.error(`[Ponder] Failed to fetch ${networkName} block number, using fallback:`, error)
+    return fallbackBlock
+  }
+}
+
+// Get start blocks for each network (fetched in parallel)
+const [baseStartBlock, arbitrumStartBlock, lineaStartBlock] = await Promise.all([
+  getStartBlock('Base', env.BASE_RPC_URL, 38_688_000),
+  getStartBlock('Arbitrum', env.ARBITRUM_RPC_URL, 290_000_000),
+  getStartBlock('Linea', env.LINEA_RPC_URL, 15_000_000),
+])
+
+export default createConfig({
+  networks: {
+    base: {
+      chainId: base.id,
+      transport: env.BASE_WS_URL
+        ? fallback([
+            webSocket(env.BASE_WS_URL, {
+              keepAlive: { interval: 10_000 }, // Keep connection alive with 10s pings
+              reconnect: {
+                attempts: 5,
+                delay: 1000, // Exponential backoff
+              },
+              retryCount: 5,
+              retryDelay: 1000,
+              timeout: 30_000,
+            }),
+            http(env.BASE_RPC_URL, {
+              batch: {
+                batchSize: 50,
+                wait: 100,
+              },
+              retryCount: 5,
+              retryDelay: 1000,
+              timeout: 30_000,
+            }),
+          ])
+        : http(env.BASE_RPC_URL, {
+            batch: {
+              batchSize: 50,
+              wait: 100,
+            },
+            retryCount: 5,
+            retryDelay: 1000,
+            timeout: 30_000,
+          }),
+      maxRequestsPerSecond: 10,
+    },
+    arbitrum: {
+      chainId: arbitrum.id,
+      transport: env.ARBITRUM_WS_URL
+        ? fallback([
+            webSocket(env.ARBITRUM_WS_URL, {
+              keepAlive: { interval: 10_000 },
+              reconnect: { attempts: 5, delay: 1000 },
+              retryCount: 5,
+              retryDelay: 1000,
+              timeout: 30_000,
+            }),
+            http(env.ARBITRUM_RPC_URL, {
+              batch: { batchSize: 50, wait: 100 },
+              retryCount: 5,
+              retryDelay: 1000,
+              timeout: 30_000,
+            }),
+          ])
+        : http(env.ARBITRUM_RPC_URL, {
+            batch: { batchSize: 50, wait: 100 },
+            retryCount: 5,
+            retryDelay: 1000,
+            timeout: 30_000,
+          }),
+      maxRequestsPerSecond: 10,
+    },
+    linea: {
+      chainId: linea.id,
+      transport: env.LINEA_WS_URL
+        ? fallback([
+            webSocket(env.LINEA_WS_URL, {
+              keepAlive: { interval: 10_000 },
+              reconnect: { attempts: 5, delay: 1000 },
+              retryCount: 5,
+              retryDelay: 1000,
+              timeout: 30_000,
+            }),
+            http(env.LINEA_RPC_URL, {
+              batch: { batchSize: 50, wait: 100 },
+              retryCount: 5,
+              retryDelay: 1000,
+              timeout: 30_000,
+            }),
+          ])
+        : http(env.LINEA_RPC_URL, {
+            batch: { batchSize: 50, wait: 100 },
+            retryCount: 5,
+            retryDelay: 1000,
+            timeout: 30_000,
+          }),
+      maxRequestsPerSecond: 10,
+    },
+  },
+  contracts: {
+    // NOTE: Removed wildcard ERC20 contract - it causes issues:
+    // 1. Catches ALL Transfer events (billions of events)
+    // 2. Transfer from 0x0 = minting, not new token creation
+    // 3. Ponder has bugs with wildcard contracts
+    // Instead, we detect new tokens via factory events (UniswapV3, etc.)
+
+    // Uniswap V3 Factory - detects new token pairs
+    // NOTE: startBlock set to recent blocks to skip historical sync (avoids Ponder bug)
+    // Update these periodically or set to "latest" equivalent when Ponder supports it
+    UniswapV3Factory: {
+      network: {
+        base: {
+          address: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
+          startBlock: baseStartBlock,
+        },
+        arbitrum: {
+          address: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+          startBlock: arbitrumStartBlock,
+        },
+        linea: {
+          address: '0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9',
+          startBlock: lineaStartBlock,
+        },
+      },
+      abi: UniswapV3FactoryAbi,
+      filter: {
+        event: 'PoolCreated',
+      },
+    },
+  },
+})

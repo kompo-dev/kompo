@@ -1,0 +1,57 @@
+import 'dotenv/config'
+
+import { createDependencies } from '@/config/dependencies'
+import { createNotificationWorker } from '@/workers/notification.worker'
+import { createTokenProcessorWorker } from '@/workers/token-processor.worker'
+
+// Main entry point
+async function main() {
+  console.log('[Workers] Starting workers...')
+
+  // Initialize dependencies
+  const deps = createDependencies()
+
+  // Create workers
+  const tokenProcessorWorker = createTokenProcessorWorker(deps)
+  const notificationWorker = createNotificationWorker(deps)
+
+  // Worker event listeners
+  tokenProcessorWorker.on('completed', (job) => {
+    console.log(`[Token Processor] Job ${job.id} completed`)
+  })
+
+  tokenProcessorWorker.on('failed', (job, error) => {
+    console.error(`[Token Processor] Job ${job?.id} failed:`, error)
+  })
+
+  tokenProcessorWorker.on('error', (error) => {
+    console.error('[Token Processor] Worker error:', error)
+  })
+
+  notificationWorker.on('completed', (job) => {
+    console.log(`[Notification Worker] Job ${job.id} completed`)
+  })
+
+  notificationWorker.on('failed', (job, error) => {
+    console.error(`[Notification Worker] Job ${job?.id} failed:`, error)
+  })
+
+  notificationWorker.on('error', (error) => {
+    console.error('[Notification Worker] Worker error:', error)
+  })
+
+  console.log('[Workers] All workers started successfully')
+
+  // Graceful shutdown
+  process.on('SIGINT', async () => {
+    console.log('[Workers] Shutting down gracefully...')
+    await tokenProcessorWorker.close()
+    await notificationWorker.close()
+    process.exit(0)
+  })
+}
+
+main().catch((error) => {
+  console.error('[Workers] Fatal error:', error)
+  process.exit(1)
+})

@@ -1,0 +1,19 @@
+{
+  "name": "@<%= it.scope %>/driver-<%= it.driver %>",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "catalog:",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+     "@<%= it.scope %>/config": "workspace:*",
+    "typescript": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

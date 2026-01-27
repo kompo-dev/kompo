@@ -1,0 +1,50 @@
+import { env } from '@<%= it.org%>/config'
+import Redis, { type RedisOptions } from 'ioredis'
+
+export type RedisConnectionOptions = RedisOptions
+
+// Central Redis configuration for BullMQ and other consumers.
+// All configuration comes from the libs @<%= it.org%>/config package.
+
+function resolveRedisUrl(): string {
+  return env.REDIS_URL
+}
+
+export const redisConnection: RedisConnectionOptions = (() => {
+  const url = new URL(resolveRedisUrl())
+
+  const isSecure = url.protocol === 'rediss:'
+
+  const base: RedisOptions = {
+    host: url.hostname,
+    port: Number.parseInt(url.port || '6379', 10),
+    password: url.password || undefined,
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+    retryStrategy: (times: number): number => {
+      const delay = Math.min(times * 50, 2000)
+      return delay
+    },
+  }
+
+  if (isSecure) {
+    return {
+      ...base,
+      tls: {},
+    }
+  }
+
+  return base
+})()
+
+// Helper used by workers/BullMQ
+export function getBullMQRedisConfig(): RedisConnectionOptions {
+  return redisConnection
+}
+
+// Generic Redis client helpers (for Pub/Sub, etc.)
+export const createRedisClient = () => new Redis(redisConnection)
+
+export const createRedisPublisher = () => new Redis(redisConnection)
+
+export const createRedisSubscriber = () => new Redis(redisConnection)

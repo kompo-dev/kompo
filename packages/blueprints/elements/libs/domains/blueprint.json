@@ -1,0 +1,6 @@
+{
+  "name": "domains",
+  "description": "Domain entities, use-cases, and ports",
+  "version": "1.0.0",
+  "id": "domains"
+}

@@ -1,0 +1,27 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+
+import App from './App'
+import { NftPage } from '@/pages/NftPage'
+import { Providers } from './providers'
+import './index.css'
+
+const rootElement = document.getElementById('root')
+if (!rootElement) throw new Error('Root element not found')
+
+createRoot(rootElement).render(
+  <StrictMode>
+    <Providers>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route index element={<Navigate to="/nft/0" replace />} />
+            <Route path="nft" element={<Navigate to="/nft/0" replace />} />
+            <Route path="nft/:id" element={<NftPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </Providers>
+  </StrictMode>
+)

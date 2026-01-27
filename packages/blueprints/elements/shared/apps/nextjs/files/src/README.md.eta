@@ -1,0 +1,61 @@
+# {{APP_NAME}}
+
+A Kompo Web3 project built with Next.js.
+
+## Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Styling:** {{DESIGN_SYSTEM_NAME}}
+- **Chains:** {{CHAINS_LIST}}
+
+## Ports & Adapters
+
+{{PORTS_LIST}}
+
+## Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Copy environment variables
+cp .env.example .env.local
+{{GETTING_STARTED_EXTRA}}
+# Start development server
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see your app.
+
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Start Next.js dev server |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+{{SCRIPTS_TABLE_EXTRA}}
+
+## Project Structure
+
+```
+{{APP_NAME}}/
+├── src/
+│   ├── app/              # Next.js App Router
+│   │   ├── layout.tsx    # Root layout
+│   │   ├── page.tsx      # Home page
+│   │   └── globals.css   # Global styles
+│   ├── components/       # React components
+│   └── lib/              # Utilities and helpers
+{{PROJECT_STRUCTURE_EXTRA}}├── kompo.config.json     # Kompo configuration
+└── package.json
+```
+
+{{INFRA_SECTION}}
+
+## Learn More
+
+- [Kompo Documentation](https://kompo.dev/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+{{LEARN_MORE_EXTRA}}

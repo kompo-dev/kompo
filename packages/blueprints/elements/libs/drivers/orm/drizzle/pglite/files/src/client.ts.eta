@@ -1,0 +1,9 @@
+import { PGlite } from '@electric-sql/pglite'
+
+/**
+ * Factory to create a PGLite client
+ * @param connectionString - Connection string or path
+ */
+export const createPgliteClient = (connectionString: string) => {
+  return new PGlite(connectionString)
+}

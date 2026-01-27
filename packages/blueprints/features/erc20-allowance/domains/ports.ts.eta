@@ -1,0 +1,13 @@
+/**
+ * Token Allowance Domain Ports
+ */
+
+export type TokenAllowanceReader = (input: {
+  owner: `0x${string}`
+  spender: `0x${string}`
+  token: `0x${string}`
+}) => Promise<bigint>
+
+export type <%= it.pascalDomain %>Ports = {
+  tokenAllowanceReader: TokenAllowanceReader
+}

@@ -1,0 +1,14 @@
+/**
+ * Auth Adapter - <%= it.name %>
+ * Provider: Clerk
+ */
+
+export { 
+  ClerkProvider,
+  SignIn,
+  SignUp,
+  UserButton,
+  useAuth,
+  useUser,
+  useClerk 
+} from '@clerk/nextjs'

@@ -1,0 +1,9 @@
+import { Pool } from 'pg'
+
+export function createCockroachDBClient(connectionString: string) {
+  return new Pool({
+    connectionString,
+  })
+}
+
+export { Pool }

@@ -1,0 +1,10 @@
+name: <%= it.scope %>
+
+services:
+  <%= it.ormDriver %>-<%= it.alias %>:
+    image: oven/bun:latest
+    container_name: <%= it.ormDriver %>-<%= it.alias %>
+    working_dir: /app
+    volumes:
+      - ./data:/app/data
+    command: tail -f /dev/null

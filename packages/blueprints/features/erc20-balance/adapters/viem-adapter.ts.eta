@@ -1,0 +1,23 @@
+/**
+ * Viem Adapter for <%= it.pascalDomain %>
+ */
+
+import { createPublicClient, http, type PublicClient } from 'viem'
+import { erc20Abi } from 'viem'
+import type { TokenBalanceReader } from '../../../domains/<%= it.domain %>/ports.js'
+
+export const viemTokenBalanceReader =
+  (client: PublicClient): TokenBalanceReader =>
+  async ({ account, token }) =>
+    client.readContract({
+      address: token,
+      abi: erc20Abi,
+      functionName: 'balanceOf',
+      args: [account],
+    })
+
+// Helper to create a client with default transport
+export const createViemClient = (rpcUrl: string): PublicClient =>
+  createPublicClient({
+    transport: http(rpcUrl),
+  })

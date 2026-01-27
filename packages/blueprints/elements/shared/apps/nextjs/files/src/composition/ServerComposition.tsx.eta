@@ -1,0 +1,48 @@
+import React from 'react';
+<% Object.values(it.adapters || {}).forEach(adapter => { %>
+  <% if (it.hasSnippet(adapter.path, 'server-providers-imports')) { %>
+    <%~ include(`${adapter.path}/snippets/server-providers-imports.eta`, it) %>
+  <% } %>
+<% }) %>
+<% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'server-providers-imports')) { %>
+  <%~ include(`${it.designSystem.path}/snippets/server-providers-imports.eta`, it) %>
+<% } %>
+
+/**
+ * ServerComposition
+ * 
+ * This is the Level 3 Composition Root (Server-side).
+ * It houses providers that can run during SSR and don't require 'use client'.
+ */
+export const ServerComposition = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Providers>{children}</Providers>
+  )
+}
+
+/**
+ * Providers Assembler (Server)
+ * 
+ * Blueprints inject their specific providers here via dynamic includes.
+ */
+const Providers = ({ children }: { children: React.ReactNode }) => {
+  return (<>
+<% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'server-providers-wrap-start')) { %>
+    <%~ include(`${it.designSystem.path}/snippets/server-providers-wrap-start.eta`, it) %>
+<% } %>
+<% Object.values(it.adapters || {}).forEach(adapter => { %>
+  <% if (it.hasSnippet(adapter.path, 'server-providers-wrap-start')) { %>
+    <%~ include(`${adapter.path}/snippets/server-providers-wrap-start.eta`, it) %>
+  <% } %>
+<% }) %>
+        {children}
+<% Object.values(it.adapters || {}).reverse().forEach(adapter => { %>
+  <% if (it.hasSnippet(adapter.path, 'server-providers-wrap-end')) { %>
+    <%~ include(`${adapter.path}/snippets/server-providers-wrap-end.eta`, it) %>
+  <% } %>
+<% }) %>
+<% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'server-providers-wrap-end')) { %>
+    <%~ include(`${it.designSystem.path}/snippets/server-providers-wrap-end.eta`, it) %>
+<% } %>
+</>)
+}

@@ -1,0 +1,14 @@
+{
+  "description": "Minimal Next.js application with Radix UI",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "radix"
+    }
+  ],
+  "name": "Blank",
+  "id": "nextjs.radix.blank"
+}

@@ -1,0 +1,19 @@
+export const TokenFactoryAbi = [
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        name: 'token',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'creator',
+        type: 'address',
+      },
+    ],
+    name: 'TokenCreated',
+    type: 'event',
+  },
+] as const

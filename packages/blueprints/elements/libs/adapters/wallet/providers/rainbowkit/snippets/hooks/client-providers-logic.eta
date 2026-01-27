@@ -1,0 +1,7 @@
+  /* Mounted check for ConnectButton hydration safety */
+  const [mounted, setMounted] = useState(false);
+  const [queryClient] = useState(() => new QueryClient());
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);

@@ -1,0 +1,6 @@
+/**
+ * Auth Adapter - <%= it.name %>
+ * Provider: Better Auth
+ */
+
+export { auth, signIn, signOut, getSession } from './server.js'

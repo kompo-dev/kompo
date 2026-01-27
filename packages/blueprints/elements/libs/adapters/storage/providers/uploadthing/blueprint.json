@@ -1,0 +1,7 @@
+{
+  "id": "uploadthing",
+  "name": "Uploadthing",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "storage"
+}

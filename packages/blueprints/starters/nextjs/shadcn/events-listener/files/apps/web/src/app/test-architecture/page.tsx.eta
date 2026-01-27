@@ -1,0 +1,41 @@
+'use client'
+
+import { SUPPORTED_CHAINS } from '@<%= it.org%>/events/client'
+import { Card } from '@<%= it.org%>/ui/components/card'
+import { Navbar } from '@<%= it.org%>/ui/components/navbar'
+
+import { useNewTokens } from '@/adapters/primary/web/hooks/useNewTokens'
+
+export default function ArchitectureTestPage() {
+  const { tokens } = useNewTokens(SUPPORTED_CHAINS.ETHEREUM)
+
+  return (
+    <div className="min-h-screen bg-slate-950">
+      <Navbar />
+      <div className="container mx-auto px-6 pt-32">
+        <h1 className="mb-8 text-3xl font-bold text-white">Architecture Test</h1>
+
+        <div className="grid gap-4">
+          <Card className="border-slate-800 bg-slate-900 p-6">
+            <h2 className="mb-4 text-xl font-bold text-white">
+              Fetched Tokens (via Hexagonal Core)
+            </h2>
+            {tokens.length === 0 ? (
+              <p className="text-slate-400">
+                No tokens fetched yet (check console for mock logs or implementation details).
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {tokens.map((token) => (
+                  <li key={token.address} className="font-mono text-slate-300">
+                    {token.symbol} - {token.address}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}

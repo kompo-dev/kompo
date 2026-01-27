@@ -1,0 +1,7 @@
+{
+  "id": "headless",
+  "name": "Headless",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "wallet"
+}

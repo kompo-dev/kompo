@@ -1,0 +1,7 @@
+import { createPool } from 'mysql2/promise'
+
+export function createMysqlClient(connectionString: string) {
+  return createPool(connectionString)
+}
+
+export { createPool }

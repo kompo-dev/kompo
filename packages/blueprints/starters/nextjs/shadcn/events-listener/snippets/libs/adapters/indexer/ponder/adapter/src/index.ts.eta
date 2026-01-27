@@ -1,0 +1,38 @@
+import { type Chain } from '@<%= it.org%>/events'
+import { createBullMQQueueService } from '@<%= it.org%>/event-queue-bullmq'
+import { getBullMQRedisConfig } from '@<%= it.org%>/event-cache-redis'
+
+import { ponder } from '@/generated'
+
+// Initialize queue service with libs Redis config
+const queueService = createBullMQQueueService({
+  redis: getBullMQRedisConfig(),
+})
+
+// Event handler for Uniswap V3 PoolCreated - detects new token pairs
+ponder.on('UniswapV3Factory:PoolCreated', async ({ event, context }) => {
+  const { token0, token1, fee, pool } = event.args
+  const chain = context.network.name as Chain
+
+  console.log(`🏊 New Uniswap V3 pool: ${pool} on ${chain}`)
+  console.log(`   Token0: ${token0}, Token1: ${token1}, Fee: ${fee}`)
+
+  // Queue both tokens for processing (they might already exist)
+  await queueService.addProcessTokenJob({
+    eventId: event.log.id,
+    chain,
+    tokenAddress: token0,
+    blockNumber: BigInt(event.block.number),
+    transactionHash: event.transaction.hash,
+    creator: event.transaction.from, // Pool creator
+  })
+
+  await queueService.addProcessTokenJob({
+    eventId: event.log.id,
+    chain,
+    tokenAddress: token1,
+    blockNumber: BigInt(event.block.number),
+    transactionHash: event.transaction.hash,
+    creator: event.transaction.from, // Pool creator
+  })
+})

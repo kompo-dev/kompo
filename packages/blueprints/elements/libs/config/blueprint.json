@@ -1,0 +1,6 @@
+{
+  "name": "config",
+  "description": "Shared configuration library for environment variables and project settings",
+  "version": "1.0.0",
+  "id": "config"
+}

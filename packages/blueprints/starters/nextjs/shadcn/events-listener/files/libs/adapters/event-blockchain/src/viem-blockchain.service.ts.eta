@@ -1,0 +1,141 @@
+import { http, createPublicClient } from 'viem'
+import { arbitrum, base, linea } from 'viem/chains'
+
+import type { BlockchainService } from '@<%= it.org%>/events'
+
+// Viem Blockchain Service Adapter
+export type ViemBlockchainServiceConfig = {
+  rpcUrls: {
+    base: string
+    arbitrum: string
+    linea: string
+  }
+}
+
+const ERC20_ABI = [
+  {
+    inputs: [],
+    name: 'name',
+    outputs: [{ type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const
+
+export const createViemBlockchainService = (
+  config: ViemBlockchainServiceConfig
+): BlockchainService => {
+  const clients = {
+    base: createPublicClient({
+      chain: base,
+      transport: http(config.rpcUrls.base),
+    }),
+    arbitrum: createPublicClient({
+      chain: arbitrum,
+      transport: http(config.rpcUrls.arbitrum),
+    }),
+    linea: createPublicClient({
+      chain: linea,
+      transport: http(config.rpcUrls.linea),
+    }),
+  } as const
+
+  return {
+    getTokenMetadata: async (chain, address) => {
+      const client = clients[chain]
+
+      try {
+        const [name, symbol, decimals, totalSupply] = await Promise.all([
+          client
+            .readContract({
+              address: address as `0x${string}`,
+              abi: ERC20_ABI,
+              functionName: 'name',
+            } as any)
+            .catch(() => undefined) as Promise<string | undefined>,
+          client
+            .readContract({
+              address: address as `0x${string}`,
+              abi: ERC20_ABI,
+              functionName: 'symbol',
+            } as any)
+            .catch(() => undefined) as Promise<string | undefined>,
+          client
+            .readContract({
+              address: address as `0x${string}`,
+              abi: ERC20_ABI,
+              functionName: 'decimals',
+            } as any)
+            .catch(() => undefined) as Promise<number | undefined>,
+          client
+            .readContract({
+              address: address as `0x${string}`,
+              abi: ERC20_ABI,
+              functionName: 'totalSupply',
+            } as any)
+            .catch(() => undefined) as Promise<bigint | undefined>,
+        ])
+
+        return {
+          name,
+          symbol,
+          decimals,
+          totalSupply: totalSupply?.toString(),
+        }
+      } catch (error) {
+        console.error(`Failed to get metadata for ${address}:`, error)
+        return {}
+      }
+    },
+
+    isValidERC20: async (chain, address) => {
+      const client = clients[chain]
+
+      try {
+        // Check if contract has code
+        const code = await client.getBytecode({
+          address: address as `0x${string}`,
+        })
+        if (!code || code === '0x') return false
+
+        // Try to call totalSupply
+        await client.readContract({
+          address: address as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: 'totalSupply',
+        })
+
+        return true
+      } catch {
+        return false
+      }
+    },
+
+    getBlockTimestamp: async (chain, blockNumber) => {
+      const client = clients[chain]
+      const block = await client.getBlock({ blockNumber })
+      return Number(block.timestamp)
+    },
+  }
+}

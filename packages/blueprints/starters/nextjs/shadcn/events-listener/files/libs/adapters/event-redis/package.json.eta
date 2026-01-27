@@ -1,0 +1,18 @@
+{
+  "name": "@<%= it.org%>/event-redis",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@<%= it.org%>/config": "workspace:*",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

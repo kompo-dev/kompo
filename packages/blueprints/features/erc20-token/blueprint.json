@@ -1,0 +1,15 @@
+{
+  "name": "erc20-token",
+  "description": "ERC20 token with balance and transfer functionality",
+  "version": 1,
+  "type": "feature",
+  "category": "token",
+  "tags": ["erc20", "token", "ethereum"],
+  "steps": [
+    {
+      "action": "add",
+      "plugin": "port-wallet",
+      "app": "apps/web"
+    }
+  ]
+}

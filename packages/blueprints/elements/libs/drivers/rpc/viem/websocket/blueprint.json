@@ -1,0 +1,6 @@
+{
+  "type": "driver",
+  "id": "websocket",
+  "params": {},
+  "name": "websocket"
+}

@@ -1,0 +1,137 @@
+import { Card, CardContent, Typography, Button, Grid, Box, Link as MuiLink } from '@mui/material'
+import Link from 'next/link'
+
+export function HomeCards() {
+  return (
+    <Box sx={{ maxWidth: '1200px', mx: 'auto', px: 3, pb: 6 }}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Card 
+            sx={{ 
+              bgcolor: 'rgba(17, 24, 39, 0.5)', 
+              border: '1px solid #374151',
+              '&:hover': { borderColor: '#10b981' },
+              transition: 'border-color 0.2s'
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <span style={{ fontSize: '2rem' }}><%= it.icons.hexagon %></span>
+                <Typography variant="h6" component="h3" sx={{ color: '#10b981', fontWeight: 600 }}>
+                  <%= it.texts.features.architecture.title %>
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ color: '#9ca3af', mb: 2 }}>
+                <%= it.texts.features.architecture.description %>
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#d1d5db', mb: 3 }}>
+                <%= it.texts.features.architecture.details %>
+              </Typography>
+              <Button variant="outlined" component={Link} href="<%= it.texts.features.architecture.url %>" sx={{ color: 'white', borderColor: '#374151' }}>
+                <%= it.texts.features.architecture.linkText %>
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card 
+            sx={{ 
+              bgcolor: 'rgba(17, 24, 39, 0.5)', 
+              border: '1px solid #374151',
+              '&:hover': { borderColor: '#3b82f6' },
+              transition: 'border-color 0.2s'
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <span style={{ fontSize: '2rem' }}><%= it.icons.rocket %></span>
+                <Typography variant="h6" component="h3" sx={{ color: '#3b82f6', fontWeight: 600 }}>
+                  <%= it.texts.features.getStarted.title %>
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ color: '#9ca3af', mb: 2 }}>
+                <%= it.texts.features.getStarted.description %>
+              </Typography>
+              <Box sx={{ mb: 3 }}>
+<% it.texts.features.getStarted.commands.forEach(cmd => { %>
+                <Typography variant="body2" component="code" sx={{ color: '#10b981', bgcolor: '#1f2937', px: 1, py: 0.5, borderRadius: 0.5, display: 'block', mb: 1 }}>
+                  <%= cmd %>
+                </Typography>
+<% }) %>
+              </Box>
+              <Button variant="outlined" component={Link} href="<%= it.texts.features.getStarted.url %>" sx={{ color: 'white', borderColor: '#374151' }}>
+                <%= it.texts.features.getStarted.linkText %>
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card 
+            sx={{ 
+              bgcolor: 'rgba(17, 24, 39, 0.5)', 
+              border: '1px solid #374151',
+              '&:hover': { borderColor: '#a855f7' },
+              transition: 'border-color 0.2s'
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <span style={{ fontSize: '2rem' }}><%= it.icons.book %></span>
+                <Typography variant="h6" component="h3" sx={{ color: '#a855f7', fontWeight: 600 }}>
+                  <%= it.texts.features.docs.title %>
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ color: '#9ca3af', mb: 2 }}>
+                <%= it.texts.features.docs.description %>
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#d1d5db', mb: 3 }}>
+                <%= it.texts.features.docs.details %>
+              </Typography>
+              <Button 
+                variant="outlined" 
+                component={MuiLink} 
+                href="<%= it.texts.features.docs.url %>" 
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ color: 'white', borderColor: '#374151' }}
+              >
+                Open Docs
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card 
+            sx={{ 
+              bgcolor: 'rgba(17, 24, 39, 0.5)', 
+              border: '1px solid #374151',
+              '&:hover': { borderColor: '#f97316' },
+              transition: 'border-color 0.2s'
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <span style={{ fontSize: '2rem' }}><%= it.icons.palette %></span>
+                <Typography variant="h6" component="h3" sx={{ color: '#f97316', fontWeight: 600 }}>
+                  <%= it.texts.features.studio.title %>
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ color: '#9ca3af', mb: 2 }}>
+                <%= it.texts.features.studio.description %>
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#d1d5db', mb: 3 }}>
+                <%= it.texts.features.studio.details %>
+              </Typography>
+              <Button variant="outlined" component={Link} href="<%= it.texts.features.studio.url %>" sx={{ color: 'white', borderColor: '#374151' }}>
+                Open Studio
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  )
+}

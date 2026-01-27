@@ -1,0 +1,6 @@
+import { drizzle } from 'drizzle-orm/d1'
+
+// D1Database type is available globally in Cloudflare Workers environment or via @cloudflare/workers-types
+export function createD1Client(db: D1Database) {
+  return drizzle(db)
+}

@@ -1,0 +1,140 @@
+import { Row, Col, Card, Typography, Button, Space } from '@<%= it.scope %>/ui'
+import { Link } from 'react-router-dom'
+
+const { Title, Text, Paragraph } = Typography
+
+export function HomeCards() {
+  return (
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 48px' }}>
+      <Row gutter={[24, 24]}>
+        {/* Architecture Card */}
+        <Col xs={24} md={12}>
+          <Card
+            style={{
+              background: 'rgba(17, 24, 39, 0.5)',
+              borderColor: '#374151',
+              height: '100%',
+            }}
+            styles={{ body: { padding: 24 } }}
+            hoverable
+          >
+            <Space align="center" style={{ marginBottom: 16 }}>
+              <span style={{ fontSize: 24 }}><%= it.icons.hexagon %></span>
+              <Title level={4} style={{ color: '#10b981', margin: 0 }}>
+                <%= it.texts.features.architecture.title %>
+              </Title>
+            </Space>
+            <Paragraph style={{ color: '#9ca3af', marginBottom: 8 }}>
+              <%= it.texts.features.architecture.description %>
+            </Paragraph>
+            <Paragraph style={{ color: '#d1d5db', marginBottom: 16 }}>
+              <%= it.texts.features.architecture.details %>
+            </Paragraph>
+            <Button type="default" style={{ borderColor: '#10b981', color: '#10b981' }}>
+              <Link to="<%= it.texts.features.architecture.url %>" style={{ color: 'inherit' }}>
+                <%= it.texts.features.architecture.linkText %>
+              </Link>
+            </Button>
+          </Card>
+        </Col>
+
+        {/* Get Started Card */}
+        <Col xs={24} md={12}>
+          <Card
+            style={{
+              background: 'rgba(17, 24, 39, 0.5)',
+              borderColor: '#374151',
+              height: '100%',
+            }}
+            styles={{ body: { padding: 24 } }}
+            hoverable
+          >
+            <Space align="center" style={{ marginBottom: 16 }}>
+              <span style={{ fontSize: 24 }}><%= it.icons.rocket %></span>
+              <Title level={4} style={{ color: '#3b82f6', margin: 0 }}>
+                <%= it.texts.features.getStarted.title %>
+              </Title>
+            </Space>
+            <Paragraph style={{ color: '#9ca3af', marginBottom: 8 }}>
+              <%= it.texts.features.getStarted.description %>
+            </Paragraph>
+            <div style={{ marginBottom: 16 }}>
+<% it.texts.features.getStarted.commands.forEach(cmd => { %>
+              <Paragraph style={{ margin: '4px 0' }}>
+                <code style={{ background: '#1f2937', padding: '4px 8px', borderRadius: 4, color: '#34d399' }}>
+                  <%= cmd %>
+                </code>
+              </Paragraph>
+<% }) %>
+            </div>
+            <Button type="default" style={{ borderColor: '#10b981', color: '#10b981' }}>
+              <Link to="<%= it.texts.features.getStarted.url %>" style={{ color: 'inherit' }}>
+                <%= it.texts.features.getStarted.linkText %>
+              </Link>
+            </Button>
+          </Card>
+        </Col>
+
+        {/* Docs Card */}
+        <Col xs={24} md={12}>
+          <Card
+            style={{
+              background: 'rgba(17, 24, 39, 0.5)',
+              borderColor: '#374151',
+              height: '100%',
+            }}
+            styles={{ body: { padding: 24 } }}
+            hoverable
+          >
+            <Space align="center" style={{ marginBottom: 16 }}>
+              <span style={{ fontSize: 24 }}><%= it.icons.book %></span>
+              <Title level={4} style={{ color: '#a855f7', margin: 0 }}>
+                <%= it.texts.features.docs.title %>
+              </Title>
+            </Space>
+            <Paragraph style={{ color: '#9ca3af', marginBottom: 8 }}>
+              <%= it.texts.features.docs.description %>
+            </Paragraph>
+            <Paragraph style={{ color: '#d1d5db', marginBottom: 16 }}>
+              <%= it.texts.features.docs.details %>
+            </Paragraph>
+            <Button type="default" style={{ borderColor: '#10b981', color: '#10b981' }} href="<%= it.texts.features.docs.url %>" target="_blank">
+              Open Docs
+            </Button>
+          </Card>
+        </Col>
+
+        {/* Studio Card */}
+        <Col xs={24} md={12}>
+          <Card
+            style={{
+              background: 'rgba(17, 24, 39, 0.5)',
+              borderColor: '#374151',
+              height: '100%',
+            }}
+            styles={{ body: { padding: 24 } }}
+            hoverable
+          >
+            <Space align="center" style={{ marginBottom: 16 }}>
+              <span style={{ fontSize: 24 }}><%= it.icons.palette %></span>
+              <Title level={4} style={{ color: '#f97316', margin: 0 }}>
+                <%= it.texts.features.studio.title %>
+              </Title>
+            </Space>
+            <Paragraph style={{ color: '#9ca3af', marginBottom: 8 }}>
+              <%= it.texts.features.studio.description %>
+            </Paragraph>
+            <Paragraph style={{ color: '#d1d5db', marginBottom: 16 }}>
+              <%= it.texts.features.studio.details %>
+            </Paragraph>
+            <Button type="default" style={{ borderColor: '#10b981', color: '#10b981' }}>
+              <Link to="<%= it.texts.features.studio.url %>" style={{ color: 'inherit' }}>
+                Open Studio
+              </Link>
+            </Button>
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  )
+}

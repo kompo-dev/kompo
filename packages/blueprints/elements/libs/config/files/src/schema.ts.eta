@@ -1,0 +1,22 @@
+import { z } from '@kompo/config'
+
+/**
+ * Vite-specific client schema
+ */
+export const viteClientSchema = {
+  <%~ await it.hook('vite-schema') %>
+}
+
+/**
+ * Next.js-specific client schema
+ */
+export const nextClientSchema = {
+  <%~ await it.hook('next-schema') %>
+}
+
+/**
+ * Server-only environment variables
+ */
+export const serverSchema = {
+  <%~ await it.hook('server-schema') %>
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@<%= it.org%>/event-indexer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "ponder dev",
+    "start": "ponder start",
+    "codegen": "ponder codegen",
+    "build": "mkdir -p dist && echo 'Ponder does not require a build step' > dist/.keep"
+  },
+  "dependencies": {
+    "@ponder/core": "^0.7.17",
+    "@<%= it.org%>/events": "workspace:*",
+    "@<%= it.org%>/config": "workspace:*",
+    "@<%= it.org%>/event-redis": "workspace:*",
+    "@<%= it.org%>/event-workers": "workspace:*",
+    "@<%= it.org%>/event-blockchain": "workspace:*",
+    "hono": "^4.0.0",
+    "viem": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

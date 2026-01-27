@@ -1,0 +1,25 @@
+/**
+ * Specialized HTTP Client: <%= it.aliasName %>
+ * 
+ * This client is pre-configured to connect to the <%= it.aliasName %> API.
+ * It uses environment variables for configuration.
+ * 
+ * Usage:
+ *   import { <%= it.aliasNameCamel %>Client } from '@<%= it.scope %>/adapters/<%= it.adapterName %>';
+ *   const data = await <%= it.aliasNameCamel %>Client('/endpoint');
+ */
+
+import { createFetchAdapter, type FetchAdapterConfig } from '../<%= it.providerName %>.adapter';
+
+// Environment-based configuration for <%= it.aliasName %>
+const config: FetchAdapterConfig = {
+  baseUrl: process.env.<%= it.aliasEnvPrefix %>_API_URL || '',
+  headers: {
+    ...(process.env.<%= it.aliasEnvPrefix %>_API_KEY 
+      ? { 'Authorization': `Bearer ${process.env.<%= it.aliasEnvPrefix %>_API_KEY}` } 
+      : {}),
+  },
+};
+
+// Pre-configured client instance
+export const <%= it.aliasNameCamel %>Client = createFetchAdapter(config);

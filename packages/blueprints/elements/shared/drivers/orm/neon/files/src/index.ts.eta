@@ -1,0 +1,7 @@
+import { Pool } from '@neondatabase/serverless'
+
+export function createNeonClient(connectionString: string) {
+  return new Pool({ connectionString })
+}
+
+export { Pool }

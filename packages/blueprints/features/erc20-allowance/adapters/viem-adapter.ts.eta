@@ -1,0 +1,23 @@
+/**
+ * Viem Adapter for <%= it.pascalDomain %>
+ */
+
+import { createPublicClient, http, type PublicClient } from 'viem'
+import { erc20Abi } from 'viem'
+import type { TokenAllowanceReader } from '../../../domains/<%= it.domain %>/ports.js'
+
+export const viemTokenAllowanceReader =
+  (client: PublicClient): TokenAllowanceReader =>
+  async ({ owner, spender, token }) =>
+    client.readContract({
+      address: token,
+      abi: erc20Abi,
+      functionName: 'allowance',
+      args: [owner, spender],
+    })
+
+// Helper to create a client with default transport
+export const createViemClient = (rpcUrl: string): PublicClient =>
+  createPublicClient({
+    transport: http(rpcUrl),
+  })

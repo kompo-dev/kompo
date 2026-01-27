@@ -1,0 +1,27 @@
+{
+  "id": "viem",
+  "name": "Viem",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "rpc",
+  "capability": "rpc",
+  "env": {
+    "RPC_URL": {
+      "description": "RPC URL for Viem",
+      "required": true,
+      "validation": "z.url()"
+    }
+  },
+  "drivers": [
+    {
+      "id": "http",
+      "name": "HTTP Transport",
+      "runtime": false
+    },
+    {
+      "id": "websocket",
+      "name": "WebSocket Transport",
+      "runtime": false
+    }
+  ]
+}

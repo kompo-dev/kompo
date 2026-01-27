@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kompo Catalog",
+  "description": "Schema for kompo.catalog.json - centralized dependency version management",
+  "type": "object",
+  "required": ["version", "packages"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "description": "Catalog schema version"
+    },
+    "description": {
+      "type": "string"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date"
+    },
+    "packages": {
+      "type": "object",
+      "description": "Package groups with their dependencies",
+      "additionalProperties": {
+        "$ref": "#/definitions/packageGroup"
+      }
+    }
+  },
+  "definitions": {
+    "packageGroup": {
+      "type": "object",
+      "required": ["dependencies", "devDependencies"],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "extends": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other package groups to inherit from"
+        },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "devDependencies": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}

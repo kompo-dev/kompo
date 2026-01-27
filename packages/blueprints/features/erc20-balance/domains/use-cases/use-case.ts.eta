@@ -1,0 +1,31 @@
+/**
+ * <%= it.pascalUseCase %> Use Case
+ */
+
+import type { TokenBalanceReader } from '../ports.js'
+
+export type <%= it.pascalUseCase %>Input = {
+  account: `0x${string}`
+  token: `0x${string}`
+}
+
+export type <%= it.pascalUseCase %>Output = {
+  balance: bigint
+  isEmpty: boolean
+  formattedBalance: string
+}
+
+/**
+ * Get token balance
+ */
+export const <%= it.camelUseCase %> =
+  (tokenBalanceReader: TokenBalanceReader) =>
+  async (input: <%= it.pascalUseCase %>Input): Promise<<%= it.pascalUseCase %>Output> => {
+    const balance = await tokenBalanceReader(input)
+
+    return {
+      balance,
+      isEmpty: balance === 0n,
+      formattedBalance: balance.toString(),
+    }
+  }

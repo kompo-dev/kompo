@@ -1,0 +1,25 @@
+import type { Metadata } from 'next'
+import '@<%= it.scope %>/ui/styles'
+import { ServerComposition } from '../composition/ServerComposition'
+import { ClientComposition } from '../composition/ClientComposition'
+
+export const metadata: Metadata = {
+  title: '<%= it.projectName %> | Kompo',
+  description: 'A Kompo Web3 application',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ServerComposition>
+          <ClientComposition>{children}</ClientComposition>
+        </ServerComposition>
+      </body>
+    </html>
+  )
+}

@@ -1,0 +1,26 @@
+export type <%= it.pascalName %>Interface = {
+  /*
+   * Connects the wallet
+   */
+  connect: () => Promise<void>
+  
+  /*
+   * Disconnects the wallet
+   */
+  disconnect: () => Promise<void>
+  
+  /*
+   * Returns the current account address or object
+   */
+  getAccount: () => Promise<unknown>
+
+  /*
+   * Returns the current chain ID
+   */
+  getChainId: () => Promise<number>
+
+  /*
+   * Switch the wallet to a specific chain
+   */
+  switchChain: (chainId: number) => Promise<void>
+}

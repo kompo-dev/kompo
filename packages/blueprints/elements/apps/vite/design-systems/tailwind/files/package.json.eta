@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@headlessui/react": "catalog:",
+    "@<%= it.scope %>/ui": "workspace:*",
+    "@<%= it.scope %>/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
+    "tailwindcss": "catalog:",
+    "@tailwindcss/postcss": "catalog:"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@<%= it.scope %>/<%= it.packetName %>",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/<%= it.packetName %>.adapter.ts",
+  "types": "src/<%= it.packetName %>.adapter.ts",
+  "exports": {
+    ".": "./src/<%= it.packetName %>.adapter.ts"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "viem": "catalog:",
+    "@<%= it.scope %>/domains": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

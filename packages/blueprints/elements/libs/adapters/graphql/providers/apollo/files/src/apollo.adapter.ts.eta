@@ -1,0 +1,38 @@
+import { ApolloClient, InMemoryCache, HttpLink, type NormalizedCacheObject, type ApolloClientOptions } from '@apollo/client';
+import type { <%= it.pascalName %>, GraphqlQueryOptions, GraphqlMutationOptions } from '@<%= it.scope %>/domains';
+
+export type ApolloAdapter = <%= it.pascalName %>;
+
+export type ApolloConfig = ApolloClientOptions<NormalizedCacheObject> & {
+  apiKey?: string;
+  headerKey?: string;
+  url: string;
+}
+
+export function create<%= it.pascalName %>Adapter(config: ApolloConfig): ApolloAdapter {
+  const httpLink = new HttpLink({
+    uri: config.url,
+    headers: {
+      ...(config.apiKey ? { [config.headerKey || 'Authorization']: config.apiKey } : {}),
+      ...config.headers,
+    },
+  });
+
+  const client = new ApolloClient({
+    link: httpLink,
+    cache: new InMemoryCache(),
+    ...config,
+  });
+
+  return {
+    query: async <T>(query: string, variables?: Record<string, any>, options?: GraphqlQueryOptions): Promise<T> => {
+      // Note: In a real implementation you would parse 'query' string to gql AST if needed
+      // or expect 'query' to be already AST. For simplicity assuming string or relying on gql tag in usage.
+      // However, @apollo/client expects DocumentNode usually.
+      throw new Error('Method not fully implemented in template - requires gql parsing');
+    },
+    mutate: async <T>(mutation: string, variables?: Record<string, any>, options?: GraphqlMutationOptions): Promise<T> => {
+      throw new Error('Method not fully implemented in template - requires gql parsing');
+    }
+  };
+}

@@ -1,0 +1,20 @@
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { createPostgresClient } from '@<%= it.scope %>/driver-<%= it.driver %>'
+import * as schema from './schema'
+
+<%
+// Determine whether to use serverEnv or clientEnv based on the driver's blueprint
+const dbUrlEnv = it.driverConfig?.env?.DATABASE_URL
+const isClient = dbUrlEnv?.side === 'client'
+const envObject = isClient ? 'clientEnv' : 'serverEnv'
+%>
+import { <%= envObject %> } from '@<%= it.scope %>/config/<%= isClient ? 'client' : 'server' %>'
+
+const connectionString = <%= envObject %>.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_DATABASE_URL
+
+if (!connectionString) {
+  throw new Error('<%= it.alias.toUpperCase().replace(/-/g, '_') %>_DATABASE_URL is not defined')
+}
+
+const client = createPostgresClient(connectionString)
+export const db = drizzle(client, { schema })

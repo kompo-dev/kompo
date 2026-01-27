@@ -1,0 +1,9 @@
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { createPostgresClient } from '<%= it.driverPackageName %>';
+
+const connectionString = process.env.<%= it.aliasEnvPrefix %>_DATABASE_URL || '';
+// The shared driver exports a factory that returns a Pool
+const client = createPostgresClient(connectionString);
+
+// Create the Drizzle instance using the node-postgres client
+export const <%= it.aliasNameCamel %>Db = drizzle(client);

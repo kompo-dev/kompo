@@ -1,0 +1,14 @@
+{
+  "genericDriverSource": "shared/drivers/orm/pglite",
+  "env": {
+    "DATABASE_URL": {
+      "description": "PGlite connection string (memory:// or file://path)",
+      "validation": "z.string()",
+      "side": "client",
+      "mapTo": "url",
+      "default": "memory://"
+    }
+  },
+  "id": "pglite",
+  "name": "pglite"
+}

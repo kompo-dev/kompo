@@ -1,0 +1,23 @@
+import { describe, it, expect } from 'vitest'
+import { create<%= it.pascalName %> } from './<%= it.name %>.entity'
+
+describe('<%= it.pascalName %>', () => {
+  it('should create a valid <%= it.pascalName %>', () => {
+    // 🔹 Creation of entity with default values
+    const entity = create<%= it.pascalName %>({})
+
+
+    // 🔹 ID Verification
+    expect(entity.id).toBeDefined()
+    
+    // 🔹 Fields Verification
+    <% it.fields.forEach(function(field) { %>
+    expect(entity.<%= field %>).toBeDefined()
+    <% }) %>
+
+    // 🔹 Type Verification (optional, but educational)
+    <% it.fields.forEach(function(field) { %>
+    expect(typeof entity.<%= field %>).not.toBe('undefined')
+    <% }) %>
+  })
+})

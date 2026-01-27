@@ -1,0 +1,8 @@
+{
+  "name": "RainbowKit Account Adapter",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "account",
+  "description": "Account adapter using RainbowKit",
+  "id": "rainbowkit"
+}

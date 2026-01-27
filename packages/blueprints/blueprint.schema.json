@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kompo Blueprint Schema",
+  "type": "object",
+  "required": ["id", "name", "type"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique identifier of the blueprint entry (must match directory name for adapters/providers)",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human readable name of the blueprint or adapter"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the blueprint"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["app", "adapter", "driver", "feature", "starter", "library", "design-system"],
+      "description": "Type of blueprint"
+    },
+    "category": {
+      "type": "string",
+      "description": "Category for apps/features"
+    },
+    "family": {
+      "type": "string",
+      "description": "Family of the adapter (e.g. rpc, wallet). Deprecated in favor of capability."
+    },
+    "capability": {
+      "type": "string",
+      "description": "Capability ID (required for adapters, e.g. orm, http, rpc)"
+    },
+    "sharedDriver": {
+      "type": "string",
+      "description": "Base shared driver ID (required for driver blueprints, e.g. postgres, mysql)"
+    },
+    "drivers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "runtime": { "type": "boolean" },
+          "description": { "type": "string" },
+          "sharedDriver": {
+            "type": "string",
+            "description": "Base shared driver ID (e.g. postgres, mysql)"
+          }
+        },
+        "required": ["id", "name"]
+      },
+      "description": "List of driven adapters (drivers) supported by this provider"
+    },
+    "features": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of feature IDs included in this blueprint"
+    },
+    "framework": {
+      "type": "string",
+      "description": "Target framework (nextjs, vite, etc.)"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags for searching/filtering"
+    },
+    "requires": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of npm dependencies or other adapters required"
+    },
+    "env": {
+      "type": "object",
+      "description": "Environment variables definition",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "validation": {
+            "type": "string",
+            "description": "Zod validation string (e.g. z.string())",
+            "pattern": "^z\\.(string|number|boolean|object|array|enum|url)\\("
+          },
+          "default": {
+            "type": "string",
+            "description": "Default value (can use EJS template)"
+          },
+          "side": {
+            "type": "string",
+            "enum": ["client", "server"],
+            "default": "server",
+            "description": "Environment variable visibility side"
+          },
+          "scoped": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to prefix the variable with project name (default: true). Set to false for global/shared variables."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the variable"
+          },
+          "mapTo": {
+            "type": "string",
+            "description": "Map to another internal configuration key"
+          }
+        },
+        "required": ["validation"]
+      }
+    },
+    "provides": {
+      "type": "object",
+      "description": "Features or capabilities provided by this blueprint",
+      "properties": {
+        "composition": { "type": "boolean" },
+        "providers": { "type": "boolean" },
+        "driver": {
+          "type": "string",
+          "description": "Type of driver provided (e.g. postgres, mysql)"
+        },
+        "factory": { "type": "string" },
+        "exports": { "type": "array", "items": { "type": "string" } },
+        "features": { "type": "object" }
+      }
+    },
+    "hooks": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "adapter" } } },
+      "then": { "required": ["capability"] }
+    },
+    {
+      "if": { "properties": { "type": { "const": "driver" } } },
+      "then": { "required": ["sharedDriver"] }
+    }
+  ]
+}

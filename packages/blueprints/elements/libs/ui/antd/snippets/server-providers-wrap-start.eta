@@ -1,0 +1,2 @@
+<AntdRegistry>
+  <ConfigProvider theme={theme}>

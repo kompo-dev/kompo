@@ -1,0 +1,1 @@
+export { <%= it.name %> } from '<%= it.path %>';

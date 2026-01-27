@@ -1,0 +1,12 @@
+import { useQuery } from '@tanstack/react-query'
+import { getNft } from '../composition'
+
+/**
+ * Hook to fetch a single NFT by ID using the domain layer
+ */
+export function useNFT(id: string) {
+  return useQuery({
+    queryKey: ['nft', id],
+    queryFn: () => getNft(id),
+  })
+}

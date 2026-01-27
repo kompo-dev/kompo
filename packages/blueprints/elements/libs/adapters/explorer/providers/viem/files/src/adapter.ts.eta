@@ -1,0 +1,59 @@
+import { createPublicClient, http, type Chain } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ports } from '<%= it.portImportPath %>'
+
+export type <%= it.className %>Config = {
+  chain?: Chain
+  rpcUrl?: string
+}
+
+export const <%= it.adapterCamelName %> = (
+  config: <%= it.className %>Config = {}
+): Ports.<%= it.portPascalName %> => {
+  const client = createPublicClient({
+    chain: config.chain || mainnet,
+    transport: http(config.rpcUrl),
+  })
+
+  return {
+    getBlock: async (blockNumberOrTag: bigint | 'latest' | 'earliest' | 'pending') => {
+      const block = await client.getBlock({
+        blockTag: typeof blockNumberOrTag === 'string' && blockNumberOrTag !== 'latest' && blockNumberOrTag !== 'earliest' && blockNumberOrTag !== 'pending' ? undefined : blockNumberOrTag as any,
+        blockNumber: typeof blockNumberOrTag === 'bigint' ? blockNumberOrTag : undefined,
+        includeTransactions: true
+      })
+      
+      if (!block || !block.number || !block.hash) return undefined
+      
+      return {
+        number: block.number,
+        hash: block.hash,
+        timestamp: block.timestamp,
+        transactions: block.transactions.map((tx: any) => {
+            const t = tx
+            return {
+                hash: t.hash,
+                from: t.from,
+                to: t.to,
+                value: t.value ?? 0n,
+                blockNumber: block.number!
+            }
+        })
+      }
+    },
+    getTransaction: async (hash: string) => {
+        const tx = await client.getTransaction({ hash: hash as `0x${string}` })
+        if (!tx || !tx.blockNumber) return undefined
+        return {
+            hash: tx.hash,
+            from: tx.from,
+            to: tx.to,
+            value: tx.value,
+            blockNumber: tx.blockNumber
+        }
+    },
+    getBalance: async (address: string) => {
+        return await client.getBalance({ address: address as `0x${string}` })
+    }
+  }
+}

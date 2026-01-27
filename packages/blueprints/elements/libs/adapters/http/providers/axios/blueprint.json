@@ -1,0 +1,29 @@
+{
+  "id": "axios",
+  "name": "Axios HTTP Client",
+  "version": "1.0.0",
+  "description": "Standard Axios HTTP Client Adapter",
+  "type": "adapter",
+  "category": "infrastructure",
+  "family": "http",
+  "capability": "http",
+  "env": {
+    "API_URL": {
+      "validation": "z.string().url()",
+      "description": "Base URL for the HTTP client (optional)",
+      "side": "server"
+    },
+    "API_KEY": {
+      "validation": "z.string().optional()",
+      "description": "API Key authorization header (optional)",
+      "side": "server"
+    }
+  },
+  "drivers": [
+    {
+      "id": "http-axios",
+      "name": "Axios",
+      "runtime": true
+    }
+  ]
+}

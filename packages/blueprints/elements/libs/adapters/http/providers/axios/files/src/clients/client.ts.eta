@@ -1,0 +1,27 @@
+/**
+ * Specialized HTTP Client: <%= it.aliasName %>
+ * 
+ * This client is pre-configured to connect to the <%= it.aliasName %> API.
+ * It uses environment variables for configuration.
+ * 
+ * Usage:
+ *   import { <%= it.aliasNameCamel %>Client } from '@<%= it.scope %>/adapters/<%= it.adapterName %>';
+ *   const data = await <%= it.aliasNameCamel %>Client.get<MyType>('/endpoint');
+ */
+
+import { serverEnv } from '@<%= it.scope %>/config/server';
+import { create<%= it.pascalName %>Adapter, type AxiosConfig } from '../<%= it.providerName %>.adapter';
+
+// Environment-based configuration for <%= it.aliasName %>
+const defaultConfig: AxiosConfig = {
+  baseURL: serverEnv.<%= it.aliasEnvPrefix %>_API_URL || '',
+  apiKey: serverEnv.<%= it.aliasEnvPrefix %>_API_KEY,
+};
+
+// Pre-configured client factory
+export const create<%= it.pascalName %><%= it.aliasName.charAt(0).toUpperCase() + it.aliasName.slice(1) %>Adapter = (config?: AxiosConfig) => {
+  return create<%= it.pascalName %>Adapter({
+    ...defaultConfig,
+    ...config,
+  });
+};

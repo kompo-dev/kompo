@@ -1,0 +1,15 @@
+// Re-export Ant Design components
+export {
+  ConfigProvider,
+  Layout,
+  Typography,
+  Button,
+  Card,
+  Row,
+  Col,
+  Space,
+  theme as antTheme,
+} from 'antd';
+
+// Theme
+export { theme, darkTheme } from './theme';

@@ -1,0 +1,94 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button } from '@<%= it.scope %>/ui'
+import { Link } from 'react-router-dom'
+
+export function HomeCards() {
+  return (
+    <section className="max-w-6xl mx-auto px-6 pb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="border-gray-800 bg-gray-900/50 hover:border-emerald-500/50">
+          <CardHeader>
+            <CardTitle className="text-emerald-500 flex items-center gap-2">
+              <span className="text-2xl"><%= it.icons.hexagon %></span>
+              <%= it.texts.features.architecture.title %>
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              <%= it.texts.features.architecture.description %>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-300 mb-4">
+              <%= it.texts.features.architecture.details %>
+            </p>
+            <Button variant="outline" asChild>
+              <Link to="<%= it.texts.features.architecture.url %>"><%= it.texts.features.architecture.linkText %></Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-gray-800 bg-gray-900/50 hover:border-blue-500/50">
+          <CardHeader>
+            <CardTitle className="text-blue-500 flex items-center gap-2">
+              <span className="text-2xl"><%= it.icons.rocket %></span>
+              <%= it.texts.features.getStarted.title %>
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              <%= it.texts.features.getStarted.description %>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-gray-300 space-y-1 mb-4">
+<% it.texts.features.getStarted.commands.forEach(cmd => { %>
+              <p><code className="bg-gray-800 px-1 rounded"><%= cmd %></code></p>
+<% }) %>
+            </div>
+            <Button variant="outline" asChild>
+              <Link to="<%= it.texts.features.getStarted.url %>"><%= it.texts.features.getStarted.linkText %></Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-gray-800 bg-gray-900/50 hover:border-purple-500/50">
+          <CardHeader>
+            <CardTitle className="text-purple-500 flex items-center gap-2">
+              <span className="text-2xl"><%= it.icons.book %></span>
+              <%= it.texts.features.docs.title %>
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              <%= it.texts.features.docs.description %>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-300 mb-4">
+              <%= it.texts.features.docs.details %>
+            </p>
+            <Button variant="outline" asChild>
+              <a href="<%= it.texts.features.docs.url %>" target="_blank" rel="noopener noreferrer">
+                Open Docs
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-gray-800 bg-gray-900/50 hover:border-orange-500/50">
+          <CardHeader>
+            <CardTitle className="text-orange-500 flex items-center gap-2">
+              <span className="text-2xl"><%= it.icons.palette %></span>
+              <%= it.texts.features.studio.title %>
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              <%= it.texts.features.studio.description %>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-300 mb-4">
+              <%= it.texts.features.studio.details %>
+            </p>
+            <Button variant="outline" asChild>
+              <Link to="<%= it.texts.features.studio.url %>">Open Studio</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  )
+}

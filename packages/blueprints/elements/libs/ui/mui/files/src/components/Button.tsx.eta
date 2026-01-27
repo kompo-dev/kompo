@@ -1,0 +1,13 @@
+import MuiButton, { ButtonProps as MuiButtonProps } from '@mui/material/Button';
+
+interface ButtonProps extends MuiButtonProps {
+  // Extend MUI Button with custom props if needed
+}
+
+export function Button({ children, ...props }: ButtonProps) {
+  return (
+    <MuiButton {...props}>
+      {children}
+    </MuiButton>
+  );
+}

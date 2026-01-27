@@ -1,0 +1,7 @@
+{
+  "name": "vercel-pg",
+  "provides": {
+    "driver": "vercel-pg"
+  },
+  "id": "vercel-pg"
+}

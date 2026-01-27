@@ -1,0 +1,8 @@
+/**
+ * Application Composition Root Registry
+ * 
+ * This index aggregates and exports all wired domain services.
+ * Domain-specific wiring should be placed in the './domains' directory.
+ */
+
+<%~ await it.hook('exports') %>

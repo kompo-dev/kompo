@@ -1,0 +1,23 @@
+{
+  "id": "http-fetch",
+  "name": "Fetch HTTP Client",
+  "version": "1.0.0",
+  "description": "Standard Fetch HTTP Client Adapter",
+  "type": "adapter",
+  "category": "infrastructure",
+  "family": "http",
+  "capability": "http",
+  "provider": "fetch",
+  "env": {
+    "API_URL": {
+      "validation": "z.string().url()",
+      "description": "Base URL for the HTTP client (optional)",
+      "side": "server"
+    },
+    "API_KEY": {
+      "validation": "z.string().optional()",
+      "description": "API Key authorization header (optional)",
+      "side": "server"
+    }
+  }
+}

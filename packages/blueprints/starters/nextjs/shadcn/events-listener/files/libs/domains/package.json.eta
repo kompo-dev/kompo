@@ -1,0 +1,17 @@
+{
+  "name": "@<%= it.org%>/domains",
+  "version": "0.1.0",
+  "description": "Domain logic",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": "./src/*/index.ts"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  }
+}

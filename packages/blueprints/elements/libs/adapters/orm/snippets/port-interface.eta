@@ -1,0 +1,4 @@
+  find(id: string): Promise<unknown>
+  create(data: Record<string, unknown>): Promise<unknown>
+  update(id: string, data: Partial<Record<string, unknown>>): Promise<unknown>
+  delete(id: string): Promise<boolean>

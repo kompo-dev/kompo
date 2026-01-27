@@ -1,0 +1,18 @@
+import { type Config, defineConfig } from '@wagmi/cli'
+import { react } from '@wagmi/cli/plugins'
+import { dropErc1155Abi } from './src/abi/drop-erc1155'
+
+export default defineConfig({
+  out: 'src/generated.ts',
+  contracts: [
+    {
+      name: 'DropErc1155',
+      abi: dropErc1155Abi,
+      address: {
+        84532: process.env.VITE_CONTRACT_ADDRESS as `0x${string}`,
+      },
+    },
+  ],
+  plugins: [react()],
+}) as Config
+

@@ -1,0 +1,26 @@
+import type { InferSelectModel } from 'drizzle-orm'
+import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+
+import { userFilters } from './user-filters.schema'
+
+export type TokenNotification = InferSelectModel<typeof notifications>
+
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull(),
+    tokenEvent: jsonb('token_event').notNull(),
+    filterId: uuid('filter_id').references(() => userFilters.id, {
+      onDelete: 'cascade',
+    }),
+    status: text('status', { enum: ['pending', 'sent', 'failed'] }).notNull(),
+    sentAt: timestamp('sent_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_notifications_user_id').on(table.userId),
+    index('idx_notifications_status').on(table.status),
+    index('idx_notifications_created_at').on(table.createdAt),
+  ]
+)

@@ -1,0 +1,7 @@
+{
+  "name": "bun-sqlite",
+  "provides": {
+    "driver": "bun-sqlite"
+  },
+  "id": "bun-sqlite"
+}

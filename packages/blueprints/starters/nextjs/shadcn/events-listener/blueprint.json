@@ -1,0 +1,11 @@
+{
+  "name": "events-listener",
+  "description": "Event listener application using Next.js, Drizzle, Redis, Ponder, and BullMQ",
+  "version": 1,
+  "type": "app",
+  "category": "web3",
+  "framework": "vite",
+  "features": ["web3"],
+  "tags": ["nextjs", "web3", "events", "ponder", "bullmq"],
+  "id": "events-listener"
+}

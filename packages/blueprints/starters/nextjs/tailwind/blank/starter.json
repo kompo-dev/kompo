@@ -1,0 +1,14 @@
+{
+  "description": "Default Next.js fullstack application with Tailwind CSS",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "tailwind"
+    }
+  ],
+  "name": "Blank",
+  "id": "nextjs.tailwind.blank"
+}

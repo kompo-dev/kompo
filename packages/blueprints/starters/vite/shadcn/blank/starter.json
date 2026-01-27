@@ -1,0 +1,14 @@
+{
+  "description": "React + Vite application configured with Shadcn/ui",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "vite",
+      "designSystem": "shadcn"
+    }
+  ],
+  "name": "Blank",
+  "id": "vite.shadcn.blank"
+}

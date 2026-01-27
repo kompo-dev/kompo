@@ -1,0 +1,17 @@
+/**
+ * Wagmi Adapter for <%= it.pascalDomain %>
+ */
+
+import { getNetwork, type Config } from '@wagmi/core'
+import type { NetworkReader } from '../../../domains/<%= it.domain %>/ports.js'
+
+export const wagmiNetworkReader =
+  (config: Config): NetworkReader =>
+  async () => {
+    const network = await getNetwork(config)
+
+    return {
+      chainId: network.chain?.id ?? 0,
+      name: network.chain?.name ?? 'unknown',
+    }
+  }

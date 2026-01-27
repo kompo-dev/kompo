@@ -1,0 +1,302 @@
+import {
+  Description,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from '@headlessui/react'
+import {
+  ArrowUpTrayIcon,
+  CheckCircleIcon,
+  HeartIcon,
+  XCircleIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { formatEther } from 'viem'
+import { useAccount } from 'wagmi'
+
+import { CreatorCard } from '@/components/CreatorCard'
+import { RelatedNft } from '@/components/RelatedNft'
+import { useMint } from '@/hooks/useMint'
+import { useNFT } from '@/hooks/useNFT'
+import { formatAddress } from '@<%= it.scope %>/utils/shared'
+import { getExplorerTxUrl, ipfsToHttp } from '@<%= it.scope %>/utils/nft'
+
+export function NftPage() {
+  const { id = '0' } = useParams<{ id: string }>()
+  const { data: nft, isLoading, error } = useNFT(id)
+  const { isConnected, chain } = useAccount()
+  const [showConnectDialog, setShowConnectDialog] = useState(false)
+
+  // Scroll to top when navigating to a new NFT
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
+
+  // Initialize mint hook with NFT tokenId
+  const {
+    mint,
+    balance,
+    pricePerToken,
+    isClaimConditionLoaded,
+    hash,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    error: mintError,
+    reset,
+  } = useMint({
+    tokenId: BigInt(id),
+  })
+
+  // Format price for display
+  const formattedPrice = formatEther(pricePerToken)
+  const isFreeMin = pricePerToken === BigInt(0)
+
+  const handleClaim = () => {
+    if (!isConnected) {
+      setShowConnectDialog(true)
+      return
+    }
+    mint()
+  }
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12">
+          <div className="aspect-square animate-pulse rounded-2xl bg-gray-200" />
+          <div className="mt-8 space-y-4 lg:mt-0">
+            <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+            <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+            <div className="h-20 w-full animate-pulse rounded bg-gray-200" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="rounded-md bg-red-50 p-4">
+          <p className="text-sm text-red-700">
+            Failed to load NFT: {error.message}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!nft) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <p className="text-gray-600">NFT not found</p>
+      </div>
+    )
+  }
+
+  // Button state and text
+  const getButtonContent = () => {
+    if (!isClaimConditionLoaded) return 'Loading...'
+    if (!isConnected) return 'Connect Wallet to Claim'
+    if (isPending) return 'Confirm in Wallet...'
+    if (isConfirming) return 'Confirming...'
+    if (isConfirmed) return 'Claimed Successfully!'
+    return 'Claim Now'
+  }
+
+  const isButtonDisabled = !isClaimConditionLoaded || isPending || isConfirming
+
+  return (
+    <>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12">
+          {/* Left Column - Image and Creator */}
+          <div>
+            {/* NFT Image */}
+            <div className="aspect-square overflow-hidden rounded-2xl bg-linear-to-br from-purple-400 to-purple-600">
+              <img
+                src={ipfsToHttp(nft.metadata.image)}
+                alt={nft.metadata.name}
+                className="h-full w-full object-cover object-center"
+              />
+            </div>
+
+            {/* Creator Card */}
+            <CreatorCard />
+          </div>
+
+          {/* Right Column - Details */}
+          <div className="mt-8 lg:mt-0">
+            {/* Title and Actions */}
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {nft.metadata.name}
+                </h1>
+                <p className="mt-1 text-sm text-gray-500">
+                  You own: {balance.toString()}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" className="border border-gray-200 p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600">
+                  <ArrowUpTrayIcon className="h-5 w-5" />
+                </button>
+                <button type="button" className="border border-gray-200 p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-red-500">
+                  <HeartIcon className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Description */}
+            <p className="mt-4 text-gray-600">{nft.metadata.description}</p>
+
+            {/* Attributes */}
+            {nft.metadata.attributes.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-4">
+                {nft.metadata.attributes.map((attr, index) => (
+                  <div
+                    key={index}
+                    className="rounded-lg border border-gray-200 px-4 py-3"
+                  >
+                    <p className="text-xs text-gray-500 uppercase">
+                      {attr.trait_type}
+                    </p>
+                    <p className="mt-0.5 text-sm font-medium text-gray-900">
+                      {attr.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Price Section */}
+            <div className="mt-8">
+              <span className="inline-block bg-gray-900 px-3 py-1 text-xs font-medium text-white">
+                {isFreeMin ? 'Free Mint' : 'Paid Mint'}
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-gray-900">Ξ</span>
+                <span className="text-3xl font-bold text-gray-900">
+                  {isClaimConditionLoaded
+                    ? `${formattedPrice} ETH`
+                    : 'Loading...'}
+                </span>
+              </div>
+            </div>
+
+            {/* Claim Button */}
+            <button
+            type="button"
+              onClick={handleClaim}
+              disabled={isButtonDisabled}
+              className={`mt-6 flex w-full items-center justify-center gap-2 py-4 text-base font-medium transition-colors ${
+                isConfirmed
+                  ? 'bg-green-600 text-white'
+                  : isButtonDisabled
+                    ? 'cursor-not-allowed bg-gray-400 text-white'
+                    : 'bg-gray-900 text-white hover:bg-gray-700'
+              }`}
+            >
+              {isConfirmed && <CheckCircleIcon className="h-5 w-5" />}
+              {getButtonContent()}
+            </button>
+
+            {/* Transaction Status */}
+            {hash && chain && (
+              <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <p className="text-sm text-gray-600">
+                  Transaction:{' '}
+                  <a
+                    href={getExplorerTxUrl(hash, chain)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-indigo-600 hover:text-indigo-500"
+                  >
+                    {formatAddress(hash)}
+                  </a>
+                </p>
+                {isConfirming && !isConfirmed && (
+                  <p className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                    <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-gray-400" />
+                    Waiting for confirmation...
+                  </p>
+                )}
+                {isConfirmed && (
+                  <p className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircleIcon className="h-4 w-4" />
+                    Transaction confirmed!
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Error State */}
+            {mintError && (
+              <div className="mt-4 overflow-hidden rounded-lg border border-red-200 bg-red-50 p-4">
+                <div className="flex items-start gap-2">
+                  <XCircleIcon className="h-5 w-5 shrink-0 text-red-500" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-red-800">
+                      Transaction failed
+                    </p>
+                    <p className="mt-1 text-sm break-all text-red-600">
+                      {mintError.message}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="mt-3 text-sm font-medium text-red-600 hover:text-red-500"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Related NFTs */}
+        <RelatedNft currentNftId={id} />
+      </div>
+
+      {/* Connect Wallet Dialog */}
+      <Dialog
+        open={showConnectDialog}
+        onClose={() => setShowConnectDialog(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-lg font-semibold text-gray-900">
+                Wallet Required
+              </DialogTitle>
+              <button
+                type="button"
+                onClick={() => setShowConnectDialog(false)}
+                className="p-1 text-gray-400 transition-colors hover:text-gray-600"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <Description className="mt-3 text-sm text-gray-600">
+              Please connect your wallet first to claim this NFT.
+            </Description>
+            <button
+              type="button"
+              onClick={() => setShowConnectDialog(false)}
+              className="mt-6 w-full bg-gray-900 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+            >
+              Got it
+            </button>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </>
+  )
+}

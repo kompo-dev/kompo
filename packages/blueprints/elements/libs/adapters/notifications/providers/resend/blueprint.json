@@ -1,0 +1,7 @@
+{
+  "name": "Resend Notifications Adapter",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "notifications",
+  "id": "resend"
+}

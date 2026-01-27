@@ -1,0 +1,10 @@
+/**
+ * Database Core Schema (Infrastructure)
+ * 
+ * This file is a BARREL file. It should NOT define tables directly.
+ * Instead, it re-exports schemas from all registered adapters to provide
+ * a unified schema for Drizzle Kit/Studio.
+ * 
+ * The CLI automatically appends re-exports here.
+ */
+export {}

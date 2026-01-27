@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kompo Starter Schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the starter (e.g. nextjs.shadcn.base)",
+      "pattern": "^[a-z0-9.-]+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name for the starter in the CLI"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what this starter provides"
+    },
+
+    "steps": {
+      "type": "array",
+      "description": "Orchestration steps to build the project structure",
+      "items": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "enum": ["new", "add", "remove", "wire", "generate"],
+            "description": "Kompo CLI command to execute"
+          },
+          "type": {
+            "enum": ["app", "feature", "domain", "port", "adapter", "case", "entity", "driver"],
+            "description": "Type of element to act upon"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the element"
+          },
+          "driver": {
+            "type": "string",
+            "description": "Driver name (for adapters or apps)"
+          },
+          "sharedDriver": {
+            "type": "string",
+            "description": "Shared Driver name (Level 3)"
+          },
+          "port": {
+            "type": "string",
+            "description": "Port name (for adapters)"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain name"
+          },
+          "capability": {
+            "type": "string",
+            "description": "Capability type (for adapters)"
+          },
+          "app": {
+            "type": "string",
+            "description": "Target app name"
+          },
+          "alias": {
+            "type": "string",
+            "description": "Alias for the adapter"
+          },
+          "designSystem": {
+            "type": "string",
+            "description": "Design system to use (shadcn, mui, etc.)"
+          },
+          "design": {
+            "type": "string",
+            "description": "Design/Theme name"
+          },
+          "portType": {
+            "type": "string",
+            "description": "Type of port (inbound/outbound/driven/driving)"
+          }
+        },
+        "required": ["command"],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": { "name": { "const": "viem" } }
+            },
+            "then": {
+              "required": ["driver"],
+              "properties": {
+                "driver": { "enum": ["http", "websocket"] }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "name": { "const": "orm" } }
+            },
+            "then": {
+              "required": ["driver", "sharedDriver"],
+              "properties": {
+                "driver": { "enum": ["drizzle"] },
+                "sharedDriver": {
+                  "enum": [
+                    "bun-sql",
+                    "bun-sqlite",
+                    "cockroachdb",
+                    "d1",
+                    "mysql",
+                    "neon",
+                    "pglite",
+                    "planetscale",
+                    "postgres",
+                    "singlestore",
+                    "sqlite",
+                    "turso",
+                    "vercel-pg",
+                    "xata"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": ["id", "description", "steps"]
+}

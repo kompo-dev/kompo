@@ -1,0 +1,8 @@
+/**
+ * Shared Adapter Instances
+ * 
+ * This file contains singleton instances of adapters that are shared 
+ * across multiple domain services (e.g., Database, Cache, Auth).
+ */
+
+<%~ await it.hook('instances') %>

@@ -1,0 +1,15 @@
+name: <%= it.scope %>
+
+services:
+  <%= it.ormDriver %>-<%= it.alias %>:
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    container_name: <%= it.ormDriver %>-<%= it.alias %>
+    ports:
+      - "<%= it.port %>:8080"
+    environment:
+      SQLD_NODE_NAME: primary
+    volumes:
+      - <%= it.ormDriver %>_<%= it.alias %>_data:/var/lib/sqld
+
+volumes:
+  <%= it.ormDriver %>_<%= it.alias %>_data:

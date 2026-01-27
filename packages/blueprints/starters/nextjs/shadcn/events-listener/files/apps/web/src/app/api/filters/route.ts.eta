@@ -1,0 +1,54 @@
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { type Chain, createCreateUserFilterUseCase } from '@<%= it.org%>/events'
+
+import { userFilterRepository } from '@/lib/dependencies'
+
+// POST /api/filters - Create new user filter
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { userId, chains, minSupply, creatorAddresses } = body
+
+    // Validate input
+    if (!userId || !chains || !Array.isArray(chains)) {
+      return NextResponse.json(
+        { error: 'Invalid input: userId and chains are required' },
+        { status: 400 }
+      )
+    }
+
+    const createUserFilterUseCase = createCreateUserFilterUseCase({
+      userFilterRepository,
+    })
+    const filter = await createUserFilterUseCase({
+      userId,
+      chains: chains as Chain[],
+      minSupply,
+      creatorAddresses,
+    })
+
+    return NextResponse.json(filter, { status: 201 })
+  } catch (error) {
+    console.error('Error creating user filter:', error)
+    return NextResponse.json({ error: 'Failed to create filter' }, { status: 500 })
+  }
+}
+
+// GET /api/filters?userId=xxx - Get user's filters
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get('userId')
+
+    if (!userId) {
+      return NextResponse.json({ error: 'userId is required' }, { status: 400 })
+    }
+
+    const filters = await userFilterRepository.findByUserId(userId)
+    return NextResponse.json(filters)
+  } catch (error) {
+    console.error('Error fetching user filters:', error)
+    return NextResponse.json({ error: 'Failed to fetch filters' }, { status: 500 })
+  }
+}

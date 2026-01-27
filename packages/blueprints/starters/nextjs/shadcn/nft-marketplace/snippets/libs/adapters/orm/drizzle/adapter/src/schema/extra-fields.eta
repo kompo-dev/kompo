@@ -1,0 +1,5 @@
+  chainId: integer('chain_id').notNull(),
+  tokenAddress: text('token_address').notNull(),
+  tokenURI: text('token_uri').notNull(),
+  type: text('type').notNull(),
+  metadata: jsonb('metadata').$type<nft.NftMetadata>().notNull(),

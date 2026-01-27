@@ -1,0 +1,34 @@
+/**
+ * <%= it.pascalName %> Storage Adapter
+ * Provider: <%= it.provider %>
+ */
+
+export type <%= it.pascalName %>UploadResult = {
+  url: string
+  key: string
+  size: number
+}
+
+export type <%= it.pascalName %>Storage = {
+  upload: (file: File | Buffer, key: string) => Promise<<%= it.pascalName %>UploadResult>
+  download: (key: string) => Promise<Buffer>
+  delete: (key: string) => Promise<void>
+  getUrl: (key: string) => Promise<string>
+}
+
+export function <%~ it.camelName %>(): <%= it.pascalName %>Storage {
+  return {
+    async upload(_file, _key) {
+      throw new Error('Not implemented: upload')
+    },
+    async download(_key) {
+      throw new Error('Not implemented: download')
+    },
+    async delete(_key) {
+      throw new Error('Not implemented: delete')
+    },
+    async getUrl(_key) {
+      throw new Error('Not implemented: getUrl')
+    },
+  }
+}

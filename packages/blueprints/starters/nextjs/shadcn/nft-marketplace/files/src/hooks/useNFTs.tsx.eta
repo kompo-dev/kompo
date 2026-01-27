@@ -1,0 +1,12 @@
+import { useQuery } from '@tanstack/react-query'
+import { listNfts, seedDb } from '../composition'
+
+export function useNFTs() {
+  // Trigger seeding (idempotent)
+  seedDb()
+
+  return useQuery({
+    queryKey: ['nfts'],
+    queryFn: () => listNfts(),
+  })
+}

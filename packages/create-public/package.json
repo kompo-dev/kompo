@@ -1,0 +1,23 @@
+{
+  "name": "create-kompo",
+  "version": "0.1.0-beta.1",
+  "description": "Create Kompo App",
+  "main": "index.js",
+  "bin": {
+    "create-kompo": "./index.js"
+  },
+  "scripts": {
+    "clean": "rimraf dist node_modules",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "kompo",
+    "create-kompo",
+    "cli"
+  ],
+  "author": "SmarttDev",
+  "license": "MIT",
+  "dependencies": {
+    "@kompo-dev/create-kompo": "latest"
+  }
+}

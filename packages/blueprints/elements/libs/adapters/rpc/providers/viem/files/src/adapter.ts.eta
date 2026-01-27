@@ -1,0 +1,8 @@
+
+import { createRpcAdapter } from './index'
+<%~ include(`libs/drivers/rpc/viem/${it.driver}/snippets/transport.ts.eta`, it) %>
+
+export const <%= it.camelName %> = createRpcAdapter({
+  transport: createTransport(),
+  chain: undefined, // Let apps override or provide default
+})

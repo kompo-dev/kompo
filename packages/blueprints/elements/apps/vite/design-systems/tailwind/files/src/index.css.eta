@@ -1,0 +1,2 @@
+/* Import shared design system (includes Tailwind) */
+@import "@<%= it.scope %>/ui/styles";

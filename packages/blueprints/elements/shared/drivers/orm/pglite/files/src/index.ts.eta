@@ -1,0 +1,5 @@
+import { PGlite } from '@electric-sql/pglite'
+
+export function createPgliteClient(dataDir?: string) {
+  return new PGlite(dataDir)
+}

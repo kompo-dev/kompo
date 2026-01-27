@@ -1,0 +1,7 @@
+{
+  "id": "next-auth",
+  "name": "Next-auth",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "auth"
+}

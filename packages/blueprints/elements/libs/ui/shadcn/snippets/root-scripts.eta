@@ -1,0 +1,3 @@
+{
+  "ui:add": "pnpm --filter=@<%= it.scope %>/ui exec pnpm dlx shadcn@latest add"
+}

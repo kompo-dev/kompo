@@ -1,0 +1,43 @@
+import {
+  connect,
+  disconnect,
+  getAccount,
+  getChainId,
+  injected,
+} from '@wagmi/core'
+import { mainnet } from '@wagmi/core/chains'
+import { createConfig, http } from '@wagmi/core'
+import { Ports } from '<%= it.portImportPath %>'
+
+export type <%= it.className %>Config = {
+  projectId: string
+  appName: string
+}
+
+// Basic config for wagmi core actions if not provided by UI context
+const defaultConfig = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http(),
+  },
+})
+
+export const <%= it.adapterCamelName %> = (config: <%= it.className %>Config): Ports.<%= it.portPascalName %> => {
+  return {
+    get address() {
+      return getAccount(defaultConfig).address
+    },
+    get isConnected() {
+      return getAccount(defaultConfig).isConnected
+    },
+    get chainId() {
+      return getChainId(defaultConfig)
+    },
+    connect: async () => {
+      await connect(defaultConfig, { connector: injected() })
+    },
+    disconnect: async () => {
+      await disconnect(defaultConfig)
+    },
+  }
+}

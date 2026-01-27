@@ -1,0 +1,96 @@
+import { useMutation } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { zeroAddress } from 'viem'
+import { useAccount, useReadContract } from 'wagmi'
+
+import { dropErc1155Abi } from '@/generated'
+import { env } from '@/lib/env'
+import { mintNft } from '../composition'
+
+const CONTRACT_ADDRESS = env.VITE_CONTRACT_ADDRESS as `0x${string}`
+const IS_DB = env.VITE_DATA_SOURCE === 'db'
+
+interface UseMintOptions {
+  tokenId: bigint
+}
+
+export function useMint({ tokenId }: UseMintOptions) {
+  const { address } = useAccount()
+  // Mock address for DB mode if not connected
+  const userAddress = IS_DB ? '0xUser' : address
+
+  // --- READS (Conditional) ---
+
+  // Active Condition
+  const { data: activeConditionId } = useReadContract({
+    abi: dropErc1155Abi,
+    address: CONTRACT_ADDRESS,
+    functionName: 'getActiveClaimConditionId',
+    args: [tokenId],
+    query: { enabled: !IS_DB },
+  })
+
+  // Claim Condition
+  const { data: claimCondition } = useReadContract({
+    abi: dropErc1155Abi,
+    address: CONTRACT_ADDRESS,
+    functionName: 'getClaimConditionById',
+    args: activeConditionId !== undefined ? [tokenId, activeConditionId] : undefined,
+    query: {
+      enabled: !IS_DB && activeConditionId !== undefined,
+    },
+  })
+
+  // Balance
+  const { data: balance, refetch: refetchBalance } = useReadContract({
+    abi: dropErc1155Abi,
+    address: CONTRACT_ADDRESS,
+    functionName: 'balanceOf',
+    args: address ? [address, tokenId] : undefined,
+    query: {
+      enabled: !IS_DB && !!address,
+    },
+  })
+
+  // Derived State
+  const { pricePerToken, currency } = useMemo(() => {
+    if (IS_DB) return { pricePerToken: BigInt(0), currency: zeroAddress }
+    if (!claimCondition) {
+      return { pricePerToken: BigInt(0), currency: zeroAddress }
+    }
+    return {
+      pricePerToken: claimCondition.pricePerToken,
+      currency: claimCondition.currency,
+    }
+  }, [claimCondition])
+
+  // --- WRITE (Use Case) ---
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      // Execute the generic Use Case
+      return await mintNft({
+        uri: 'ipfs://mock-uri',
+        to: userAddress || '0x0',
+        amount: 1,
+      })
+    },
+    onSuccess: () => {
+      if (!IS_DB) refetchBalance()
+    },
+  })
+
+  return {
+    mint: mutation.mutate,
+    balance: balance ?? (IS_DB ? BigInt(1) : BigInt(0)), // Mock balance 1 for DB
+    pricePerToken,
+    currency,
+    isClaimConditionLoaded: IS_DB ? true : !!claimCondition,
+    hash: mutation.data as `0x${string}` | undefined,
+    isPending: mutation.isPending,
+    isConfirming: false,
+    isConfirmed: mutation.isSuccess,
+    error: mutation.error,
+    reset: mutation.reset,
+  }
+}

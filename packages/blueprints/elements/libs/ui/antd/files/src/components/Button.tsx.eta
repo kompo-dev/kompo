@@ -1,0 +1,13 @@
+import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
+
+interface ButtonProps extends AntButtonProps {
+  // Extend Ant Design Button with custom props if needed
+}
+
+export function Button({ children, ...props }: ButtonProps) {
+  return (
+    <AntButton {...props}>
+      {children}
+    </AntButton>
+  );
+}

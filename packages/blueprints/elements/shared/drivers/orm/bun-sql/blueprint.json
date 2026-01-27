@@ -1,0 +1,7 @@
+{
+  "name": "bun-sql",
+  "provides": {
+    "driver": "bun-sql"
+  },
+  "id": "bun-sql"
+}

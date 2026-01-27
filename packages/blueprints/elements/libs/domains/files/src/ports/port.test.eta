@@ -1,0 +1,8 @@
+import { describe, it, expectTypeOf } from 'vitest'
+import type { <%= it.pascalName %> } from './<%= it.name %>.port'
+
+describe('<%= it.pascalName %>', () => {
+  it('should be a valid port contract', () => {
+    expectTypeOf<<%= it.pascalName %>>().toBeObject()
+  })
+})

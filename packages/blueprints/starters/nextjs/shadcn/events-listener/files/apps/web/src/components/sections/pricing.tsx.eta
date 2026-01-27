@@ -1,0 +1,92 @@
+'use client'
+
+import { PricingCard } from '@<%= it.org%>/ui/components/pricing-card'
+import { motion } from 'framer-motion'
+
+export function PricingSection() {
+  return (
+    <section className="bg-slate-900 py-24">
+      <div className="container mx-auto px-6">
+        <motion.div
+          className="mb-16 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="mb-4 text-4xl font-bold text-white">
+            Transparent Pricing.
+            <br />
+            <span className="text-emerald-500">No Hidden Fees.</span>
+          </h2>
+        </motion.div>
+
+        <div className="mx-auto grid max-w-6xl items-stretch gap-8 md:grid-cols-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ y: -10 }}
+          >
+            <PricingCard
+              name="EXPLORER"
+              price="Free"
+              features={[
+                '1 Blockchain (Ethereum)',
+                '100 Tracked Tokens',
+                '5min Updates',
+                'Email Support',
+              ]}
+              cta="START FREE"
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="md:-mt-4 md:mb-4" // Pop out effect
+            whileHover={{ y: -10, scale: 1.02 }}
+          >
+            <PricingCard
+              name="TRADER"
+              price="$49"
+              highlight={true}
+              features={[
+                '8 Blockchains',
+                'Unlimited Tokens',
+                'Real-time Websockets',
+                'Unlimited Push Alerts',
+                'API Access',
+                'Priority Support',
+              ]}
+              cta="START 14-DAY TRIAL"
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            whileHover={{ y: -10 }}
+          >
+            <PricingCard
+              name="WHALE"
+              price="Custom"
+              features={[
+                'Everything in TRADER',
+                'Historical Data Access',
+                'White-label Options',
+                'SLA Guarantee',
+                'Dedicated Account Manager',
+              ]}
+              cta="CONTACT SALES"
+            />
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}

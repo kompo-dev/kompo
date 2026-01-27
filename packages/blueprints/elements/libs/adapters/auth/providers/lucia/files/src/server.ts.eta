@@ -1,0 +1,45 @@
+import { Lucia } from 'lucia'
+// import { DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle'
+// import { db } from '<%= it.infraPackageName %>'
+
+// const adapter = new DrizzlePostgreSQLAdapter(db, sessionsTable, usersTable)
+
+export const lucia = new Lucia(
+  // adapter,
+  {} as any, // Replace with your adapter
+  {
+    sessionCookie: {
+      attributes: {
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+    getUserAttributes: (attributes) => {
+      return {
+        email: attributes.email,
+      }
+    },
+  }
+)
+
+declare module 'lucia' {
+  interface Register {
+    Lucia: typeof lucia
+    DatabaseUserAttributes: DatabaseUserAttributes
+  }
+}
+
+interface DatabaseUserAttributes {
+  email: string
+}
+
+export async function validateSession(sessionId: string) {
+  return lucia.validateSession(sessionId)
+}
+
+export async function createSession(userId: string) {
+  return lucia.createSession(userId, {})
+}
+
+export async function invalidateSession(sessionId: string) {
+  return lucia.invalidateSession(sessionId)
+}

@@ -1,0 +1,77 @@
+import type { ProcessTokenJob, TokenCreatedEvent } from '@<%= it.org%>/events'
+import { createRedisPublisher, getBullMQRedisConfig } from '@<%= it.org%>/event-redis'
+import { type Job, Worker } from 'bullmq'
+
+import type { Dependencies } from '@/config/dependencies'
+
+// Token Processor Worker
+export const createTokenProcessorWorker = (deps: Dependencies) => {
+  const { processNewTokenUseCase } = deps
+
+  const redis = getBullMQRedisConfig()
+  const publisher = createRedisPublisher()
+
+  return new Worker<ProcessTokenJob>(
+    'process-token',
+    async (job: Job<ProcessTokenJob>) => {
+      const { chain, tokenAddress, blockNumber, transactionHash, creator } = job.data
+
+      // Skip old jobs that don't have required fields
+      if (!creator || !transactionHash) {
+        console.log(
+          `[Token Processor] Skipping job ${job.id} - missing creator or transactionHash (legacy job)`
+        )
+        return
+      }
+
+      console.log(`[Token Processor] Processing token: ${tokenAddress} on ${chain}`)
+
+      try {
+        const tokenEvent = (await processNewTokenUseCase({
+          chain,
+          tokenAddress,
+          creator,
+          blockNumber: BigInt(blockNumber), // Convert number to bigint
+          transactionHash,
+        })) as unknown as TokenCreatedEvent | null
+
+        if (!tokenEvent) {
+          console.log(
+            `[Token Processor] No new token created (skipped): ${tokenAddress} on ${chain}`
+          )
+          return
+        }
+
+        // Publish new token event to Redis Pub/Sub for SSE consumers
+        const payload = {
+          type: 'new_tokens',
+          tokens: [
+            {
+              id: tokenEvent.id,
+              chain: tokenEvent.chain,
+              tokenAddress: tokenEvent.tokenAddress,
+              creator: tokenEvent.creator,
+              blockNumber: tokenEvent.blockNumber.toString(),
+              transactionHash: tokenEvent.transactionHash,
+              timestamp: tokenEvent.timestamp,
+              metadata: tokenEvent.metadata,
+            },
+          ],
+        }
+
+        await publisher.publish('token-events:new', JSON.stringify(payload))
+
+        console.log(`[Token Processor] Successfully processed & published: ${tokenAddress}`)
+      } catch (error) {
+        console.error(`[Token Processor] Failed to process ${tokenAddress}:`, error)
+        throw error // Re-throw to allow BullMQ retry logic
+      }
+    },
+    {
+      connection: redis,
+      concurrency: 5,
+      removeOnComplete: { count: 100 },
+      removeOnFail: { count: 500 },
+    }
+  )
+}

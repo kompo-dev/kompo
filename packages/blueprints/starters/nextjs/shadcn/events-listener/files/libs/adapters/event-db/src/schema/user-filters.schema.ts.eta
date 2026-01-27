@@ -1,0 +1,21 @@
+import type { InferSelectModel } from 'drizzle-orm'
+import { boolean, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+
+export type UserFilter = InferSelectModel<typeof userFilters>
+
+export const userFilters = pgTable(
+  'user_filters',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull(),
+    chains: text('chains').array().notNull(),
+    minSupply: text('min_supply'),
+    creatorAddresses: text('creator_addresses').array(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_user_filters_user_id').on(table.userId),
+    index('idx_user_filters_is_active').on(table.isActive),
+  ]
+)

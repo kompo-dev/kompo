@@ -1,0 +1,35 @@
+import type { InferSelectModel } from 'drizzle-orm'
+import {
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core'
+
+export type TokenCreatedEvent = InferSelectModel<typeof tokenEvents>
+
+export const tokenEvents = pgTable(
+  'token_events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    chain: text('chain').notNull(),
+    tokenAddress: text('token_address').notNull(),
+    creator: text('creator').notNull(),
+    blockNumber: text('block_number').notNull(),
+    transactionHash: text('transaction_hash').notNull(),
+    timestamp: integer('timestamp').notNull(),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    // Unique constraint to prevent duplicate tokens per chain
+    uniqueIndex('idx_token_events_chain_address').on(table.chain, table.tokenAddress),
+    index('idx_token_events_chain').on(table.chain),
+    index('idx_token_events_timestamp').on(table.timestamp),
+    index('idx_token_events_creator').on(table.creator),
+  ]
+)

@@ -1,0 +1,7 @@
+{
+  "id": "privy",
+  "name": "Privy",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "auth"
+}

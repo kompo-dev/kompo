@@ -1,0 +1,57 @@
+import { randomUUID } from 'node:crypto'
+<% if (it.voImport) { %>
+import { <%= it.voType %>, <%= it.voFactory %> } from '../value-objects/<%= it.voFile %>'
+<% } %>
+<%~ await it.hook('after-imports') %>
+
+/**
+ * Entity <%= it.pascalName %>
+ *
+ * - Pure domain object
+ * - No IO / infra dependency
+ */
+export type <%= it.pascalName %> = Readonly<{
+  id: <%= it.idType %>
+<% it.fields.forEach(function(field) { %>
+  <%= field %>: <%= it.fieldTypes?.[field] ?? 'string' %>
+<% }) %>
+  <%~ await it.hook('extra-fields') %>
+}>
+
+/**
+ * Input required to create a <%= it.pascalName %>
+ */
+export type <%= it.pascalName %>Input = {
+<% it.fields.forEach(function(field) { %>
+  <%= field %>: <%= it.fieldTypes?.[field] ?? 'string' %>
+<% }) %>
+  <%~ await it.hook('extra-input-fields') %>
+}
+
+/**
+ * Factory: create a new <%= it.pascalName %>
+ * - Generates identity
+ * - Enforces invariants
+ */
+export function <%~ it.camelName %>(
+  input: <%= it.pascalName %>Input
+): <%= it.pascalName %> {
+  return {
+    id: <%= it.idType === 'string' ? 'randomUUID()' : it.idValue %>,
+<% it.fields.forEach(function(field) { %>
+    <%= field %>: input.<%= field %>,
+<% }) %>
+    <%~ await it.hook('extra-logic') %>
+  }
+}
+
+/**
+ * Reconstitute an existing <%= it.pascalName %> (from persistence)
+ * - No side effects
+ * - Trusts stored data
+ */
+export function rehydrate<%= it.pascalName %>(
+  data: <%= it.pascalName %>
+): <%= it.pascalName %> {
+  return data
+}

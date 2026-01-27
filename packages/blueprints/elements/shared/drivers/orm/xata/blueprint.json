@@ -1,0 +1,7 @@
+{
+  "name": "xata",
+  "provides": {
+    "driver": "xata"
+  },
+  "id": "xata"
+}

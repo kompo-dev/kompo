@@ -1,0 +1,46 @@
+import { Client, cacheExchange, fetchExchange, type ClientOptions } from '@urql/core';
+import type { <%= it.pascalName %>, GraphqlQueryOptions, GraphqlMutationOptions } from '@<%= it.scope %>/domains';
+
+export type UrqlAdapter = <%= it.pascalName %>;
+
+export type UrqlConfig = ClientOptions & {
+  apiKey?: string;
+  headerKey?: string;
+  url: string;
+}
+
+export function create<%= it.pascalName %>Adapter(config: UrqlConfig): UrqlAdapter {
+  const client = new Client({
+    url: config.url,
+    exchanges: [cacheExchange, fetchExchange],
+    fetchOptions: () => {
+      const headers: Record<string, string> = config.apiKey 
+        ? { [config.headerKey || 'Authorization']: config.apiKey } 
+        : {};
+      return {
+        headers: {
+          ...headers,
+          // ...config.fetchOptions?.headers // simplistic merge
+        },
+      };
+    },
+    ...config,
+  });
+
+  return {
+    query: async <T>(query: string, variables?: Record<string, any>, options?: GraphqlQueryOptions): Promise<T> => {
+      const result = await client.query<T>(query, variables).toPromise();
+      if (result.error) {
+        throw result.error;
+      }
+      return result.data as T;
+    },
+    mutate: async <T>(mutation: string, variables?: Record<string, any>, options?: GraphqlMutationOptions): Promise<T> => {
+      const result = await client.mutation<T>(mutation, variables).toPromise();
+      if (result.error) {
+        throw result.error;
+      }
+      return result.data as T;
+    }
+  };
+}

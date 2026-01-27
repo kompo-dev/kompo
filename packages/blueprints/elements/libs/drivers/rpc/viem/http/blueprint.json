@@ -1,0 +1,6 @@
+{
+  "type": "driver",
+  "id": "http",
+  "params": {},
+  "name": "http"
+}

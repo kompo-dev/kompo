@@ -1,0 +1,72 @@
+    async getById(id: string): Promise<<%= it.portImportName %>.Nft> {
+      const res = await fetch(`${config.apiUrl}/nfts/${id}`)
+      if (!res.ok) throw new Error(`Failed to fetch NFT ${id}`)
+      const data = await res.json()
+      
+      return {
+        ...data,
+        metadata: {
+          ...data.metadata,
+          image: ipfsToHttp(data.metadata.image)
+        }
+      }
+    },
+
+    async list(): Promise<<%= it.portImportName %>.Nft[]> {
+      const res = await fetch(`${config.apiUrl}/nfts`)
+      if (!res.ok) throw new Error('Failed to fetch NFTs')
+      const data = await res.json()
+      
+      return data.map((nft: any) => ({
+        ...nft,
+        metadata: {
+          ...nft.metadata,
+          image: ipfsToHttp(nft.metadata.image)
+        }
+      }))
+    },
+
+    async mint(data: { uri: string; to: string; amount: number }): Promise<string> {
+      if (typeof window === 'undefined' || !window.ethereum) {
+        throw new Error('No crypto wallet found. Please install Metamask.')
+      }
+
+      const client = createWalletClient({
+        chain: baseSepolia,
+        transport: custom(window.ethereum)
+      })
+
+      const [address] = await client.requestAddresses()
+      
+      const hash = await client.writeContract({
+        address: import.meta.env.VITE_CONTRACT_ADDRESS as `0x${string}`,
+        abi: [{
+          "inputs": [
+            { "internalType": "address", "name": "_receiver", "type": "address" },
+            { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
+            { "internalType": "uint256", "name": "_quantity", "type": "uint256" },
+            { "internalType": "address", "name": "_currency", "type": "address" },
+            { "internalType": "uint256", "name": "_pricePerToken", "type": "uint256" },
+            { "components": [{ "internalType": "bytes32[]", "name": "proof", "type": "bytes32[]" }, { "internalType": "uint256", "name": "quantityLimitPerWallet", "type": "uint256" }, { "internalType": "uint256", "name": "pricePerToken", "type": "uint256" }, { "internalType": "address", "name": "currency", "type": "address" }], "internalType": "struct IDrop1155.AllowlistProof", "name": "_allowlistProof", "type": "tuple" },
+            { "internalType": "bytes", "name": "_data", "type": "bytes" }
+          ],
+          "name": "claim",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }],
+        functionName: 'claim',
+        args: [
+          address,
+          BigInt(0),
+          BigInt(data.amount),
+          '0x0000000000000000000000000000000000000000',
+          BigInt(0),
+          { proof: [], quantityLimitPerWallet: BigInt(0), pricePerToken: BigInt(0), currency: '0x0000000000000000000000000000000000000000' },
+          '0x'
+        ],
+        account: address
+      })
+
+      return hash
+    },

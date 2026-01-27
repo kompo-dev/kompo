@@ -1,0 +1,6 @@
+/**
+ * Auth Adapter - <%= it.name %>
+ * Provider: NextAuth.js (Auth.js)
+ */
+
+export { auth, signIn, signOut } from './server.js'

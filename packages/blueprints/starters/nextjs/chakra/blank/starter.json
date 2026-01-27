@@ -1,0 +1,14 @@
+{
+  "description": "Minimal Next.js application with Chakra UI",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "chakra"
+    }
+  ],
+  "name": "Blank",
+  "id": "nextjs.chakra.blank"
+}

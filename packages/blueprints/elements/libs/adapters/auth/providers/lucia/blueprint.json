@@ -1,0 +1,7 @@
+{
+  "id": "lucia",
+  "name": "Lucia",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "auth"
+}

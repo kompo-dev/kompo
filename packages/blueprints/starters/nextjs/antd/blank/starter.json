@@ -1,0 +1,14 @@
+{
+  "id": "nextjs.antd.blank",
+  "name": "Blank",
+  "description": "Minimal Next.js application with Ant Design",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "nextjs",
+      "designSystem": "antd"
+    }
+  ]
+}

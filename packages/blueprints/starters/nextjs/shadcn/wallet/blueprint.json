@@ -1,0 +1,17 @@
+{
+  "name": "nextjs-wallet",
+  "description": "Next.js application with Shadcn/UI and RainbowKit wallet connection",
+  "version": "1",
+  "type": "app",
+  "category": "web3",
+  "framework": "nextjs",
+  "features": ["web3"],
+  "tags": ["nextjs", "react", "shadcn", "tailwind", "rainbowkit", "wagmi"],
+  "hooks": {
+    "page-logic": "snippets/page-logic.eta",
+    "demo-container": "snippets/demo-container.eta",
+    "page-imports": "snippets/page-imports.eta",
+    "page-top": "snippets/page-top.eta"
+  },
+  "id": "wallet"
+}

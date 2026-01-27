@@ -1,0 +1,23 @@
+{
+  "id": "graphql-urql",
+  "name": "Urql Client",
+  "version": "1.0.0",
+  "description": "Urql GraphQL Client Adapter",
+  "type": "adapter",
+  "category": "infrastructure",
+  "family": "graphql",
+  "capability": "graphql",
+  "provider": "urql",
+  "env": {
+    "GRAPHQL_URL": {
+      "validation": "z.string().url()",
+      "description": "GraphQL API URL",
+      "side": "server"
+    },
+    "API_KEY": {
+      "validation": "z.string().optional()",
+      "description": "API Key authorization header (optional)",
+      "side": "server"
+    }
+  }
+}

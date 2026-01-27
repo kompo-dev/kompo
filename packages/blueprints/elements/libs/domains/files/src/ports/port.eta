@@ -1,0 +1,14 @@
+/**
+ * <%= it.pascalName %>Port
+ *
+ * Domain capability contract.
+ * - Must be implemented by adapters (infrastructure)
+ * - Must NOT import infrastructure code
+ * - Can use domain types and value-objects
+ */
+
+<%~ await it.hook('after-imports') %>
+
+export type <%= it.pascalName %> = {
+  <%~ await it.hook('port-interface') %>
+}

@@ -1,0 +1,42 @@
+{
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "css.lint.unknownAtRules": "ignore",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit",
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.sort": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "cSpell.words": ["kompo", "viem"],
+  "files.associations": {
+    "*.eta": "html"
+  },
+  "json.schemas": [
+    {
+      "fileMatch": ["packages/blueprints/**/blueprint.json"],
+      "url": "./packages/blueprints/blueprint.schema.json"
+    },
+    {
+      "fileMatch": ["packages/blueprints/**/starter.json"],
+      "url": "./packages/blueprints/starter.schema.json"
+    }
+  ],
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "postman.settings.dotenv-detection-notification-visibility": false
+}

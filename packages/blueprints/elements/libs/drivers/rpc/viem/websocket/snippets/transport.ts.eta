@@ -1,0 +1,7 @@
+
+import { webSocket } from 'viem'
+
+function createTransport() {
+  const url = process.env['<%= it.generateEnvKey('RPC_URL_WSS') %>'] || process.env['RPC_URL']
+  return webSocket(url)
+}

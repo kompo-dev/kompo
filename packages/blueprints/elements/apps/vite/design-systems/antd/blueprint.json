@@ -1,0 +1,15 @@
+{
+  "id": "antd",
+  "name": "Ant Design",
+  "type": "feature",
+  "description": "Ant Design system for Vite",
+  "framework": "vite",
+  "env": {
+    "VITE_ANTD_THEME": {
+      "validation": "z.string()",
+      "default": "dark",
+      "side": "client",
+      "description": "Ant Design theme"
+    }
+  }
+}

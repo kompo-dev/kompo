@@ -1,0 +1,26 @@
+    getById: async (id: string): Promise<nftDomain.Nft | null> => {
+      const result = await db.select().from(nfts).where(eq(nfts.id, id))
+      return result.length === 0 ? null : result[0]
+    },
+
+    list: async (): Promise<nftDomain.Nft[]> => {
+      return await db.select().from(nfts)
+    },
+
+    mint: async (input: { to: string; uri: string }): Promise<string> => {
+      const newId = Math.floor(Math.random() * 10000).toString()
+      await db.insert(nfts).values({
+        id: newId,
+        chainId: 84532,
+        tokenAddress: '0xMockTokenAddress',
+        tokenURI: input.uri,
+        type: 'ERC721',
+        metadata: {
+          name: 'Minted Item',
+          description: 'Freshly minted via PGLite DB Adapter',
+          image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80',
+          attributes: [{ trait_type: 'Source', value: 'PGLite' }]
+        }
+      })
+      return newId
+    },

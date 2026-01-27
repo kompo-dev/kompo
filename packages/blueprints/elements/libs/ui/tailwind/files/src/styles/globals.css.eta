@@ -1,0 +1,7 @@
+/* Design System - Shared across all apps */
+@import "tailwindcss";
+
+/* Scan only specific directories */
+@source "../components";
+@source "../../../../apps";
+@source "../../../../libs";

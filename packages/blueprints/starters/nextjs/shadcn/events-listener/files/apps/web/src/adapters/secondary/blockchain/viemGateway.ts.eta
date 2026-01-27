@@ -1,0 +1,105 @@
+import type {
+  BlockchainGateway,
+  ChainId,
+  CheckLiquidityInput,
+  FetchNewTokensInput,
+  SubscribeToNewTokensInput,
+  Token,
+} from '@<%= it.org%>/events/client'
+import { createToken } from '@<%= it.org%>/events/client'
+import { http, type PublicClient, createPublicClient } from 'viem'
+import { arbitrum, base, mainnet, optimism, polygon } from 'viem/chains'
+
+// Helper: Get Viem chain config
+const getChainConfig = (chainId: ChainId) => {
+  const chains = {
+    1: mainnet,
+    137: polygon,
+    8453: base,
+    42161: arbitrum,
+    10: optimism,
+  }
+  return chains[chainId as keyof typeof chains] || mainnet
+}
+
+// Helper: Create Viem client
+const createClient = (chainId: ChainId) =>
+  createPublicClient({
+    chain: getChainConfig(chainId),
+    transport: http(),
+  }) as PublicClient
+
+// Implementation of BlockchainGateway port
+export const createViemGateway = (): BlockchainGateway => {
+  const clients = new Map<ChainId, PublicClient>()
+
+  const getClient = (chainId: ChainId): PublicClient => {
+    let client = clients.get(chainId)
+
+    if (!client) {
+      client = createClient(chainId)
+      clients.set(chainId, client)
+    }
+
+    return client
+  }
+
+  return {
+    fetchNewTokens: async (params: FetchNewTokensInput): Promise<readonly Token[]> => {
+      const client = getClient(params.chainId)
+
+      // Viem implementation
+      // Note: In a real scenario, we would query logs from a Factory contract.
+      // For this demo, we'll return an empty array or mocks if needed,
+      // but the structure is here.
+      try {
+        /*
+        const logs = await client.getLogs({
+          address: '0x...', // Factory address
+          fromBlock: params.fromBlock,
+          toBlock: 'latest',
+        });
+        */
+        return []
+      } catch (error) {
+        console.error('Error fetching tokens:', error)
+        return []
+      }
+    },
+
+    checkLiquidity: async (params: CheckLiquidityInput): Promise<boolean> => {
+      const client = getClient(params.chainId)
+
+      // Uniswap V3 liquidity check logic
+      try {
+        // Mock implementation for now as we don't have real contract addresses
+        // In real app: readContract on Uniswap Factory
+        return true
+      } catch {
+        return false
+      }
+    },
+
+    subscribeToNewTokens: (params: SubscribeToNewTokensInput) => {
+      const client = getClient(params.chainId)
+
+      // Mock subscription for demo purposes
+      // In real app: watchContractEvent
+      const interval = setInterval(() => {
+        // Simulate a new token occasionally
+        if (Math.random() > 0.9) {
+          const token = createToken(
+            `0x${Math.random().toString(16).slice(2, 42)}`,
+            'New Token',
+            'NEW',
+            params.chainId,
+            new Date()
+          )
+          void params.onToken(token)
+        }
+      }, 5000)
+
+      return () => clearInterval(interval)
+    },
+  }
+}

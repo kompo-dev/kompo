@@ -1,0 +1,6 @@
+{
+  "name": "kernel",
+  "description": "Shared kernel library for domain primitives and utilities",
+  "version": "1.0.0",
+  "id": "kernel"
+}

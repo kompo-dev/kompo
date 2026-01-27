@@ -1,0 +1,7 @@
+{
+  "id": "supabase-storage",
+  "name": "Supabase Storage",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "storage"
+}

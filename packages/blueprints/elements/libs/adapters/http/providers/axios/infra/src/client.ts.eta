@@ -1,0 +1,17 @@
+import { createAxiosClient, type AxiosInstance, type AxiosInfraConfig } from '@<%= it.scope %>/driver-http-axios';
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export type { AxiosInstance, AxiosInfraConfig };
+
+/**
+ * Shared Axios client instance for <%= it.name %>
+ */
+export const createClient = (config?: Partial<AxiosInfraConfig>): AxiosInstance => {
+  return createAxiosClient({
+    baseURL: serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_URL || '',
+    apiKey: serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_KEY,
+    ...config,
+  });
+};
+
+export const client: AxiosInstance = createClient();

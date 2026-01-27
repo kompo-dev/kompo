@@ -1,0 +1,10 @@
+{
+  "extends": "<%= it.tsconfigPath %>",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}

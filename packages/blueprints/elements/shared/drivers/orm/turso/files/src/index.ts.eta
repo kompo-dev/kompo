@@ -1,0 +1,10 @@
+import { createClient } from '@libsql/client'
+
+export function createTursoClient(url: string, authToken?: string) {
+  return createClient({
+    url,
+    authToken,
+  })
+}
+
+export { createClient }

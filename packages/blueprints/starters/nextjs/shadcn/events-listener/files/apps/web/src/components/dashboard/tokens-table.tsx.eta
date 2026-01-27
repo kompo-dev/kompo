@@ -1,0 +1,480 @@
+'use client'
+
+import * as React from 'react'
+
+import { cn } from '@<%= it.org%>/ui/lib/utils'
+import { ArrowUpRight, Copy, ExternalLink, RefreshCw, Search } from 'lucide-react'
+
+type Token = {
+  id: string
+  chain: string
+  tokenAddress: string
+  creator: string
+  blockNumber: string
+  transactionHash: string
+  timestamp: number
+  metadata: {
+    name?: string
+    symbol?: string
+    decimals?: number
+    totalSupply?: string
+    poolAddress?: string
+    token0?: string
+    token1?: string
+    fee?: number
+  }
+  createdAt?: string
+}
+
+const CHAIN_CONFIG: Record<string, { color: string; explorer: string; label: string }> = {
+  base: {
+    color: 'bg-blue-500',
+    explorer: 'https://basescan.org',
+    label: 'Base',
+  },
+  arbitrum: {
+    color: 'bg-blue-400',
+    explorer: 'https://arbiscan.io',
+    label: 'Arbitrum',
+  },
+  linea: {
+    color: 'bg-emerald-500',
+    explorer: 'https://lineascan.build',
+    label: 'Linea',
+  },
+}
+
+type SSEMessage =
+  | { type: 'initial'; tokens: Token[] }
+  | { type: 'new_tokens'; tokens: Token[] }
+  | { type: 'error'; message: string }
+
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error'
+
+export function TokensTable() {
+  const [tokens, setTokens] = React.useState<Token[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+  const [selectedChains, setSelectedChains] = React.useState<string[]>([
+    'base',
+    'arbitrum',
+    'linea',
+  ])
+  const [searchQuery, setSearchQuery] = React.useState('')
+  const [connectionStatus, setConnectionStatus] = React.useState<ConnectionStatus>('connecting')
+  const [newTokenCount, setNewTokenCount] = React.useState(0)
+  const [currentTime, setCurrentTime] = React.useState(() => Date.now())
+  const eventSourceRef = React.useRef<EventSource | null>(null)
+
+  // Update current time every 10 seconds for relative timestamps
+  React.useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(Date.now()), 10000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // SSE Connection
+  React.useEffect(() => {
+    if (selectedChains.length === 0) {
+      setTokens([])
+      setLoading(false)
+      return
+    }
+
+    // Close existing connection
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+    }
+
+    setConnectionStatus('connecting')
+    const params = new URLSearchParams()
+    params.set('chains', selectedChains.join(','))
+
+    const eventSource = new EventSource(`/api/tokens/stream?${params}`)
+    eventSourceRef.current = eventSource
+
+    eventSource.onopen = () => {
+      setConnectionStatus('connected')
+      setError(null)
+    }
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data: SSEMessage = JSON.parse(event.data)
+
+        if (data.type === 'initial') {
+          setTokens(data.tokens)
+          setLoading(false)
+        } else if (data.type === 'new_tokens') {
+          setTokens((prev) => {
+            // Add new tokens at the beginning, avoid duplicates
+            const existingIds = new Set(prev.map((t) => t.id))
+            const uniqueNewTokens = data.tokens.filter((t) => !existingIds.has(t.id))
+            if (uniqueNewTokens.length > 0) {
+              setNewTokenCount((c) => c + uniqueNewTokens.length)
+              // Flash effect timeout
+              setTimeout(() => setNewTokenCount(0), 3000)
+            }
+            return [...uniqueNewTokens, ...prev]
+          })
+        } else if (data.type === 'error') {
+          setError(data.message)
+        }
+      } catch (err) {
+        console.error('[SSE] Failed to parse message:', err)
+      }
+    }
+
+    eventSource.onerror = () => {
+      setConnectionStatus('error')
+      setError('Connection lost. Reconnecting...')
+      // EventSource will auto-reconnect
+    }
+
+    return () => {
+      eventSource.close()
+      eventSourceRef.current = null
+    }
+  }, [selectedChains])
+
+  // Manual refresh - reconnects SSE
+  const handleRefresh = React.useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+      eventSourceRef.current = null
+    }
+    // Trigger reconnect by updating a dependency
+    setSelectedChains((prev) => [...prev])
+  }, [])
+
+  const filteredTokens = React.useMemo(() => {
+    if (!searchQuery) return tokens
+    const query = searchQuery.toLowerCase()
+    return tokens.filter(
+      (token) =>
+        token.tokenAddress.toLowerCase().includes(query) ||
+        token.creator.toLowerCase().includes(query) ||
+        token.metadata?.name?.toLowerCase().includes(query) ||
+        token.metadata?.symbol?.toLowerCase().includes(query)
+    )
+  }, [tokens, searchQuery])
+
+  const toggleChain = (chain: string) => {
+    setSelectedChains((prev) =>
+      prev.includes(chain) ? prev.filter((c) => c !== chain) : [...prev, chain]
+    )
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  const formatTimeAgo = React.useCallback(
+    (timestamp: number) => {
+      const seconds = Math.floor(currentTime / 1000 - timestamp)
+      if (seconds < 0) return 'just now'
+      if (seconds < 60) return `${seconds}s ago`
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+      return `${Math.floor(seconds / 86400)}d ago`
+    },
+    [currentTime]
+  )
+
+  const getExplorerUrl = (chain: string, type: 'token' | 'tx', hash: string) => {
+    const explorer = CHAIN_CONFIG[chain]?.explorer || ''
+    if (type === 'token') return `${explorer}/token/${hash}`
+    return `${explorer}/tx/${hash}`
+  }
+
+  if (loading && tokens.length === 0) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <RefreshCw className="h-8 w-8 animate-spin text-emerald-500" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Filters */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Search */}
+        <div className="relative max-w-md flex-1">
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search by address, name, or symbol..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-lg border border-slate-700 bg-slate-800/50 py-2 pr-4 pl-10 text-sm text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+          />
+        </div>
+
+        {/* Chain Filters */}
+        <div className="flex items-center gap-2">
+          {Object.entries(CHAIN_CONFIG).map(([chain, config]) => (
+            <button
+              key={chain}
+              onClick={() => toggleChain(chain)}
+              className={cn(
+                'flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all',
+                selectedChains.includes(chain)
+                  ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
+                  : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+              )}
+            >
+              <span className={cn('h-2 w-2 rounded-full', config.color)} />
+              {config.label}
+            </button>
+          ))}
+          {/* Connection Status */}
+          <div className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-1.5">
+            <span
+              className={cn(
+                'h-2 w-2 rounded-full',
+                connectionStatus === 'connected' && 'bg-emerald-500',
+                connectionStatus === 'connecting' && 'animate-pulse bg-yellow-500',
+                connectionStatus === 'error' && 'bg-red-500',
+                connectionStatus === 'disconnected' && 'bg-slate-500'
+              )}
+            />
+            <span className="text-xs text-slate-400">
+              {connectionStatus === 'connected' && 'Live'}
+              {connectionStatus === 'connecting' && 'Connecting...'}
+              {connectionStatus === 'error' && 'Reconnecting...'}
+              {connectionStatus === 'disconnected' && 'Disconnected'}
+            </span>
+            {newTokenCount > 0 && (
+              <span className="animate-pulse rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400">
+                +{newTokenCount} new
+              </span>
+            )}
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={connectionStatus === 'connecting'}
+            className="ml-2 rounded-lg border border-slate-700 bg-slate-800/50 p-2 text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200 disabled:opacity-50"
+            title="Reconnect"
+          >
+            <RefreshCw
+              className={cn('h-4 w-4', connectionStatus === 'connecting' && 'animate-spin')}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <StatCard label="Total Tokens" value={filteredTokens.length.toString()} />
+        <StatCard
+          label="Base"
+          value={filteredTokens.filter((t) => t.chain === 'base').length.toString()}
+          color="blue"
+        />
+        <StatCard
+          label="Arbitrum"
+          value={filteredTokens.filter((t) => t.chain === 'arbitrum').length.toString()}
+          color="blue"
+        />
+        <StatCard
+          label="Linea"
+          value={filteredTokens.filter((t) => t.chain === 'linea').length.toString()}
+          color="emerald"
+        />
+      </div>
+
+      {/* Error State */}
+      {error && (
+        <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4 text-center text-sm text-red-400">
+          {error}
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-800 bg-slate-900/80">
+                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-slate-400 uppercase">
+                  Token
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-slate-400 uppercase">
+                  Chain
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-slate-400 uppercase">
+                  Pool Info
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-slate-400 uppercase">
+                  Creator
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-slate-400 uppercase">
+                  Time
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-slate-400 uppercase">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/50">
+              {filteredTokens.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center text-slate-500">
+                    {searchQuery
+                      ? 'No tokens match your search'
+                      : 'No tokens detected yet. New tokens will appear here.'}
+                  </td>
+                </tr>
+              ) : (
+                filteredTokens.map((token) => (
+                  <tr key={token.id} className="group transition-colors hover:bg-slate-800/30">
+                    {/* Token */}
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-sm font-medium text-slate-200">
+                            {token.metadata?.symbol || 'Unknown'}
+                          </span>
+                          {token.metadata?.name && (
+                            <span className="text-xs text-slate-500">{token.metadata.name}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="font-mono text-xs text-slate-500">
+                            {formatAddress(token.tokenAddress)}
+                          </span>
+                          <button
+                            onClick={() => copyToClipboard(token.tokenAddress)}
+                            className="opacity-0 transition-opacity group-hover:opacity-100"
+                          >
+                            <Copy className="h-3 w-3 text-slate-500 hover:text-slate-300" />
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Chain */}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            'h-2 w-2 rounded-full',
+                            CHAIN_CONFIG[token.chain]?.color || 'bg-slate-500'
+                          )}
+                        />
+                        <span className="text-sm text-slate-300 capitalize">{token.chain}</span>
+                      </div>
+                    </td>
+
+                    {/* Pool Info */}
+                    <td className="px-4 py-4">
+                      {token.metadata?.poolAddress ? (
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1">
+                            <span className="font-mono text-xs text-slate-400">
+                              {formatAddress(token.metadata.poolAddress)}
+                            </span>
+                            <a
+                              href={getExplorerUrl(
+                                token.chain,
+                                'token',
+                                token.metadata.poolAddress
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="opacity-0 transition-opacity group-hover:opacity-100"
+                            >
+                              <ExternalLink className="h-3 w-3 text-slate-500 hover:text-emerald-400" />
+                            </a>
+                          </div>
+                          {token.metadata?.fee && (
+                            <span className="text-xs text-emerald-500">
+                              {token.metadata.fee / 10000}% fee tier
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-600">-</span>
+                      )}
+                    </td>
+
+                    {/* Creator */}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-1">
+                        <span className="font-mono text-xs text-slate-400">
+                          {formatAddress(token.creator)}
+                        </span>
+                        <button
+                          onClick={() => copyToClipboard(token.creator)}
+                          className="opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          <Copy className="h-3 w-3 text-slate-500 hover:text-slate-300" />
+                        </button>
+                      </div>
+                    </td>
+
+                    {/* Time */}
+                    <td className="px-4 py-4">
+                      <span className="text-xs text-slate-500">
+                        {formatTimeAgo(token.timestamp)}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <a
+                          href={getExplorerUrl(token.chain, 'token', token.tokenAddress)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-md border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-300 transition-colors hover:border-emerald-500/50 hover:text-emerald-400"
+                        >
+                          View Token
+                        </a>
+                        <a
+                          href={getExplorerUrl(token.chain, 'tx', token.transactionHash)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-md border border-slate-700 bg-slate-800 p-1 text-slate-400 transition-colors hover:border-emerald-500/50 hover:text-emerald-400"
+                        >
+                          <ArrowUpRight className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StatCard({
+  label,
+  value,
+  color = 'slate',
+}: {
+  label: string
+  value: string
+  color?: 'slate' | 'blue' | 'emerald'
+}) {
+  const colorClasses = {
+    slate: 'text-slate-200',
+    blue: 'text-blue-400',
+    emerald: 'text-emerald-400',
+  }
+
+  return (
+    <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-4">
+      <p className="text-xs font-medium tracking-wider text-slate-500 uppercase">{label}</p>
+      <p className={cn('mt-1 text-2xl font-bold', colorClasses[color])}>{value}</p>
+    </div>
+  )
+}

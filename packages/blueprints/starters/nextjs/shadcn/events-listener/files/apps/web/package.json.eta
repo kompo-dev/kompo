@@ -1,0 +1,41 @@
+{
+  "name": "<%= it.packageName %>",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@<%= it.org%>/events": "workspace:*",
+    "@<%= it.org%>/event-db": "workspace:*",
+    "@<%= it.org%>/event-redis": "workspace:*",
+    "@<%= it.org%>/event-workers": "workspace:*",
+    "@radix-ui/react-icons": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "@rainbow-me/rainbowkit": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "framer-motion": "^12.0.0",
+    "lucide-react": "catalog:",
+    "next": "15.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "recharts": "^3.5.0",
+    "tailwind-merge": "catalog:",
+    "viem": "catalog:",
+    "wagmi": "catalog:",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "postcss": "^8",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  }
+}

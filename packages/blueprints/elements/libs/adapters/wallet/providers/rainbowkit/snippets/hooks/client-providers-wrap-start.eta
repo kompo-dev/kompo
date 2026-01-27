@@ -1,0 +1,3 @@
+<WagmiProvider config={config}>
+  <QueryClientProvider client={queryClient}>
+    <RainbowKitProvider>

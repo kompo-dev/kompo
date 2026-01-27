@@ -1,0 +1,47 @@
+  // Seed flag to avoid re-seeding endlessly in hot reload
+  let seeded = false
+
+  async function seed() {
+    try {
+      const existing = await db.select().from(nfts).limit(1)
+      if (existing.length > 0) return
+    } catch (e) {
+      return 
+    }
+
+    console.log('[NftDbAdapter] Seeding database...')
+    await db.insert(nfts).values([
+      {
+        id: '1',
+        chainId: 84532,
+        tokenAddress: '0x0000000000000000000000000000000000000000',
+        tokenURI: 'ipfs://QmQ4DFYeYMgfGkT9vhnphw24Ea2rbX3ko67MK5UqBS7A1X/0.jpg',
+        type: 'ERC721',
+        metadata: {
+          name: 'Cosmic Cube #1',
+          description: 'A legendary cosmic artifact found in the deep void.',
+          image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80',
+          attributes: [{ trait_type: 'Rarity', value: 'Legendary' }]
+        }
+      },
+      {
+        id: '2',
+        chainId: 84532,
+        tokenAddress: '0x0000000000000000000000000000000000000000',
+        tokenURI: 'ipfs://QmQ4DFYeYMgfGkT9vhnphw24Ea2rbX3ko67MK5UqBS7A1X/1.jpg',
+        type: 'ERC721',
+        metadata: {
+          name: 'Digital Dream #2',
+          description: 'A fragment of a forgotten digital reality.',
+          image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80',
+          attributes: [{ trait_type: 'Rarity', value: 'Rare' }]
+        }
+      }
+    ])
+    console.log('[NftDbAdapter] Seeded!')
+  }
+
+  // Trigger seed on init
+  if (!seeded) {
+    seed().then(() => { seeded = true }).catch(console.error)
+  }

@@ -1,0 +1,2 @@
+  query<T>(query: string, variables?: Record<string, any>, options?: GraphqlQueryOptions): Promise<T>
+  mutate<T>(mutation: string, variables?: Record<string, any>, options?: GraphqlMutationOptions): Promise<T>

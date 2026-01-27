@@ -1,0 +1,5 @@
+{
+  "db:generate": "pnpm --filter=<%= it.infraPackageName %> exec drizzle-kit generate",
+  "db:push": "pnpm --filter=<%= it.infraPackageName %> exec drizzle-kit push",
+  "db:studio": "pnpm --filter=<%= it.infraPackageName %> exec drizzle-kit studio"
+}

@@ -1,0 +1,30 @@
+/**
+ * <%= it.pascalName %> Analytics Adapter
+ * Provider: <%= it.provider %>
+ */
+
+export type <%= it.pascalName %>Event = {
+  name: string
+  properties?: Record<string, unknown>
+  userId?: string
+}
+
+export type <%= it.pascalName %>Analytics = {
+  track: (event: <%= it.pascalName %>Event) => Promise<void>
+  identify: (userId: string, traits?: Record<string, unknown>) => Promise<void>
+  page: (name: string, properties?: Record<string, unknown>) => Promise<void>
+}
+
+export function <%~ it.camelName %>(): <%= it.pascalName %>Analytics {
+  return {
+    async track(_event) {
+      throw new Error('Not implemented: track')
+    },
+    async identify(_userId, _traits) {
+      throw new Error('Not implemented: identify')
+    },
+    async page(_name, _properties) {
+      throw new Error('Not implemented: page')
+    },
+  }
+}

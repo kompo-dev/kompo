@@ -1,0 +1,7 @@
+
+import { http } from 'viem'
+
+function createTransport() {
+  const url = process.env['<%= it.generateEnvKey('RPC_URL') %>'] || process.env['RPC_URL']
+  return http(url)
+}

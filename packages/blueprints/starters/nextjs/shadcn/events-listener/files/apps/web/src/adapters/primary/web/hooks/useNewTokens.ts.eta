@@ -1,0 +1,46 @@
+import { useEffect } from 'react'
+
+import type { ChainId } from '@<%= it.org%>/events/client'
+import { createFetchNewTokensUseCase } from '@<%= it.org%>/events/client'
+
+import { useTokenStore } from '@/adapters/primary/web/stores/tokenStore'
+import { createInMemoryTokenRepository } from '@/adapters/secondary/api/inMemoryTokenRepository'
+import { createViemGateway } from '@/adapters/secondary/blockchain/viemGateway'
+
+export const useNewTokens = (chainId: ChainId) => {
+  const { tokens, setTokens, setIsLoading, setError } = useTokenStore()
+
+  useEffect(() => {
+    // Dependency Injection
+    const gateway = createViemGateway()
+    const repository = createInMemoryTokenRepository()
+
+    // Create use case with dependencies
+    const fetchTokensUseCase = createFetchNewTokensUseCase({
+      blockchainGateway: gateway,
+      tokenRepository: repository,
+    })
+
+    const loadTokens = async () => {
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const result = await fetchTokensUseCase({
+          chainId,
+          fromBlock: BigInt(19000000), // Example
+        })
+
+        setTokens(result.tokens)
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Unknown error')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadTokens()
+  }, [chainId, setTokens, setIsLoading, setError])
+
+  return { tokens }
+}

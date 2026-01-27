@@ -1,0 +1,15 @@
+{
+  "name": "@<%= it.scope %>/driver-<%= it.driver %>",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "bun-types": "catalog:"
+  }
+}

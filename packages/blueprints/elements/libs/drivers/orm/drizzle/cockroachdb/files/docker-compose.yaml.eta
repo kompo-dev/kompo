@@ -1,0 +1,15 @@
+name: <%= it.scope %>
+
+services:
+  <%= it.ormDriver %>-<%= it.alias %>:
+    image: cockroachdb/cockroach:latest
+    container_name: <%= it.ormDriver %>-<%= it.alias %>
+    ports:
+      - "<%= it.port %>:26257"
+      - "8081:8080"
+    command: start-single-node --insecure
+    volumes:
+      - <%= it.ormDriver %>_<%= it.alias %>_data:/cockroach/cockroach-data
+
+volumes:
+  <%= it.ormDriver %>_<%= it.alias %>_data:

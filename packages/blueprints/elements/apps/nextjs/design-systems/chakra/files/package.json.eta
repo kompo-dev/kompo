@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@chakra-ui/react": "catalog:",
+    "@chakra-ui/next-js": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "framer-motion": "catalog:",
+    "@<%= it.scope %>/ui": "workspace:*",
+    "@<%= it.scope %>/config": "workspace:*"
+  }
+}

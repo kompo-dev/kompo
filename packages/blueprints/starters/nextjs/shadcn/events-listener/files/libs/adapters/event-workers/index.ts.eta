@@ -1,0 +1,37 @@
+/**
+ * <%= it.pascalName %> Jobs Adapter
+ * Provider: <%= it.provider %>
+ */
+
+export type <%= it.pascalName %>JobOptions = {
+  delay?: number
+  attempts?: number
+  priority?: number
+}
+
+export type <%= it.pascalName %>Job<T = unknown> = {
+  id: string
+  name: string
+  data: T
+  opts?: <%= it.pascalName %>JobOptions
+}
+
+export type <%= it.pascalName %>Jobs = {
+  add: <T>(name: string, data: T, opts?: <%= it.pascalName %>JobOptions) => Promise<string>
+  process: <T>(name: string, handler: (job: <%= it.pascalName %>Job<T>) => Promise<void>) => Promise<void>
+  getJob: (id: string) => Promise<<%= it.pascalName %>Job | null>
+}
+
+export function <%~ it.camelName %>(): <%= it.pascalName %>Jobs {
+  return {
+    async add(_name, _data, _opts) {
+      throw new Error('Not implemented: add')
+    },
+    async process(_name, _handler) {
+      throw new Error('Not implemented: process')
+    },
+    async getJob(_id) {
+      throw new Error('Not implemented: getJob')
+    },
+  }
+}

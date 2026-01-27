@@ -1,0 +1,13 @@
+{
+  "env": {
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string",
+      "validation": "z.string().url()",
+      "side": "server",
+      "mapTo": "url",
+      "default": "postgres://user:password@localhost:5432/main"
+    }
+  },
+  "id": "planetscale",
+  "name": "planetscale"
+}

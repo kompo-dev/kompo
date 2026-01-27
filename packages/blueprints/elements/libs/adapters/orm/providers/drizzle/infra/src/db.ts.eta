@@ -1,0 +1,3 @@
+<%~ include(`libs/drivers/orm/drizzle/${it.driver}/snippets/instance.ts.eta`, it) %>
+
+export * as orm from 'drizzle-orm'

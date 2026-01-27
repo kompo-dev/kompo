@@ -1,0 +1,1 @@
+<%~ include('libs/drivers/orm/_common/cockroachdb/files/index.ts.eta', it) %>

@@ -1,0 +1,1 @@
+<%~ include('libs/drivers/orm/_common/d1/files/index.ts.eta', it) %>

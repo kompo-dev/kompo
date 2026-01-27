@@ -1,0 +1,7 @@
+import { SQL } from 'bun'
+import { drizzle } from 'drizzle-orm/bun-sql'
+
+export function createBunSqlClient(connectionString: string) {
+  const client = new SQL(connectionString)
+  return drizzle(client)
+}

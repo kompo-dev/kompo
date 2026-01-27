@@ -1,0 +1,42 @@
+import { client, createClient, type AxiosInstance, type AxiosInfraConfig } from '<%= it.infraPackageName %>';
+import type { Ports } from '<%= it.portImportPath %>';
+
+export type AxiosAdapter = Ports.<%= it.portPascalName %>;
+
+export type AxiosConfig = Partial<AxiosInfraConfig>;
+
+export type HttpRequestOptions = Ports.HttpRequestOptions
+
+export function create<%= it.pascalName %>Adapter(config?: AxiosConfig): AxiosAdapter {
+  const localClient = config ? createClient(config) : client;
+  // Navigation through the shared client from infra
+
+  // Helper to map options
+  const getConfig = (options?: HttpRequestOptions) => ({
+    headers: options?.headers,
+    params: options?.params,
+  })
+
+  return {
+    get: async <T>(url: string, options?: HttpRequestOptions): Promise<T> => {
+      const response = await localClient.get<T>(url, getConfig(options))
+      return response.data
+    },
+    post: async <T>(url: string, body?: unknown, options?: HttpRequestOptions): Promise<T> => {
+      const response = await localClient.post<T>(url, body, getConfig(options))
+      return response.data
+    },
+    put: async <T>(url: string, body?: unknown, options?: HttpRequestOptions): Promise<T> => {
+      const response = await localClient.put<T>(url, body, getConfig(options))
+      return response.data
+    },
+    patch: async <T>(url: string, body?: unknown, options?: HttpRequestOptions): Promise<T> => {
+      const response = await localClient.patch<T>(url, body, getConfig(options))
+      return response.data
+    },
+    delete: async <T>(url: string, options?: HttpRequestOptions): Promise<T> => {
+      const response = await localClient.delete<T>(url, getConfig(options))
+      return response.data
+    },
+  };
+}

@@ -1,0 +1,9 @@
+import { connect } from '@planetscale/database'
+
+export function createPlanetScaleClient(url: string) {
+  return connect({
+    url,
+  })
+}
+
+export { connect }

@@ -1,0 +1,6 @@
+  /* Mounted check for ConnectButton hydration safety */
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);

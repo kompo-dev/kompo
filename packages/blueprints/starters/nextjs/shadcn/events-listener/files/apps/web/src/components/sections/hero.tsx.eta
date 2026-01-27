@@ -1,0 +1,136 @@
+'use client'
+
+import { Button } from '@<%= it.org%>/ui/components/button'
+import { Card } from '@<%= it.org%>/ui/components/card'
+import { Stat } from '@<%= it.org%>/ui/components/stat'
+import { motion } from 'framer-motion'
+
+export function HeroSection() {
+  return (
+    <section className="relative flex min-h-screen items-center overflow-hidden bg-slate-950 pt-20">
+      {/* Animated Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] bg-[size:4rem_4rem] opacity-20" />
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-6">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <motion.h1
+              className="mb-6 text-5xl leading-tight font-bold tracking-tight text-white md:text-7xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              TRACK NEW
+              <br />
+              <span className="text-emerald-500">ERC20 TOKENS</span>
+              <br />
+              IN REAL-TIME
+            </motion.h1>
+
+            <motion.p
+              className="mb-8 max-w-lg text-xl text-slate-400"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              Automatic Uniswap V3 liquidity analysis. Instant alerts. Professional dashboard. Never
+              miss a moonshot again.
+            </motion.p>
+
+            {/* CTA Group */}
+            <motion.div
+              className="flex flex-wrap gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Button size="lg" variant="glow" className="h-12 px-8 text-base">
+                START FREE
+              </Button>
+              <Button size="lg" variant="outline" className="h-12 px-8 text-base">
+                VIEW DEMO
+              </Button>
+            </motion.div>
+
+            {/* Live Stats Bar */}
+            <motion.div
+              className="mt-12 flex gap-8 border-t border-slate-800/50 pt-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <Stat label="Tracked Tokens" value="12,847" />
+              <Stat label="Blockchains" value="8" />
+              <Stat label="Updates/min" value="~340" />
+            </motion.div>
+          </div>
+
+          {/* Mockup Dashboard (Right Side) */}
+          <motion.div
+            className="relative hidden lg:block"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+          >
+            <div className="absolute -inset-1 animate-pulse rounded-2xl bg-gradient-to-r from-emerald-500 to-blue-600 opacity-20 blur" />
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
+            >
+              <Card className="group relative aspect-video overflow-hidden border-slate-800 bg-slate-900/90 p-2">
+                <div className="bg-grid-slate-800/20 absolute inset-0 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
+
+                {/* Abstract UI Representation */}
+                <div className="flex h-full flex-col gap-4 p-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div className="h-6 w-32 animate-pulse rounded bg-slate-800" />
+                    <div className="flex gap-2">
+                      <div className="h-8 w-8 rounded-full bg-slate-800" />
+                      <div className="h-8 w-8 rounded-full bg-slate-800" />
+                    </div>
+                  </div>
+                  {/* Chart Area */}
+                  <div className="relative flex-1 overflow-hidden rounded-lg border border-slate-800 bg-slate-800/50">
+                    <div className="absolute right-0 bottom-0 left-0 h-2/3 bg-gradient-to-t from-emerald-500/10 to-transparent" />
+                    <svg
+                      className="absolute right-0 bottom-0 left-0 h-full w-full"
+                      preserveAspectRatio="none"
+                    >
+                      <motion.path
+                        d="M0,100 C150,80 300,120 450,60 C600,0 750,40 900,20 L900,150 L0,150 Z"
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="2"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 2, delay: 0.5 }}
+                      />
+                    </svg>
+                  </div>
+                  {/* List Items */}
+                  <div className="space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="flex h-10 items-center gap-4 rounded bg-slate-800/30 px-4"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1 + i * 0.1 }}
+                      >
+                        <div className="h-6 w-6 rounded-full bg-emerald-500/20" />
+                        <div className="h-3 w-24 rounded bg-slate-800" />
+                        <div className="ml-auto h-3 w-16 rounded bg-slate-800" />
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}

@@ -1,0 +1,87 @@
+import Link from 'next/link'
+
+export function HomeCards() {
+  return (
+    <section className="max-w-6xl mx-auto px-6 pb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-emerald-500/50 transition-colors">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl"><%= it.icons.hexagon %></span>
+            <h3 className="text-xl font-semibold text-emerald-500"><%= it.texts.features.architecture.title %></h3>
+          </div>
+          <p className="text-gray-400 text-sm mb-4">
+            <%= it.texts.features.architecture.description %>
+          </p>
+          <p className="text-sm text-gray-300 mb-4">
+            <%= it.texts.features.architecture.details %>
+          </p>
+          <Link
+            href="<%= it.texts.features.architecture.url %>"
+            className="inline-flex items-center justify-center rounded-md border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-100 transition-colors hover:bg-gray-700 hover:text-white"
+          >
+            <%= it.texts.features.architecture.linkText %>
+          </Link>
+        </div>
+
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 transition-colors">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl"><%= it.icons.rocket %></span>
+            <h3 className="text-xl font-semibold text-blue-500"><%= it.texts.features.getStarted.title %></h3>
+          </div>
+          <p className="text-gray-400 text-sm mb-4"><%= it.texts.features.getStarted.description %></p>
+          <div className="text-sm text-gray-300 space-y-1 mb-4">
+<% it.texts.features.getStarted.commands.forEach(cmd => { %>
+            <p>
+              <code className="bg-gray-800 px-2 py-1 rounded text-emerald-400">
+                <%= cmd %>
+              </code>
+            </p>
+<% }) %>
+          </div>
+          <Link
+            href="<%= it.texts.features.getStarted.url %>"
+            className="inline-flex items-center justify-center rounded-md border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-100 transition-colors hover:bg-gray-700 hover:text-white"
+          >
+            <%= it.texts.features.getStarted.linkText %>
+          </Link>
+        </div>
+
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-purple-500/50 transition-colors">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl"><%= it.icons.book %></span>
+            <h3 className="text-xl font-semibold text-purple-500"><%= it.texts.features.docs.title %></h3>
+          </div>
+          <p className="text-gray-400 text-sm mb-4"><%= it.texts.features.docs.description %></p>
+          <p className="text-sm text-gray-300 mb-4">
+            <%= it.texts.features.docs.details %>
+          </p>
+          <a
+            href="<%= it.texts.features.docs.url %>"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-md border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-100 transition-colors hover:bg-gray-700 hover:text-white"
+          >
+            Open Docs
+          </a>
+        </div>
+
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-orange-500/50 transition-colors">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl"><%= it.icons.palette %></span>
+            <h3 className="text-xl font-semibold text-orange-500"><%= it.texts.features.studio.title %></h3>
+          </div>
+          <p className="text-gray-400 text-sm mb-4"><%= it.texts.features.studio.description %></p>
+          <p className="text-sm text-gray-300 mb-4">
+            <%= it.texts.features.studio.details %>
+          </p>
+          <Link
+            href="<%= it.texts.features.studio.url %>"
+            className="inline-flex items-center justify-center rounded-md border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-100 transition-colors hover:bg-gray-700 hover:text-white"
+          >
+            Open Studio
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}

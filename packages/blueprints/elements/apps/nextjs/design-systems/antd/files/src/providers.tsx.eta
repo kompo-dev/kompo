@@ -1,0 +1,19 @@
+'use client';
+
+import type { ReactNode } from 'react'
+import { ConfigProvider } from 'antd';
+import AntdRegistry from './lib/antd-registry';
+
+interface ProvidersProps {
+  children: ReactNode
+}
+
+export function Providers({ children }: ProvidersProps) {
+  return (
+    <AntdRegistry>
+       <ConfigProvider>
+          {children}
+       </ConfigProvider>
+    </AntdRegistry>
+  )
+}

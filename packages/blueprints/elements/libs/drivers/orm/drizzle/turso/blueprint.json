@@ -1,0 +1,20 @@
+{
+  "env": {
+    "DATABASE_URL": {
+      "description": "Turso database URL",
+      "validation": "z.string().url()",
+      "side": "server",
+      "mapTo": "url",
+      "default": "libsql://db-org.turso.io"
+    },
+    "AUTH_TOKEN": {
+      "description": "Turso Auth Token",
+      "validation": "z.string()",
+      "side": "server",
+      "mapTo": "authToken",
+      "default": ""
+    }
+  },
+  "id": "turso",
+  "name": "turso"
+}

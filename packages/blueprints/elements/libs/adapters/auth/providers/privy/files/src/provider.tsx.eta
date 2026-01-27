@@ -1,0 +1,31 @@
+'use client'
+
+import { PrivyProvider as BasePrivyProvider } from '@privy-io/react-auth'
+import type { ReactNode } from 'react'
+
+interface PrivyProviderProps {
+  children: ReactNode
+}
+
+export function PrivyProvider({ children }: PrivyProviderProps) {
+  const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
+
+  if (!appId) {
+    throw new Error('Missing NEXT_PUBLIC_PRIVY_APP_ID environment variable')
+  }
+
+  return (
+    <BasePrivyProvider
+      appId={appId}
+      config={{
+        loginMethods: ['email', 'wallet'],
+        appearance: {
+          theme: 'light',
+          accentColor: '#676FFF',
+        },
+      }}
+    >
+      {children}
+    </BasePrivyProvider>
+  )
+}

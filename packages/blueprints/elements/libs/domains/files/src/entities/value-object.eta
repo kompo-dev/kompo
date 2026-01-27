@@ -1,0 +1,18 @@
+/**
+ * Value Object <%= it.name %>
+ * - Immutable, typed and secured
+ */
+
+export type <%= it.name %> = string & { readonly brand: unique symbol }
+
+/**
+ * Factory to create a <%= it.name %>
+ * - Guarantees type correctness
+ */
+export function <%= it.factoryName %>(value: string): <%= it.name %> {
+  if (!value) {
+    throw new Error('<%= it.name %> cannot be empty')
+  }
+  // TODO: add specific validations if necessary
+  return value as <%= it.name %>
+}

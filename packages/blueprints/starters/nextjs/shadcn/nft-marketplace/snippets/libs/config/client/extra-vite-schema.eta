@@ -1,0 +1,4 @@
+VITE_API_URL: z.string().url().optional(),
+VITE_CONTRACT_ADDRESS: z.string().min(1),
+VITE_DATA_SOURCE: z.enum(['web3', 'db']).default('web3'),
+VITE_ETHERSCAN_API_KEY: z.string().optional(),

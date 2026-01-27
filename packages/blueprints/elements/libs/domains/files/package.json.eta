@@ -1,0 +1,19 @@
+{
+  "name": "@<%= it.scope %>/domains",
+  "version": "0.1.0",
+  "description": "Domain logic",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": "./src/*/index.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

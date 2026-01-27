@@ -1,0 +1,18 @@
+{
+  "name": "@<%= it.scope %>/driver-<%= it.driver %>",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node",
+    "dev:watch": "bun build ./src/index.ts --outdir ./dist --target node --watch",
+    "dev:up": "docker-compose up",
+    "dev": "pnpm dev:watch & pnpm dev:up"
+  },
+  "dependencies": {
+    "bun-types": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

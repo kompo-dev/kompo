@@ -1,0 +1,94 @@
+import { describe, it, expect } from 'vitest'
+import type { TokenBalanceReader } from '../ports'
+import { getTokenBalance, type GetTokenBalanceInput } from '../use-cases/get-token-balance'
+
+describe('Token Balance Domain', () => {
+  describe('getTokenBalance', () => {
+    it('should return token balance information', async () => {
+      // Arrange
+      const balance = 1000000000000000000n // 1 token with 18 decimals
+      const formattedBalance = '1.0'
+      const mockTokenBalanceReader: TokenBalanceReader = async () => ({
+        balance,
+        formatted: formattedBalance,
+        decimals: 18,
+        symbol: 'USDC',
+      })
+      
+      const input: GetTokenBalanceInput = {
+        address: '0x1234567890123456789012345678901234567890' as const,
+        token: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd' as const,
+      }
+
+      // Act
+      const result = await getTokenBalance(mockTokenBalanceReader)(input)
+
+      // Assert
+      expect(result).toEqual({
+        balance,
+        formatted: formattedBalance,
+        decimals: 18,
+        symbol: 'USDC',
+      })
+    })
+
+    it('should return zero balance for new addresses', async () => {
+      // Arrange
+      const mockTokenBalanceReader: TokenBalanceReader = async () => ({
+        balance: 0n,
+        formatted: '0.0',
+        decimals: 18,
+        symbol: 'WETH',
+      })
+      
+      const input: GetTokenBalanceInput = {
+        address: '0x0000000000000000000000000000000000000000' as const,
+        token: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd' as const,
+      }
+
+      // Act
+      const result = await getTokenBalance(mockTokenBalanceReader)(input)
+
+      // Assert
+      expect(result.balance).toBe(0n)
+      expect(result.formatted).toBe('0.0')
+    })
+
+    it('should handle different decimal precision', async () => {
+      // Arrange
+      const testCases = [
+        {
+          balance: 1000000n,
+          formatted: '1.0',
+          decimals: 6,
+          symbol: 'USDC',
+        },
+        {
+          balance: 1000000000000000000n,
+          formatted: '1.0',
+          decimals: 18,
+          symbol: 'WETH',
+        },
+        {
+          balance: 100000000n,
+          formatted: '1.0',
+          decimals: 8,
+          symbol: 'WBTC',
+        },
+      ]
+
+      for (const testCase of testCases) {
+        const mockTokenBalanceReader: TokenBalanceReader = async () => testCase
+        
+        // Act
+        const result = await getTokenBalance(mockTokenBalanceReader)({
+          address: '0x1234567890123456789012345678901234567890' as const,
+          token: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd' as const,
+        })
+
+        // Assert
+        expect(result).toEqual(testCase)
+      }
+    })
+  })
+})

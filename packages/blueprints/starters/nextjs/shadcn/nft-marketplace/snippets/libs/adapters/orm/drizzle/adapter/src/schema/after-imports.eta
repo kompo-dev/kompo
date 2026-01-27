@@ -1,0 +1,2 @@
+import { jsonb, integer } from 'drizzle-orm/pg-core'
+import type * as nft from '@<%= it.scope %>/domains/nft'

@@ -1,0 +1,2 @@
+import { ConfigProvider } from 'antd';
+import { theme } from '@<%= it.scope %>/ui';

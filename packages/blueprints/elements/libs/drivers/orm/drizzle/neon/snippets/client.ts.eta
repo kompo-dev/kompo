@@ -1,0 +1,6 @@
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
+
+const connectionString = process.env.<%= it.aliasEnvPrefix %>_DATABASE_URL || '';
+
+export const <%= it.aliasNameCamel %>Db = drizzle(neon(connectionString));

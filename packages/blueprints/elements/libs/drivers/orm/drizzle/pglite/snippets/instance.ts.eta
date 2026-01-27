@@ -1,0 +1,8 @@
+import { drizzle } from 'drizzle-orm/pglite'
+import { createPgliteClient } from '@<%= it.scope %>/driver-<%= it.driver %>'
+import { clientEnv } from '@<%= it.scope %>/config'
+import * as schema from './schema'
+
+const client = createPgliteClient(clientEnv.<%= it.generateEnvKey('DATABASE_URL') %>)
+
+export const db = drizzle(client, { schema })

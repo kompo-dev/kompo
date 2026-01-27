@@ -1,0 +1,26 @@
+/**
+ * Use-case <%= it.name %>
+ */
+<% it.imports.forEach(function(imp){ %>
+<%= imp %>
+<% }) %>
+<%~ await it.hook('after-imports') %>
+
+export type <%= it.pascalName %>Input = {
+  <%~ await it.hook('input-fields') %>
+}
+
+<%~ await it.hook('output-type') %>
+export type <%= it.pascalName %>Output = void
+
+/**
+ * Factory for <%= it.camelName %> use case
+ */
+export const <%= it.camelName %> = (
+  { <%= it.dependencies.join(', ') %> <%~ await it.hook('dependencies') %> }: { <%= it.dependencies.join('; ') %> <%~ await it.hook('dependencies-types') %> }
+) => {
+  return async (input: <%= it.pascalName %>Input): Promise<<%= it.pascalName %>Output> => {
+    <%~ await it.hook('logic') %>
+    // TODO: Implement domain logic
+  }
+}

@@ -1,0 +1,33 @@
+import { type NextRequest, NextResponse } from 'next/server'
+
+import type { Chain } from '@<%= it.org%>/events'
+
+import { tokenEventRepository } from '@/lib/dependencies'
+
+// GET /api/tokens?chain=base&limit=50 - Get recent tokens by chain
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const chain = searchParams.get('chain') as Chain | null
+    const chains = searchParams.get('chains')?.split(',') as Chain[] | undefined
+    const limit = Number.parseInt(searchParams.get('limit') || '50')
+
+    let tokens
+
+    if (chain) {
+      // Get tokens for a specific chain
+      tokens = await tokenEventRepository.findByChain(chain, limit)
+    } else if (chains && chains.length > 0) {
+      // Get tokens for multiple chains
+      tokens = await tokenEventRepository.findRecent(chains, limit)
+    } else {
+      // Get all recent tokens
+      tokens = await tokenEventRepository.findRecent(['base', 'arbitrum', 'linea'], limit)
+    }
+
+    return NextResponse.json(tokens)
+  } catch (error) {
+    console.error('Error fetching tokens:', error)
+    return NextResponse.json({ error: 'Failed to fetch tokens' }, { status: 500 })
+  }
+}

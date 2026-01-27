@@ -1,0 +1,2 @@
+  VITE_DATA_SOURCE: z.string().min(1),
+  VITE_MAIN_DATABASE_URL: z.string().min(1),

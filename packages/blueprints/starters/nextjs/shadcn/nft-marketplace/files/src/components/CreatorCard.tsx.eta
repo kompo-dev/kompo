@@ -1,0 +1,60 @@
+import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { Instagram, Twitter } from 'lucide-react'
+
+import { KompoLogo } from '@/components/KompoLogo'
+
+export const CreatorCard = () => {
+  return (
+    <div className="mt-8 rounded-xl border border-gray-200 p-6">
+      {/* Creator Header */}
+      <div className="flex items-center gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200">
+          <KompoLogo className="h-6 w-auto" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-gray-900">Kompo</h3>
+          <p className="text-sm text-gray-500">@Kompo</p>
+        </div>
+      </div>
+
+      {/* Description */}
+      <p className="mt-4 text-sm text-gray-600">
+        Kompo empowers creators to build, compose, and scale their web3 stack through a modular
+        ecosystem of capabilities designed for seamless integration and growth.
+      </p>
+
+      {/* Social Links */}
+      <div className="mt-4 flex items-center gap-4">
+        <a
+          href="https://twitter.com/kompodev"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+        >
+          <Twitter className="h-4 w-4" />
+          @Kompodev
+        </a>
+        <a
+          href="https://instagram.com/kompo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+        >
+          <Instagram className="h-4 w-4" />
+          @Kompodev
+        </a>
+      </div>
+
+      {/* Website Button */}
+      <a
+        href="https://kompo.dev"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 flex w-full items-center justify-center gap-2 bg-gray-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+      >
+        Website
+        <ArrowRightIcon className="h-4 w-4" />
+      </a>
+    </div>
+  )
+}

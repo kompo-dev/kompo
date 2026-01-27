@@ -1,0 +1,15 @@
+{
+  "name": "nft-marketplace",
+  "description": "NFT Marketplace with buying, selling and minting features",
+  "version": "1",
+  "type": "app",
+  "category": "web3",
+  "framework": "react",
+  "features": ["web3", "testing"],
+  "tags": ["nft", "marketplace", "web3", "react"],
+  "hooks": {
+    "app-imports": "snippets/app-imports.eta",
+    "app-content": "snippets/app-content.eta"
+  },
+  "id": "nft-marketplace"
+}
