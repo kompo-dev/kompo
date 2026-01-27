@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/kompo-dev/kompo/main/packages/assets/kompo.svg" alt="Kompo Logo" width="120" />
-  <h1>Kompo</h1>
+  <img src="./packages/assets/kompo.svg" alt="Kompo Logo" width="120" />
   <p>
   <strong>Code orchestration for web3.</strong></p>
   <p><i>Deploy modular adapters. Own your code.</i></p>
