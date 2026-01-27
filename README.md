@@ -412,5 +412,5 @@ Check out [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
   <p><strong>Kompo is built by SmarttDev and an amazing community of web3 developers.</strong></p>
   <p>Ready to stop rebuilding boilerplate?</p>
   <br />
-  <a href="https://kompo.dev">Get Started →</a> | <a href="https://docs.kompo.dev">Docs →</a> | <a href="https://discord.gg/kompo">Discord →</a>
+  <a href="https://kompo.dev">Get Started →</a> | <a href="https://kompo.dev/docs">Docs →</a> | <a href="https://discord.gg/kompo">Discord →</a>
 </div>
