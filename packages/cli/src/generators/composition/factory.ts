@@ -41,17 +41,17 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
     installDependencies: async (cwd) => {
       await installDependencies(cwd)
     },
-    injectEnvSchema: async (templateBase, data) => {
+    injectEnvSchema: async (_templateBase, data) => {
       // Import the injector util dynamically
       const { injectEnvSnippet } = await import('../../utils/env')
       const { generateEnvKey } = await import('../../utils/env-naming')
 
       // Check if schema needs update to avoid redundant processing
       const schemaPath = path.join(context.repoRoot, 'libs/config/src/schema.ts')
-      let existingSchema = ''
+      let _existingSchema = ''
       try {
-        existingSchema = await fs.readFile(schemaPath)
-      } catch (err) {
+        _existingSchema = await fs.readFile(schemaPath)
+      } catch (_err) {
         // File might not exist yet
       }
 
@@ -286,7 +286,7 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
       )
       summary.push('   Generated adapter.json')
     },
-    injectComposition: async (ctx, dir) => {
+    injectComposition: async (_ctx, _dir) => {
       // Placeholder
     },
   }
@@ -502,10 +502,10 @@ const createLoggingObserver = (): PipelineObserver => {
   // const s = spinner()
   // Disable verbose step logging for now as it conflicts with interactive steps
   return {
-    onStepStart: (stepId) => {
+    onStepStart: (_stepId) => {
       // s.start(`Starting step: ${stepId}`)
     },
-    onStepComplete: (stepId) => {
+    onStepComplete: (_stepId) => {
       // s.stop(`Completed step: ${stepId}`)
     },
     onStepError: (stepId, error) => {

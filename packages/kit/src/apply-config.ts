@@ -91,7 +91,7 @@ export function extractPluginsFromSteps(steps: StepLike[]): {
         // Find definition that supports this capability
         const def = PORT_DEFINITIONS.find((d) => d.capabilities.includes(cap))
 
-        if (def && def.suffix) {
+        if (def?.suffix) {
           const suffix = def.suffix
           if (!portName.endsWith(`-${suffix}`)) {
             portName = `${portName}-${suffix}`

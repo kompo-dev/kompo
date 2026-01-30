@@ -2,7 +2,6 @@
  * Core plugin interface for Kompo CLI
  */
 
-import type { PortDependency } from './port-dependencies'
 import type { Question, Step, TemplateDefinition } from './step'
 
 export interface KompoPlugin {

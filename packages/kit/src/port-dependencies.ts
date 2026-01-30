@@ -3,7 +3,7 @@
  * Handles inter-plugin dependencies (e.g., auth requires orm)
  */
 
-import { type KompoConfig, readKompoConfig } from './kompo-config'
+import { readKompoConfig } from './kompo-config'
 
 /**
  * Port dependency declaration

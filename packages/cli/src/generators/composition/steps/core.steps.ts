@@ -162,19 +162,15 @@ export const renderTemplatesStep: AdapterGeneratorStep = {
 
     if (await utils.templates.exists(adapterSource)) {
       await utils.fs.ensureDir(adapterDir)
-      try {
-        await utils.templates.renderDir(
-          adapterSource,
-          adapterDir,
-          {
-            ...templateData,
-            infraPackageName: `@${context.scope}/infra-${infraName}`,
-          },
-          { exclude: ['**/clients/**'] }
-        )
-      } catch (error) {
-        throw error
-      }
+      await utils.templates.renderDir(
+        adapterSource,
+        adapterDir,
+        {
+          ...templateData,
+          infraPackageName: `@${context.scope}/infra-${infraName}`,
+        },
+        { exclude: ['**/clients/**'] }
+      )
       utils.addSummary(`   Rendered adapter to libs/adapters/${context.name}`)
     }
 

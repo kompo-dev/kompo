@@ -60,7 +60,7 @@ export function getEnvReference(fullKey: string): string {
  * Most Provider adapters (UI) use client envs.
  * Repositories/Gateways usually use server envs.
  */
-export function getVisibilityHeuristic(baseKey: string, capability?: string): EnvVisibility {
+export function getVisibilityHeuristic(baseKey: string, _capability?: string): EnvVisibility {
   if (baseKey.startsWith('NEXT_PUBLIC_') || baseKey.startsWith('VITE_')) return 'client'
   // Capability based heuristics could be added here
   return 'server'

@@ -318,7 +318,7 @@ export function searchBlueprints(query: string): BlueprintConfig[] {
     (b) =>
       b.name.toLowerCase().includes(lowerQuery) ||
       b.description.toLowerCase().includes(lowerQuery) ||
-      (b.tags && b.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)))
+      b.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))
   )
 }
 

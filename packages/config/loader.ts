@@ -22,7 +22,7 @@ export function loadEnv() {
         // Use Node.js 20+ native env loader
         process.loadEnvFile(envPath)
         return true
-      } catch (e) {
+      } catch (_e) {
         // Fallback or silent fail
         return false
       }

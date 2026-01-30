@@ -78,7 +78,7 @@ export async function injectDependencies(options: InjectDependenciesOptions) {
           dependency,
           version,
         })
-      } catch (e) {
+      } catch (_e) {
         // Silently skip if target or package.json not found
       }
     }

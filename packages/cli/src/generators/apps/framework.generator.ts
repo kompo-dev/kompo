@@ -148,7 +148,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
         if (bp.env && blueprintConfig) {
           blueprintConfig.env = { ...blueprintConfig.env, ...bp.env }
         }
-      } catch (e) {
+      } catch (_e) {
         // ignore error
       }
     }

@@ -36,7 +36,7 @@ export async function generateKernel(repoRoot: string) {
       mergeBlueprintCatalog(repoRoot, 'kernel', catalogPath)
       updateCatalogFromFeatures(repoRoot, ['kernel'])
     }
-  } catch (e) {
+  } catch (_e) {
     // Ignore catalog errors
   }
 
