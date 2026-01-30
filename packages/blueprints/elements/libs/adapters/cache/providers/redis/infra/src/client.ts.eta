@@ -1,0 +1,4 @@
+import Redis from 'ioredis';
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export const redis = new Redis(serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_REDIS_URL);

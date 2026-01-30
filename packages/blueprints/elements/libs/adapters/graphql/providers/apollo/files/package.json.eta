@@ -1,6 +1,14 @@
 {
+  "name": "@<%= it.scope %>/<%= it.name %>",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "dependencies": {
-    "@apollo/client": "catalog:",
-    "graphql": "catalog:"
+    "<%= it.infraPackageName %>": "workspace:*",
+    "@<%= it.scope %>/config": "workspace:*",
+    "@<%= it.scope %>/domains": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
   }
 }

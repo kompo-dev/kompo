@@ -1,0 +1,4 @@
+datasource db {
+  provider = "mysql"
+  url      = env("<%= it.alias.toUpperCase().replace(/-/g, '_') %>_DATABASE_URL")
+}

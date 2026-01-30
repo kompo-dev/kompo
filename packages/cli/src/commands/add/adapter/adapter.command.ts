@@ -473,10 +473,21 @@ export async function runAddAdapter(
     }
   }
 
-  const subject = capability.defaultSubject ? `${capability.defaultSubject}-` : ''
+  const subject = capability.defaultSubject ? `${capability.defaultSubject}` : ''
+
+  // Smart naming: Avoid redundancy like "notifications-notifications-resend"
+  // If portBase includes subject, don't prepend subject again.
+  let namePrefix = `${portBase}-`
+  if (subject && portBase.includes(subject)) {
+    // Port name already contains subject (e.g. notifications -> notifications-resend)
+    // Keep it as is
+  } else if (subject) {
+    namePrefix += `${subject}-`
+  }
+
   const defaultAdapterName =
     options.name ||
-    `${portBase}-${subject}${selectedProvider.id}${
+    `${namePrefix}${selectedProvider.id}${
       selectedDriverId &&
       selectedDriverId !== selectedProvider.id &&
       selectedDriverId !== `${capability.id}-${selectedProvider.id}`
@@ -484,16 +495,62 @@ export async function runAddAdapter(
         : ''
     }`
 
-  let adapterName = defaultAdapterName
+  const adapterName = defaultAdapterName
 
   let adapterAlias = options.alias
-  let isNewAlias = false
+  const isNewAlias = false
   let isSpecializedClient = false
+
+  // ============================================================
+  // SCOPE SELECTION (Global vs Domain)
+  // ============================================================
+  // We ask this for ALL adapters to standardized env vars (MAIN_... vs DOMAIN_...)
+
+  if (!adapterAlias && !options.nonInteractive) {
+    const scopeResponse = await select({
+      message: `What is the scope of this ${capability.name}?`,
+      options: [
+        {
+          label: 'Global (Shared across domains)',
+          value: 'global',
+          hint: `Uses MAIN_${(subject || portBase).toUpperCase().replace(/-/g, '_')}_...`,
+        },
+        {
+          label: `Domain-specific (${options.domain || 'this domain'} only)`,
+          value: 'domain',
+          hint: `Uses ${(options.domain || portBase).toUpperCase().replace(/-/g, '_')}_...`,
+        },
+      ],
+    })
+
+    if (isCancel(scopeResponse)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+
+    if (scopeResponse === 'global') {
+      adapterAlias = DEFAULT_ALIAS // 'main'
+      isSpecializedClient = false
+    } else {
+      // Domain specific
+      adapterAlias = options.domain || portBase
+      isSpecializedClient = true
+    }
+  } else if (!adapterAlias) {
+    // Default for non-interactive: Domain specific if domain is present, else Global?
+    // Or stick to existing default logic.
+    // Existing default was: adapterName (which is portBase-subject...)
+    // Let's default to global ('main') if no alias provided in non-interactive for consistency?
+    // Or keep naive default. Let's keep naive default or 'main'.
+    // For now, let's default to 'main' if not specified, to align with "Global by default" often preferred?
+    // Safest is DEFAULT_ALIAS ('main')
+    adapterAlias = DEFAULT_ALIAS
+  }
 
   // DELEGATE CONFIGURATION TO CAPABILITY GENERATOR
   const additionalTemplateData: Record<string, unknown> = {}
 
-  if (capability.configure && !options.nonInteractive) {
+  if (capability.configure) {
     const capabilityConfig = await capability.configure({
       repoRoot,
       portName: selectedPort,
@@ -503,27 +560,17 @@ export async function runAddAdapter(
       scope: kompoConfig?.project.org || 'org',
     })
 
-    if (capabilityConfig.alias) {
-      adapterAlias = capabilityConfig.alias
+    // Only override if configure implementation explicitly returns an alias AND we haven't manually selected one via prompt?
+    // Actually, prompt above sets adapterAlias.
+    // Use capability config only if it provides something we didn't set, or if it MUST override.
+    // But we want to standardize.
+    // Let's assume capability.configure returns templateData mostly.
 
-      // If alias is not DEFAULT_ALIAS, it's a specialized adapter/client.
-      // We incorporate it into the adapter name to ensure unique directory and package.
-      if (adapterAlias !== DEFAULT_ALIAS) {
-        const parts = defaultAdapterName.split('-')
-        const portBase = parts[0]
-        // Check if alias is already in name to avoid redundancy (e.g. nft-nft-...)
-        if (adapterAlias !== portBase && !defaultAdapterName.includes(`-${adapterAlias}-`)) {
-          adapterName = [portBase, adapterAlias, ...parts.slice(1)].join('-')
-        }
-        isNewAlias = true
-      }
-    }
-    if (capabilityConfig.isSpecializedClient !== undefined) {
-      isSpecializedClient = capabilityConfig.isSpecializedClient
-    }
     if (capabilityConfig.templateData) {
       Object.assign(additionalTemplateData, capabilityConfig.templateData)
     }
+    // Ignore alias from capability.configure if we set one, or check priority?
+    // ORM generator sets alias. We should likely remove that from ORM generator now.
   }
 
   // Ensure ormDriver and databasePort are present for driver/infra templates

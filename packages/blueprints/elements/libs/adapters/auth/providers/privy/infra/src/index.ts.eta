@@ -1,0 +1,2 @@
+export * from './config';
+export * from '@privy-io/react-auth';

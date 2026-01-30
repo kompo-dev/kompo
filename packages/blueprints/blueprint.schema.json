@@ -100,7 +100,6 @@
           "side": {
             "type": "string",
             "enum": ["client", "server"],
-            "default": "server",
             "description": "Environment variable visibility side"
           },
           "scoped": {
@@ -117,7 +116,7 @@
             "description": "Map to another internal configuration key"
           }
         },
-        "required": ["validation"]
+        "required": ["validation", "side"]
       }
     },
     "provides": {

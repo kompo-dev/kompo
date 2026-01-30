@@ -99,6 +99,9 @@ export function createMockTemplates(): MockTemplateEngine {
     async exists(_templatePath: string): Promise<boolean> {
       return true
     },
+    async renderString(template: string, _data: unknown): Promise<string> {
+      return template
+    },
     dir: '',
   }
 }

@@ -1,6 +1,7 @@
 // UI Components
 export * from './components/button';
 export * from './components/card';
+export * from './components/theme-provider';
 
 // Utilities
 export { cn } from './utils';

@@ -1,1 +1,1 @@
-export * from './<%= it.packetName %>.adapter'
+export * from './viem.adapter';

@@ -1,0 +1,14 @@
+import { client, type PublicClient } from '<%= it.infraPackageName %>';
+import type { Ports } from '<%= it.portImportPath %>';
+
+export type ViemAdapter = Ports.<%= it.portPascalName %>;
+
+export function create<%= it.pascalName %>Adapter(customClient?: PublicClient): ViemAdapter {
+  const localClient = customClient || client;
+
+  return {
+    // Implement Port interface methods using localClient
+    // Example:
+    // getBlockNumber: async () => localClient.getBlockNumber(),
+  } as ViemAdapter;
+}

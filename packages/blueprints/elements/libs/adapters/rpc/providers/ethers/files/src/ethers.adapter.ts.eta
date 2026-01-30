@@ -1,0 +1,13 @@
+import { client, type JsonRpcProvider } from '<%= it.infraPackageName %>';
+import type { Ports } from '<%= it.portImportPath %>';
+
+export type EthersAdapter = Ports.<%= it.portPascalName %>;
+
+export function create<%= it.pascalName %>Adapter(customClient?: JsonRpcProvider): EthersAdapter {
+    const localClient = customClient || client;
+    return {
+        // Implement Port methods using localClient
+        // Example:
+        // getBlockNumber: async () => localClient.getBlockNumber(),
+    } as EthersAdapter;
+}

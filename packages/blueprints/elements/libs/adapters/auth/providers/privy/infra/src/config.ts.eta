@@ -1,0 +1,8 @@
+// This should ideally come from a shared config package, but for now we keep the env var logic here
+// or import from @<%= it.scope %>/config/client if available.
+// Assuming client-side usage for Privy Provider.
+
+export const privyConfig = {
+  appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID || '',
+  // Add other default privy config here if needed
+};

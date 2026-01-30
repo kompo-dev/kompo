@@ -3,7 +3,7 @@ import { LIBS_DIR } from '@kompo/kit'
 import { registerAdapterGenerator } from '../../registries/adapter.registry'
 import type { CapabilityManifest } from '../../registries/capability.registry'
 import { loadProvidersFromBlueprints } from '../../utils/blueprints.utils'
-import { DEFAULT_ALIAS, getInfraDirName, getPortPrefix } from '../../utils/naming'
+import { getInfraDirName } from '../../utils/naming'
 import { createAdapterGenerator } from '../composition/factory'
 import { stepRegistry } from '../composition/step.registry'
 import { registerCoreSteps } from '../composition/steps/core.steps'
@@ -52,38 +52,9 @@ export const ormCapability: CapabilityManifest = {
   hint: 'Database Access (Drizzle, Prisma)',
   defaultSubject: 'db',
   providers: loadProvidersFromBlueprints('orm'),
-  configure: async ({ portName, domainName }) => {
-    const { select, isCancel, cancel } = await import('@clack/prompts')
-
-    // Ask if this is a global database or domain-specific
-    const scopeResponse = await select({
-      message: 'What is the scope of this database?',
-      options: [
-        {
-          label: 'Global (Shared across domains)',
-          value: 'global',
-          hint: 'Uses MAIN_DATABASE_URL',
-        },
-        {
-          label: `Domain-specific (${domainName || 'this domain'} only)`,
-          value: 'domain',
-          hint: `Uses ${(domainName || 'DOMAIN').toUpperCase()}_DATABASE_URL`,
-        },
-      ],
-    })
-
-    if (isCancel(scopeResponse)) {
-      cancel('Operation cancelled.')
-      process.exit(0)
-    }
-
-    const isSpecialized = scopeResponse === 'domain'
-    const alias = isSpecialized ? domainName || getPortPrefix(portName) : DEFAULT_ALIAS
-
-    return {
-      alias,
-      isSpecializedClient: isSpecialized,
-    }
+  configure: async () => {
+    // Scope is now handled globally in adapter.command.ts
+    return {}
   },
 }
 

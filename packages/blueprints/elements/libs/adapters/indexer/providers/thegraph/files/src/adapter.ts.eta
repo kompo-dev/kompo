@@ -1,7 +1,5 @@
-/**
- * <%= it.pascalName %> Indexer Adapter
- * Provider: <%= it.provider %>
- */
+import { GraphQLClient, gql } from 'graphql-request';
+import { config } from '<%= it.infraPackageName %>';
 
 export type <%= it.pascalName %>Event = {
   blockNumber: number
@@ -11,17 +9,31 @@ export type <%= it.pascalName %>Event = {
 }
 
 export type <%= it.pascalName %>Indexer = {
-  getEvents: (filter: Record<string, unknown>) => Promise<<%= it.pascalName %>Event[]>
+  getEvents: (query: string, variables?: Record<string, unknown>) => Promise<any>
   getLatestBlock: () => Promise<number>
 }
 
 export function <%~ it.camelName %>(): <%= it.pascalName %>Indexer {
+  const client = new GraphQLClient(config.url);
+
   return {
-    async getEvents(_filter) {
-      throw new Error('Not implemented: getEvents')
+    async getEvents(query, variables) {
+      return await client.request(query, variables);
     },
+
     async getLatestBlock() {
-      throw new Error('Not implemented: getLatestBlock')
+       // Example query for latest block, might depend on specific subgraph schema
+       const query = gql`
+        {
+          _meta {
+            block {
+              number
+            }
+          }
+        }
+       `;
+       const data = await client.request<{ _meta: { block: { number: number } } }>(query);
+       return data._meta.block.number;
     },
   }
 }

@@ -119,14 +119,20 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
 
   if (hasBlueprint) {
     // Render the blueprint (in case values depend on template vars), then parse
-    const renderedJson = await templates.render(blueprintJsonPath, partialData)
     try {
-      blueprintConfig = JSON.parse(renderedJson)
+      const { loadBlueprint } = await import('../../utils/blueprints.utils')
+      const { getTemplatesDir } = await import('@kompo/blueprints')
+
+      const absoluteBlueprintPath = path.join(getTemplatesDir(), blueprintJsonPath)
+      blueprintConfig = await loadBlueprint(absoluteBlueprintPath)
+
       if (blueprintConfig.hooks) {
         hooks = blueprintConfig.hooks
       }
     } catch (e) {
-      console.warn(`⚠️  Failed to parse or process blueprint.json for ${framework}:`, e)
+      // Re-throw if it's our validation error (starts with ❌), otherwise warn
+      if (e instanceof Error && e.message.startsWith('❌')) throw e
+      console.warn(`⚠️  Failed to process blueprint.json for ${framework}:`, e)
     }
   }
 
@@ -224,11 +230,11 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
 
         for (const [key, config] of envEntries as [
           string,
-          { validation?: string; default?: string; side?: string; scoped?: boolean },
+          { validation: string; default?: string; side: string; scoped?: boolean },
         ][]) {
-          const validation = config.validation || 'z.string()'
+          const validation = config.validation
           const defaultValue = config.default || ''
-          const side = config.side || 'server'
+          const side = config.side
           const isScoped = config.scoped !== false
 
           // orgthe key (e.g. NEXT_PUBLIC_APP_NAME -> NEXT_PUBLIC_PROJECT_APP_NAME)
@@ -311,22 +317,6 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
       throw new Error(
         `❌ Invalid base package.json for ${framework}. Missing required fields: name, version, or scripts.`
       )
-    }
-  }
-
-  // Render fullstack specific files if valid
-  if (framework === FRAMEWORKS.NEXTJS && backendType === BACKEND_TYPES.NEXTJS) {
-    const fullstackIds = 'apps/nextjs/fullstack'
-    if (await templates.exists(`${fullstackIds}/files`)) {
-      await templates.renderDir(`${fullstackIds}/files`, targetDir, templateData, {
-        merge: false,
-        exclude: envFiles,
-      })
-    } else if (await templates.exists(fullstackIds)) {
-      await templates.renderDir(fullstackIds, targetDir, templateData, {
-        merge: false,
-        exclude: envFiles,
-      })
     }
   }
 

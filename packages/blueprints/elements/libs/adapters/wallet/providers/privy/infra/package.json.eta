@@ -1,0 +1,20 @@
+{
+  "name": "<%= it.infraPackageName %>",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@privy-io/react-auth": "catalog:",
+    "@wagmi/core": "catalog:",
+    "viem": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

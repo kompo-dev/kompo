@@ -42,7 +42,13 @@ export async function generateDesignSystem(ctx: DesignGeneratorContext) {
     await templates.renderDir(
       path.join(templatePath, 'files'),
       libsUiDir,
-      { scope },
+      {
+        scope,
+        tsconfigPath: path.relative(
+          libsUiDir,
+          path.join(repoRoot, 'libs', 'config', 'tsconfig.json')
+        ),
+      },
       { merge: false }
     )
   } else if (!(await templates.exists(templatePath))) {

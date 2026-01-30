@@ -1,0 +1,4 @@
+import { Resend } from 'resend';
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export const resend = new Resend(<%= it.getEnv('API_KEY') %>);

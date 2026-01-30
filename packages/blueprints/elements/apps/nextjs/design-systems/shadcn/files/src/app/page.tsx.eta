@@ -20,9 +20,7 @@ export default function Home() {
       <HomeCards />
 
       {/* Demo Container */}
-      <section className="demo-container w-full max-w-6xl mx-auto px-6 py-12">
-        <%~ await it.hook('demo-container') %>
-      </section>
+      <%~ await it.hook('demo-container') %>
 
       {/* Footer */}
       <footer className="mt-auto border-t border-gray-800">

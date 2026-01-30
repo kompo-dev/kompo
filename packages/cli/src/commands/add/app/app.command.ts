@@ -78,15 +78,10 @@ export async function runAddApp(
         {
           label: 'Frontend / Fullstack Web App',
           value: 'frontend',
-          hint: 'Next.js, Vite',
+          hint: 'Vite, Next.js',
           submenuMessage: 'What kind of application do you want to add?',
           options: [
-            {
-              label: 'Next.js Fullstack',
-              value: 'nextjs-fullstack',
-              hint: 'App Router + API + Database',
-            },
-            { label: 'Next.js (Frontend Only)', value: FRAMEWORKS.NEXTJS, hint: 'App Router' },
+            { label: 'Next.js (App Router)', value: FRAMEWORKS.NEXTJS, hint: 'App Router + API' },
             { label: 'React + Vite', value: FRAMEWORKS.VITE, hint: 'SPA' },
           ],
         },
@@ -100,10 +95,7 @@ export async function runAddApp(
       ])
 
       // Map selection to framework/backend variables
-      if (selection === 'nextjs-fullstack') {
-        framework = FRAMEWORKS.NEXTJS
-        backend = BACKEND_TYPES.NEXTJS
-      } else if (selection === 'express') {
+      if (selection === 'express') {
         framework = FRAMEWORKS.VITE
         backend = BACKEND_TYPES.EXPRESS
       } else {
@@ -115,9 +107,7 @@ export async function runAddApp(
       if (framework) {
         const fwName =
           framework === FRAMEWORKS.NEXTJS
-            ? backend === BACKEND_TYPES.NEXTJS
-              ? 'Next.js Fullstack'
-              : 'Next.js (Frontend)'
+            ? 'Next.js'
             : backend === BACKEND_TYPES.EXPRESS
               ? 'Express (Node.js)'
               : 'React + Vite'
@@ -128,10 +118,6 @@ export async function runAddApp(
   }
 
   // Handle CLI args direct set
-  if ((framework as string) === 'nextjs-fullstack') {
-    framework = FRAMEWORKS.NEXTJS
-    backend = BACKEND_TYPES.NEXTJS
-  }
 
   // ensure backend is set if passed via CLI or defaults
   if (!backend && framework) {

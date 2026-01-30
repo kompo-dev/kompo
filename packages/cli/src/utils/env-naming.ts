@@ -19,7 +19,22 @@ export function generateEnvKey(
   const normalizedAlias = toSnakeCase(alias).toUpperCase()
   const normalizedKey = toSnakeCase(baseKey).toUpperCase()
 
-  const fullKey = `${normalizedAlias}_${normalizedKey}`
+  // Intelligent Deduplication
+  // If alias ends with the same word that key starts with, merge them.
+  // e.g. ALIAS="NOTIFICATIONS_RESEND", KEY="RESEND_API_KEY" -> "NOTIFICATIONS_RESEND_API_KEY"
+  // e.g. ALIAS="THE_RESEND", KEY="RESEND_API_KEY" -> "THE_RESEND_API_KEY"
+
+  let fullKey = `${normalizedAlias}_${normalizedKey}`
+
+  const aliasParts = normalizedAlias.split('_')
+  const keyParts = normalizedKey.split('_')
+
+  const lastAliasPart = aliasParts[aliasParts.length - 1]
+  const firstKeyPart = keyParts[0]
+
+  if (lastAliasPart === firstKeyPart) {
+    fullKey = `${normalizedAlias}_${keyParts.slice(1).join('_')}`
+  }
 
   if (visibility === 'client') {
     return framework === 'nextjs' ? `NEXT_PUBLIC_${fullKey}` : `VITE_${fullKey}`

@@ -1,0 +1,14 @@
+{
+  "description": "React + Vite application configured with Material UI",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "vite",
+      "designSystem": "mui"
+    }
+  ],
+  "name": "Blank",
+  "id": "vite.mui.blank"
+}

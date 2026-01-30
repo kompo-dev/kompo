@@ -1,0 +1,8 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+
+# Global owners for everything in the repo
+*       @kompo-dev/core-team
+
+# Core package owners
+packages/    @kompo-dev/maintainers

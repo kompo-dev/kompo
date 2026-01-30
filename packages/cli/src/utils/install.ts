@@ -17,7 +17,7 @@ export async function installDependencies(repoRoot: string): Promise<void> {
 
   try {
     await new Promise<void>((resolve, reject) => {
-      const child = spawn('pnpm', ['install', '--ignore-scripts'], { cwd: repoRoot, shell: true })
+      const child = spawn('pnpm', ['install', '--ignore-scripts'], { cwd: repoRoot })
 
       child.stdout?.on('data', (data: Buffer) => {
         const lines = data.toString().split('\n').filter(Boolean)

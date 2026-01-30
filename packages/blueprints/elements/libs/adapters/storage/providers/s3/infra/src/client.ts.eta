@@ -1,0 +1,12 @@
+import { S3Client } from '@aws-sdk/client-s3';
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export const s3 = new S3Client({
+  region: serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_AWS_REGION,
+  credentials: {
+    accessKeyId: serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_AWS_ACCESS_KEY_ID,
+    secretAccessKey: serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+export const bucketName = serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_AWS_BUCKET_NAME;

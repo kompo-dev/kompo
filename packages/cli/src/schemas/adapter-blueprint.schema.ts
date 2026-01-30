@@ -1,35 +1,5 @@
-import { Project, SyntaxKind } from 'ts-morph'
 import { z } from 'zod'
 import { validateKebabCase } from '../validations/naming.validation'
-
-const project = new Project({ useInMemoryFileSystem: true })
-const validZodMethods = ['string', 'number', 'boolean', 'object', 'array', 'url', 'enum']
-
-function validateZodStringSafe(expr: string): boolean {
-  if (!expr.startsWith('z.')) return false
-  try {
-    const sourceFile = project.createSourceFile(`temp_${Math.random()}.ts`, expr)
-    const statement = sourceFile.getStatements()[0]
-
-    if (!statement || !statement.isKind(SyntaxKind.ExpressionStatement)) return false
-
-    const callExpr = statement.getExpression()
-    if (!callExpr || !callExpr.isKind(SyntaxKind.CallExpression)) return false
-
-    const access = callExpr.getExpression()
-    if (!access || !access.isKind(SyntaxKind.PropertyAccessExpression)) return false
-
-    const obj = access.getExpression()
-    const prop = access.getName()
-
-    const isValid = obj.getText() === 'z' && validZodMethods.includes(prop)
-
-    sourceFile.delete()
-    return isValid
-  } catch {
-    return false
-  }
-}
 
 export const adapterBlueprintSchema = z.object({
   id: z
@@ -59,20 +29,22 @@ export const adapterBlueprintSchema = z.object({
       })
     )
     .optional(),
-  provides: z.object({
-    providers: z.boolean().optional(),
-    composition: z.boolean().optional(),
-    factory: z.string().optional(),
-    exports: z.array(z.string()).optional(),
-    driver: z.string().optional(),
-  }),
+  provides: z
+    .object({
+      providers: z.boolean().optional(),
+      composition: z.boolean().optional(),
+      factory: z.string().optional(),
+      exports: z.array(z.string()).optional(),
+      driver: z.string().optional(),
+    })
+    .optional(),
   env: z
     .record(
       z.object({
-        side: z.enum(['client', 'server']).default('server'),
+        side: z.enum(['client', 'server']),
         description: z.string().optional(),
-        validation: z.string().refine((val) => validateZodStringSafe(val), {
-          message: 'Invalid Zod validation string (must be like z.string(), z.number(), etc.)',
+        validation: z.string().refine((val) => val.startsWith('z.'), {
+          message: 'Invalid Zod validation string (must start with "z.")',
         }),
         default: z.string().optional(),
         mapTo: z.string().optional(),

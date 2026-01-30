@@ -1,6 +1,6 @@
 import { createEnvFactory, z } from '@kompo/config/client'
-import { viteClientSchema, nextClientSchema } from './schema'
 import type { InferEnvSchema } from '@kompo/config'
+import { nextClientSchema, viteClientSchema } from './schema'
 
 export { z }
 
@@ -13,38 +13,35 @@ const factory = createEnvFactory({
     nextjs: nextClientSchema,
   },
   // Use global process.env or import.meta.env depending on context
-  runtimeEnv: typeof process !== 'undefined' ? process.env : (import.meta as any).env,
+  runtimeEnv: {
+    ...(typeof process !== 'undefined' ? process.env : {}),
+    ...(typeof import.meta !== 'undefined' ? (import.meta as any).env : {}),
+  },
 })
 
 // Export the shared helper
 export const getClientEnv = factory.getClientEnv
 
 /**
- * Universal client environment (Proxy)
- * Lazily validates either Vite or Next.js schemas based on variable prefix.
+ * Helper for Lazy Validation
+ * Prevents crashing app A if schemas for app B are missing (but unused).
  */
-export const clientEnv = new Proxy(
-  {},
-  {
-    get(target, prop) {
-      if (typeof prop !== 'string') return undefined
-
-      // Lazily validate only the schema that matches the prefix
-      if (prop.startsWith('VITE_')) {
-        return (factory.getClientEnv('vite') as any)[prop]
-      }
-      if (prop.startsWith('NEXT_PUBLIC_')) {
-        return (factory.getClientEnv('nextjs') as any)[prop]
-      }
-
-      // Fallback for non-prefixed or mixed access
-      return (factory.getClientEnv() as any)[prop]
-    },
-  }
-) as Readonly<InferEnvSchema<typeof viteClientSchema> & InferEnvSchema<typeof nextClientSchema>>
+function createLazyEnv<T extends Record<string, any>>(type: 'nextjs' | 'vite'): T {
+  let env: any
+  return new Proxy(
+    {},
+    {
+      get(_target, prop) {
+        if (!env) env = factory.getClientEnv(type)
+        return env[prop]
+      },
+      // Optional: Add traps for inspection if needed, but 'get' is enough for runtime safety
+    }
+  ) as T
+}
 
 /**
- * Framework-specific "filters" for clean autocompletion in apps
+ * Framework-specific exports with Lazy Validation.
  */
-export const nextEnv = clientEnv as Readonly<InferEnvSchema<typeof nextClientSchema>>
-export const viteEnv = clientEnv as Readonly<InferEnvSchema<typeof viteClientSchema>>
+export const nextEnv = createLazyEnv<Readonly<InferEnvSchema<typeof nextClientSchema>>>('nextjs')
+export const viteEnv = createLazyEnv<Readonly<InferEnvSchema<typeof viteClientSchema>>>('vite')

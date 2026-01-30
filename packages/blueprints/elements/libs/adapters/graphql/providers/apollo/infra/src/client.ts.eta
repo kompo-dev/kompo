@@ -1,0 +1,33 @@
+import { ApolloClient, InMemoryCache, HttpLink, type NormalizedCacheObject, type ApolloClientOptions } from '@apollo/client';
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export type ApolloConfig = ApolloClientOptions<NormalizedCacheObject> & {
+  apiKey?: string;
+  headerKey?: string;
+  url?: string;
+}
+
+export const createClient = (config?: ApolloConfig): ApolloClient<NormalizedCacheObject> => {
+  const url = config?.url ?? serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_URL;
+  const apiKey = config?.apiKey ?? serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_KEY;
+
+  if (!url) {
+    throw new Error('GraphQL API URL is not configured');
+  }
+
+  const httpLink = new HttpLink({
+    uri: url,
+    headers: {
+      ...(apiKey ? { [config?.headerKey || 'Authorization']: apiKey } : {}),
+      ...config?.headers,
+    },
+  });
+
+  return new ApolloClient({
+    link: httpLink,
+    cache: new InMemoryCache(),
+    ...config,
+  });
+};
+
+export const client: ApolloClient<NormalizedCacheObject> = createClient();

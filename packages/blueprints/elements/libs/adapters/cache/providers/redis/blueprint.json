@@ -1,0 +1,16 @@
+{
+  "id": "redis",
+  "name": "Redis",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "cache",
+  "description": "Cache adapter using Redis",
+  "capability": "cache",
+  "env": {
+    "REDIS_URL": {
+      "description": "Redis connection URL",
+      "validation": "z.string().url()",
+      "required": true
+    }
+  }
+}

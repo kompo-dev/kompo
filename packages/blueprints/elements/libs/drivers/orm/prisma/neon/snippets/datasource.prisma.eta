@@ -1,0 +1,4 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("<%= it.alias.toUpperCase().replace(/-/g, '_') %>_DATABASE_URL")
+}

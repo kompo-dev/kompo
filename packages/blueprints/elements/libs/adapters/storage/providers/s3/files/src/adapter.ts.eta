@@ -1,34 +1,51 @@
-/**
- * <%= it.pascalName %> Storage Adapter
- * Provider: <%= it.provider %>
- */
+import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand, s3, bucketName } from '<%= it.infraPackageName %>';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 export type <%= it.pascalName %>UploadResult = {
   url: string
   key: string
-  size: number
 }
 
 export type <%= it.pascalName %>Storage = {
-  upload: (file: File | Buffer, key: string) => Promise<<%= it.pascalName %>UploadResult>
-  download: (key: string) => Promise<Buffer>
+  upload: (file: Buffer, key: string, contentType?: string) => Promise<<%= it.pascalName %>UploadResult>
+  getSignedUrl: (key: string, expiresIn?: number) => Promise<string>
   delete: (key: string) => Promise<void>
-  getUrl: (key: string) => Promise<string>
 }
 
 export function <%~ it.camelName %>(): <%= it.pascalName %>Storage {
   return {
-    async upload(_file, _key) {
-      throw new Error('Not implemented: upload')
+    async upload(file, key, contentType) {
+      const command = new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        Body: file,
+        ContentType: contentType,
+      });
+
+      await s3.send(command);
+
+      // Assuming standard S3 URL structure, or use a custom domain env var if needed
+      const url = `https://${bucketName}.s3.amazonaws.com/${key}`;
+
+      return { url, key };
     },
-    async download(_key) {
-      throw new Error('Not implemented: download')
+
+    async getSignedUrl(key, expiresIn = 3600) {
+      const command = new GetObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      });
+
+      return await getSignedUrl(s3, command, { expiresIn });
     },
-    async delete(_key) {
-      throw new Error('Not implemented: delete')
-    },
-    async getUrl(_key) {
-      throw new Error('Not implemented: getUrl')
+
+    async delete(key) {
+      const command = new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      });
+
+      await s3.send(command);
     },
   }
 }

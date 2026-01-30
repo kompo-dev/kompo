@@ -1,5 +1,5 @@
 {
-  "name": "@<%= it.scope %>/http-client-axios",
+  "name": "@<%= it.scope %>/<%= it.name %>",
   "version": "1.0.0",
   "main": "src/index.ts",
   "types": "src/index.ts",

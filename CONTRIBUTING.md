@@ -50,6 +50,34 @@ Kompo is built on the principles of **Functional Programming** and **Hexagonal A
 - **Types:** `PascalCase`
 - **Functions:** `camelCase`
 
+## 🌿 Branching Model
+
+We follow strict conventions for branches and commits to keep our history clean and automated.
+
+### Branch Names
+
+Branches must follow the pattern `type/description`:
+
+- `feature/` - New features (e.g., `feature/login-flow`)
+- `fix/` - Bug fixes (e.g., `fix/header-alignment`)
+- `chore/` - Maintenance, build, config (e.g., `chore/update-deps`)
+- `docs/` - Documentation updates (e.g., `docs/contributing-guide`)
+- `refactor/` - Code refactoring (e.g., `refactor/api-layer`)
+
+### Commit Messages
+
+We use [Conventional Commits](https://www.conventionalcommits.org/):
+
+- `feat:` - A new feature
+- `fix:` - A bug fix
+- `chore:` - Build process or auxiliary tool changes
+- `docs:` - Documentation only changes
+- `style:` - Changes that do not affect the meaning of the code (white-space, formatting, etc)
+- `refactor:` - A code change that neither fixes a bug nor adds a feature
+- `test:` - Adding missing tests or correcting existing tests
+
+Example: `feat(auth): implement login with wallet`
+
 ## 🚀 Pull Request Process
 
 1. Create a new branch for your feature or bugfix.

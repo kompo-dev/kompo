@@ -1,0 +1,12 @@
+import { createConfig, http } from '@wagmi/core';
+import { mainnet } from '@wagmi/core/chains';
+
+// Basic config for wagmi core actions
+export const config = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http(),
+  },
+});
+
+export { mainnet };

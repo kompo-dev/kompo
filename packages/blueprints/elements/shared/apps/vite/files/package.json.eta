@@ -13,12 +13,11 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-router-dom": "catalog:",
-    "@<%= it.scope %>/utils": "workspace:*",
-    "@<%= it.scope %>/domains": "workspace:*",
     "@<%= it.scope %>/config": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "catalog:",
+    "@types/node": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "typescript": "catalog:",

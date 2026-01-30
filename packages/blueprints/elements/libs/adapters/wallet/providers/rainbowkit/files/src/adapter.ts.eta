@@ -4,9 +4,8 @@ import {
   getAccount,
   getChainId,
   injected,
-} from '@wagmi/core'
-import { mainnet } from '@wagmi/core/chains'
-import { createConfig, http } from '@wagmi/core'
+  config as defaultConfig
+} from '<%= it.infraPackageName %>'
 import { Ports } from '<%= it.portImportPath %>'
 
 export type <%= it.className %>Config = {
@@ -14,15 +13,7 @@ export type <%= it.className %>Config = {
   appName: string
 }
 
-// Basic config for wagmi core actions if not provided by UI context
-const defaultConfig = createConfig({
-  chains: [mainnet],
-  transports: {
-    [mainnet.id]: http(),
-  },
-})
-
-export const <%= it.adapterCamelName %> = (config: <%= it.className %>Config): Ports.<%= it.portPascalName %> => {
+export const <%= it.adapterCamelName %> = (configStr: <%= it.className %>Config): Ports.<%= it.portPascalName %> => {
   return {
     get address() {
       return getAccount(defaultConfig).address

@@ -182,7 +182,7 @@ export async function runNewCommand(
       const manifest = await fs.readJson<LocalManifest>(manifestPath)
 
       blueprintConfig = {
-        framework: manifest.framework || FRAMEWORKS.NEXTJS, // Default to nextjs basic? Or keep fullstack string?
+        framework: manifest.framework || FRAMEWORKS.NEXTJS,
         backend: manifest.backend || BACKEND_TYPES.NEXTJS,
         designSystem: manifest.designSystem || DESIGN_SYSTEMS.TAILWIND,
         ports: manifest.ports || [],
@@ -578,10 +578,10 @@ export async function runNewCommand(
   // Ensure kompo.catalog.json exists (Smart Check)
   // If apps exist but catalog is missing, regenerate it to preserve state.
   // If no apps, create clean slate.
-  const { ensureKompoCatalog } = await import('@kompo/kit')
+  const { ensureKompoCatalog, getKompoCatalogPath } = await import('@kompo/kit')
   const { regenerateCatalog } = await import('../utils/catalog.utils')
 
-  const catalogPath = path.join(repoRoot, 'kompo.catalog.json')
+  const catalogPath = getKompoCatalogPath(repoRoot)
   if (!nodeFs.existsSync(catalogPath)) {
     // Check if we have existing apps to recover from
     if (loadedConfig?.apps && Object.keys(loadedConfig.apps).length > 0) {
@@ -601,10 +601,19 @@ export async function runNewCommand(
           message: 'Application Directory Name',
           defaultValue: step.name,
           placeholder: step.name,
-          validate: createKebabCaseValidator('application name', {
-            restrictedNames: RESTRICTED_APP_NAMES,
-            defaultValue: step.name,
-          }),
+          validate: (val) => {
+            const error = createKebabCaseValidator('application name', {
+              restrictedNames: RESTRICTED_APP_NAMES,
+              defaultValue: step.name,
+            })(val)
+            if (error) return error
+
+            const nameToCheck = val || step.name
+            const targetPath = path.join(repoRoot, 'apps', nameToCheck)
+            if (nodeFs.existsSync(targetPath)) {
+              return `Directory apps/${nameToCheck} already exists. Please choose another name.`
+            }
+          },
         })
 
         if (isCancel(appName)) {
@@ -612,7 +621,17 @@ export async function runNewCommand(
           process.exit(0)
         }
 
-        step.name = appName as string
+        const newName = appName as string
+        if (newName !== step.name) {
+          const oldName = step.name
+          step.name = newName
+          // Update references in other steps
+          for (const s of stepsToExecute) {
+            if (s.app === oldName) {
+              s.app = newName
+            }
+          }
+        }
       }
     }
   }
@@ -716,7 +735,7 @@ export async function runNewCommand(
   // Merge Framework Catalog
   if (blueprintConfig?.framework) {
     const fw = blueprintConfig.framework
-    // handle 'nextjs-fullstack' vs 'nextjs' naming
+    // handle naming
     const normalizedFw = fw.includes('next')
       ? FRAMEWORKS.NEXTJS
       : fw.includes('vite')

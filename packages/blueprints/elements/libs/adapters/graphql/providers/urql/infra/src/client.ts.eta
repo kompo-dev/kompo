@@ -1,0 +1,35 @@
+import { Client, cacheExchange, fetchExchange, type ClientOptions } from 'urql';
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export interface UrqlConfig extends ClientOptions {
+  apiKey?: string;
+  headerKey?: string;
+  url?: string;
+}
+
+export const createClient = (config?: UrqlConfig): Client => {
+  const url = config?.url ?? serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_URL;
+  const apiKey = config?.apiKey ?? serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_KEY;
+
+  if (!url) {
+    throw new Error('GraphQL API URL is not configured');
+  }
+
+  return new Client({
+    url,
+    fetchOptions: () => {
+      const headers: Record<string, string> = config?.fetchOptions && typeof config.fetchOptions === 'object' && 'headers' in config.fetchOptions 
+        ? (config.fetchOptions.headers as Record<string, string>) 
+        : {};
+      
+      if (apiKey) {
+        headers[config?.headerKey || 'Authorization'] = apiKey;
+      }
+      return { headers };
+    },
+    exchanges: [cacheExchange, fetchExchange],
+    ...config,
+  });
+};
+
+export const client: Client = createClient();
