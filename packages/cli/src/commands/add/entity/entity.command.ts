@@ -18,13 +18,13 @@ export async function runAddEntity(
     quiet?: boolean
     nonInteractive?: boolean
   },
-  command: Command
+  command?: Command
 ) {
   // Use consolidated validator
   const error = validateEntityName(entityName)
   if (error) {
     console.error(color.red(`✗ ${error}`))
-    command.help()
+    command?.help()
   }
 
   // Normalize to kebab-case for file system usage

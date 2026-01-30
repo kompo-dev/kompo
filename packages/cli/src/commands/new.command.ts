@@ -2,7 +2,7 @@ import nodeFs from 'node:fs'
 import path from 'node:path'
 import { cancel, intro, isCancel, log, note, outro, select, spinner, text } from '@clack/prompts'
 
-import { getBlueprint } from '@kompo/blueprints'
+import { getBlueprint, type BlueprintConfig as RepoBlueprintConfig } from '@kompo/blueprints'
 
 import {
   BACKEND_TYPES,
@@ -10,6 +10,7 @@ import {
   extractPluginsFromSteps,
   FRAMEWORKS,
   initKompoConfig,
+  type KompoConfig,
   mergeBlueprintCatalog,
   readKompoConfig,
   updateCatalogFromFeatures,
@@ -232,7 +233,7 @@ export async function runNewCommand(
       log.message(starter.description)
 
       // Use starter as config source
-      const blueprint = starter as any // Cast because BlueprintConfig might differ slightly from starter schema expectation here
+      const blueprint = starter as RepoBlueprintConfig & Partial<BlueprintConfig>
 
       // Extract config from blueprint
       if ('steps' in blueprint) {
@@ -262,13 +263,13 @@ export async function runNewCommand(
           drivers: { ...extracted.drivers, ...(blueprint.drivers || {}) },
           domains: extracted.domains,
 
-          features: blueprint.features,
+          features: blueprint.features as (FeatureBlueprint | string)[] | undefined,
           wirings: extracted.wirings,
           domainPorts: extracted.domainPorts,
         }
       } else {
         // Modern / Enterprise manifest structure
-        blueprintConfig = blueprint
+        blueprintConfig = blueprint as unknown as BlueprintConfig
       }
     }
   } else {
@@ -448,7 +449,7 @@ export async function runNewCommand(
         }
 
         selectedBlueprint = starter as unknown as BlueprintManifest
-        blueprintConfig = starter as any
+        blueprintConfig = starter as unknown as BlueprintManifest
       } else {
         log.error(`Failed to load blueprint: ${selectedBlueprintName}`)
         process.exit(1)
@@ -460,7 +461,9 @@ export async function runNewCommand(
   const cwd = process.cwd()
   const repoRoot = (await findRepoRoot(cwd)) || cwd
   const loadedConfig = readKompoConfig(repoRoot)
-  const existingOrg = (loadedConfig as any)?.project?.org || (loadedConfig as any)?.meta?.org
+  const existingOrg =
+    loadedConfig?.project?.org ||
+    (loadedConfig as KompoConfig & { meta?: { org: string } })?.meta?.org
   const isExistingProject = !!existingOrg
 
   let org: string
@@ -532,8 +535,8 @@ export async function runNewCommand(
   }
 
   // 2.5. Process Blueprint Steps (Common for both interactive and flag modes)
-  if (selectedBlueprint && 'steps' in (selectedBlueprint as any)) {
-    const blueprint = selectedBlueprint as any
+  if (selectedBlueprint && 'steps' in selectedBlueprint) {
+    const blueprint = selectedBlueprint as unknown as RepoBlueprintConfig
     // Blueprint structure handling with Zod validation
     const parseResult = blueprintValidationSchema.safeParse(blueprint)
 
@@ -664,11 +667,7 @@ export async function runNewCommand(
           : undefined,
       })
     } else if (step.command === 'add' && step.type === 'domain') {
-      await runAddDomain(
-        step.name,
-        { app: step.app, skipEntity: true, nonInteractive: true },
-        {} as any
-      )
+      await runAddDomain(step.name, { app: step.app, skipEntity: true, nonInteractive: true })
     } else if (step.command === 'add' && step.type === 'port') {
       await runAddPort(step.name, {
         domain: step.domain,
@@ -678,7 +677,7 @@ export async function runNewCommand(
     } else if (step.command === 'add' && step.type === 'use-case') {
       await runAddUseCase(step.name, { domain: step.domain, nonInteractive: true })
     } else if (step.command === 'add' && step.type === 'entity') {
-      await runAddEntity(step.name, { domain: step.domain, nonInteractive: true }, {} as any)
+      await runAddEntity(step.name, { domain: step.domain, nonInteractive: true })
     } else if (step.command === 'add' && step.type === 'adapter') {
       await runAddAdapter({
         port: step.port,
