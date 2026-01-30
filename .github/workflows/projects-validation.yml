@@ -1,0 +1,46 @@
+name: App & Libs Validation (Project)
+
+# This workflow is a template for developers building on top of the Kompo socle.
+# It is designed to trigger only when files in 'apps/' or 'libs/' are modified.
+# Maintainers of the Kompo framework use a separate workflow (kompo-core.yml).
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'apps/**'
+      - 'libs/**'
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'apps/**'
+      - 'libs/**'
+
+jobs:
+  validate-project:
+    name: Build & Test Project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Project
+        run: pnpm build
+
+      - name: Test Project
+        run: pnpm test

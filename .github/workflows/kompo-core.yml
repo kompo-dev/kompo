@@ -1,0 +1,19 @@
+name: Maintainer CI (Kompo)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'packages/**'
+      - '.github/workflows/kompo-validation.yml'
+      - '.github/workflows/kompo-core.yml'
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'packages/**'
+      - '.github/workflows/kompo-validation.yml'
+      - '.github/workflows/kompo-core.yml'
+
+jobs:
+  kompo-validation:
+    uses: ./.github/workflows/kompo-validation.yml
