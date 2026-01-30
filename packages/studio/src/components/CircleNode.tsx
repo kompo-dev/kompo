@@ -10,8 +10,9 @@ export interface CircleNodeData extends Record<string, unknown> {
 export type CircleNode = Node<CircleNodeData>
 
 export function CircleNode({ data }: NodeProps<CircleNode>) {
-  // @ts-expect-error - Dynamic icon access
-  const Icon = data.icon && Icons[data.icon] ? Icons[data.icon] : null
+  const Icon = data.icon
+    ? (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[data.icon]
+    : null
 
   return (
     <div className="relative flex flex-col items-center justify-center w-24 h-24 bg-card border-2 border-primary rounded-full shadow-md transition-all hover:shadow-xl hover:scale-105">
