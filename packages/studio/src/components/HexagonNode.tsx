@@ -19,6 +19,7 @@ export function HexagonNode({ data }: NodeProps<HexagonNode>) {
         viewBox="0 0 100 100"
         className="absolute inset-0 w-full h-full text-primary transition-all duration-300 drop-shadow-md group-hover:drop-shadow-xl"
       >
+        <title>{data.label}</title>
         <polygon
           points="50 0, 95 25, 95 75, 50 100, 5 75, 5 25"
           className="fill-background stroke-primary stroke-2 transition-colors"
