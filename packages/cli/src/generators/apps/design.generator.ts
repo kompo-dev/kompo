@@ -1,6 +1,7 @@
 import path from 'node:path'
-import { intro, log, outro } from '@clack/prompts'
+import { log, spinner } from '@clack/prompts'
 import { LIBS_DIR } from '@kompo/kit'
+import color from 'picocolors'
 import { createFsEngine } from '../../engine/fs-engine'
 import type { DesignSystemId } from '../../utils/design-systems'
 import { getTemplateEngine } from '../../utils/project'
@@ -19,7 +20,8 @@ export async function generateDesignSystem(ctx: DesignGeneratorContext) {
     return
   }
 
-  intro(`Setting up design system: ${designSystem}`)
+  const s = spinner()
+  s.start(`Setting up ${color.cyan(designSystem)} design system...`)
 
   const fs = createFsEngine()
   const templates = await getTemplateEngine(ctx.blueprintPath)
@@ -57,5 +59,5 @@ export async function generateDesignSystem(ctx: DesignGeneratorContext) {
   }
 
   // Check for workspace-scripts snippet in blueprint
-  outro(`Design system ${designSystem} setup complete!`)
+  s.stop(color.green(`Design system ${designSystem} setup complete!`))
 }

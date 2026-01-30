@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import { FRAMEWORKS, getKompoCatalogPath, readKompoConfig, readWorkspaceConfig } from '@kompo/kit'
+import { getKompoCatalogPath, readKompoConfig, readWorkspaceConfig } from '@kompo/kit'
 
 export async function regenerateCatalog(rootDir: string, options: { silent?: boolean } = {}) {
   const catalogPath = getKompoCatalogPath(rootDir)
@@ -28,20 +28,10 @@ export async function regenerateCatalog(rootDir: string, options: { silent?: boo
   const { getBlueprintCatalogPath } = await import('@kompo/blueprints')
   const catalogsToMerge: Array<{ name: string; path: string }> = []
 
-  // Process Features
-  const features = (config as any).features || []
-  if (Array.isArray(features)) {
-    for (const f of features) {
-      const name = typeof f === 'string' ? f : f.name
-      const p = getBlueprintCatalogPath(name, 'feature')
-      if (p) catalogsToMerge.push({ name, path: p })
-    }
-  }
-
   // Process Apps
   if (config.apps) {
     for (const [_appName, appConfig] of Object.entries(config.apps)) {
-      const fw = (appConfig as any).frontend || FRAMEWORKS.VITE
+      const fw = appConfig.framework
       const p = getBlueprintCatalogPath(fw, 'app')
       if (p) catalogsToMerge.push({ name: fw, path: p })
     }
@@ -49,7 +39,7 @@ export async function regenerateCatalog(rootDir: string, options: { silent?: boo
 
   // Process Adapters
   if (config.adapters) {
-    for (const adapterConfig of Object.values(config.adapters) as any[]) {
+    for (const adapterConfig of Object.values(config.adapters)) {
       const { port, engine } = adapterConfig
       const lookup = `${port}/${engine}`
       const p = getBlueprintCatalogPath(lookup, 'adapter')

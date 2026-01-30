@@ -96,8 +96,7 @@ export const renderTemplatesStep: AdapterGeneratorStep = {
 
     // Inject hooks from manifest into templateData if available
     if (context.manifest?.hooks) {
-      // biome-ignore lint/suspicious/noExplicitAny: dynamic injection
-      ;(templateData as any).hooks = context.manifest.hooks
+      templateData.hooks = context.manifest.hooks
     }
 
     // Pre-calculate infraPackageName for adapter templates
@@ -109,20 +108,13 @@ export const renderTemplatesStep: AdapterGeneratorStep = {
     if (!context.scope) {
       throw new Error('Organization scope is required for infrastructure generation.')
     }
-    // biome-ignore lint/suspicious/noExplicitAny: inject
-    ;(templateData as any).infraPackageName = getInfraPackageName(
-      context.scope,
-      subject,
-      infraAlias
-    )
-    ;(templateData as any).infraDirName = infraName
-    ;(templateData as any).infraAlias = infraAlias
+
+    templateData.infraPackageName = getInfraPackageName(context.scope, subject, infraAlias)
+    templateData.infraDirName = infraName
+    templateData.infraAlias = infraAlias
 
     if (context.driver?.id) {
-      ;(templateData as any).driverPackageName = getDriverPackageName(
-        context.scope,
-        context.driver.id
-      )
+      templateData.driverPackageName = getDriverPackageName(context.scope, context.driver.id)
     }
 
     // 4. Render Infra (ORM-specific domain config from libs/adapters/<cap>/<prov>/infra)

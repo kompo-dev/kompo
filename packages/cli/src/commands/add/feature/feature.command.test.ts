@@ -45,7 +45,7 @@ describe('runAddFeature', () => {
       adapters: [{ name: 'pg-adapter', port: 'user-repository', driver: 'postgres', app: 'web' }],
     }
 
-    vi.mocked(featureRegistry.getFeature).mockResolvedValue(mockFeature)
+    vi.mocked(featureRegistry.getFeature).mockResolvedValue(mockFeature as any)
 
     await runAddFeature('auth')
 

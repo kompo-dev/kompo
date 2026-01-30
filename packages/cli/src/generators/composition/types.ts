@@ -1,10 +1,10 @@
+import type { AdapterBlueprint } from '@kompo/blueprints'
 import type { FsEngine, TemplateEngine } from '@kompo/kit'
 import type {
   CapabilityManifest,
   DriverManifest,
   ProviderManifest,
 } from '../../registries/capability.registry'
-import type { AdapterBlueprint } from '../../schemas/adapter-blueprint.schema'
 
 export type BlueprintManifest = AdapterBlueprint
 

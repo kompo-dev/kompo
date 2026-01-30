@@ -188,12 +188,12 @@ vi.mock('./wire.command', () => ({
 }))
 
 // Mock Registry to return valid blueprints
-vi.mock('../registries/template.registry', () => ({
-  registerBlueprintProvider: vi.fn(),
-  getBlueprint: vi.fn().mockImplementation(async (name) => {
+vi.mock('../registries/starter.registry', () => ({
+  registerStarterProvider: vi.fn(),
+  getStarter: vi.fn().mockImplementation(async (name) => {
     return {
       name,
-      description: 'Mock Blueprint',
+      description: 'Mock Starter',
       version: '1.0.0',
       type: 'app',
       category: 'app',
@@ -202,7 +202,7 @@ vi.mock('../registries/template.registry', () => ({
         { command: 'add', type: 'app', name: 'app', driver: name === 'vite' ? 'vite' : 'nextjs' },
         { command: 'add', type: 'design-system', name: 'tailwind', app: 'app' },
       ],
-    }
+    } as any // Cast to StarterManifest (mock)
   }),
 }))
 

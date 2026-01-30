@@ -1,21 +1,8 @@
-export interface FeatureBlueprint {
-  domains: {
-    name: string
-    entities?: string[]
-    ports?: string[]
-    'use-cases'?: string[] // use-cases or useCases
-  }[]
-  adapters?: {
-    name: string
-    port: string
-    driver: string
-    app?: string // Optional, if global or specific
-  }[]
-}
+import type { FeatureManifest } from '@kompo/blueprints/types'
 
 export interface FeatureProvider {
   name: string
-  getFeature(featureName: string): Promise<FeatureBlueprint | null>
+  getFeature(featureName: string): Promise<FeatureManifest | null>
 }
 
 const providers: FeatureProvider[] = []
@@ -24,7 +11,7 @@ export function registerFeatureProvider(provider: FeatureProvider) {
   providers.push(provider)
 }
 
-export async function getFeature(featureName: string): Promise<FeatureBlueprint | null> {
+export async function getFeature(featureName: string): Promise<FeatureManifest | null> {
   for (const provider of providers) {
     const feature = await provider.getFeature(featureName)
     if (feature) return feature

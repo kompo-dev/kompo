@@ -91,10 +91,10 @@ export async function loadBlueprint<T = any>(blueprintPath: string): Promise<T> 
   }
 
   // 3. Validate Schema
-  const { adapterBlueprintSchema } = await import('../schemas/adapter-blueprint.schema')
+  const { blueprintSchema } = await import('@kompo/blueprints')
 
   try {
-    const validated = adapterBlueprintSchema.parse(config)
+    const validated = blueprintSchema.parse(config)
     return validated as unknown as T
   } catch (error: any) {
     if (error.errors) {

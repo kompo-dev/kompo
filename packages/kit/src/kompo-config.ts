@@ -4,13 +4,12 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { BackendTypeId, DesignSystemId, FrameworkId } from './definitions/constants'
+import type { DesignSystemId, FrameworkId } from './definitions/constants'
 
 export interface AppConfig {
   packageName: string
   profileId?: string
-  frontend?: FrameworkId
-  backend?: BackendTypeId
+  framework: FrameworkId
   designSystem?: DesignSystemId
   ports: Record<string, string | string[]>
   chains?: string[]
@@ -204,7 +203,7 @@ export function updateCatalogSources(rootDir: string, sources: string[]): void {
  * Generate a profile ID from app config
  */
 export function generateProfileId(appConfig: Partial<AppConfig>): string {
-  const parts = [appConfig.frontend, appConfig.backend, appConfig.designSystem].filter(Boolean)
+  const parts = [appConfig.framework, appConfig.designSystem].filter(Boolean)
 
   const hash = Math.random().toString(36).substring(2, 10)
   return `${parts.join('-')}-${hash}`

@@ -2,14 +2,14 @@
   "name": "kompo",
   "version": "0.1.0-beta.1",
   "private": true,
+  "homepage": "https://github.com/kompo-dev/kompo#readme",
+  "bugs": {
+    "url": "https://github.com/kompo-dev/kompo/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kompo-dev/kompo.git"
   },
-  "bugs": {
-    "url": "https://github.com/kompo-dev/kompo/issues"
-  },
-  "homepage": "https://github.com/kompo-dev/kompo#readme",
   "type": "module",
   "scripts": {
     "build": "turbo run build",
@@ -24,6 +24,7 @@
     "kompo": "tsx packages/cli/src/bin/kompo.ts",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
+    "prepare": "husky",
     "sort": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\"",
     "test": "turbo run test",
     "test:cli": "vitest run -c packages/vitest.config.ts",
@@ -31,9 +32,7 @@
     "test:cli:watch": "vitest -c packages/vitest.config.ts",
     "test:e2e": "./scripts/test-e2e.sh",
     "test:templates": "./scripts/test-quick.sh",
-    "type-check": "turbo run type-check",
-    "ui:add": "pnpm --filter=@iop/ui exec pnpm dlx shadcn@latest add",
-    "prepare": "husky"
+    "type-check": "turbo run type-check"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",

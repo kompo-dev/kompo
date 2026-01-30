@@ -1,152 +1,210 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Kompo Blueprint Schema",
-  "type": "object",
-  "required": ["id", "name", "type"],
-  "properties": {
-    "$schema": {
-      "type": "string"
-    },
-    "id": {
-      "type": "string",
-      "description": "Unique identifier of the blueprint entry (must match directory name for adapters/providers)",
-      "pattern": "^[a-z0-9-]+$"
-    },
-    "name": {
-      "type": "string",
-      "description": "Human readable name of the blueprint or adapter"
-    },
-    "version": {
-      "type": "string",
-      "description": "Semantic version"
-    },
-    "description": {
-      "type": "string",
-      "description": "Description of the blueprint"
-    },
-    "type": {
-      "type": "string",
-      "enum": ["app", "adapter", "driver", "feature", "starter", "library", "design-system"],
-      "description": "Type of blueprint"
-    },
-    "category": {
-      "type": "string",
-      "description": "Category for apps/features"
-    },
-    "family": {
-      "type": "string",
-      "description": "Family of the adapter (e.g. rpc, wallet). Deprecated in favor of capability."
-    },
-    "capability": {
-      "type": "string",
-      "description": "Capability ID (required for adapters, e.g. orm, http, rpc)"
-    },
-    "sharedDriver": {
-      "type": "string",
-      "description": "Base shared driver ID (required for driver blueprints, e.g. postgres, mysql)"
-    },
-    "drivers": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "runtime": { "type": "boolean" },
-          "description": { "type": "string" },
-          "sharedDriver": {
-            "type": "string",
-            "description": "Base shared driver ID (e.g. postgres, mysql)"
-          }
+  "$ref": "#/definitions/Kompo Blueprint Schema",
+  "definitions": {
+    "Kompo Blueprint Schema": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "path": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "app"
+            },
+            "framework": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "env": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "required": ["id", "name", "type"],
+          "additionalProperties": false
         },
-        "required": ["id", "name"]
-      },
-      "description": "List of driven adapters (drivers) supported by this provider"
-    },
-    "features": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "List of feature IDs included in this blueprint"
-    },
-    "framework": {
-      "type": "string",
-      "description": "Target framework (nextjs, vite, etc.)"
-    },
-    "tags": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Tags for searching/filtering"
-    },
-    "requires": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "List of npm dependencies or other adapters required"
-    },
-    "env": {
-      "type": "object",
-      "description": "Environment variables definition",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "validation": {
-            "type": "string",
-            "description": "Zod validation string (e.g. z.string())",
-            "pattern": "^z\\.(string|number|boolean|object|array|enum|url)\\("
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/id"
+            },
+            "name": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/name"
+            },
+            "version": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/version"
+            },
+            "description": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/description"
+            },
+            "tags": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/tags"
+            },
+            "path": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/path"
+            },
+            "type": {
+              "type": "string",
+              "const": "adapter"
+            },
+            "capability": {
+              "type": "string"
+            },
+            "sharedDriver": {
+              "type": "string"
+            },
+            "drivers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "type": "boolean"
+                  },
+                  "sharedDriver": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"],
+                "additionalProperties": false
+              }
+            },
+            "provides": {
+              "type": "object",
+              "properties": {
+                "providers": {
+                  "type": "boolean"
+                },
+                "composition": {
+                  "type": "boolean"
+                },
+                "factory": {
+                  "type": "string"
+                },
+                "exports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "driver": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "env": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "side": {
+                    "type": "string",
+                    "enum": ["client", "server"]
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "validation": {
+                    "type": "string"
+                  },
+                  "default": {
+                    "type": "string"
+                  },
+                  "mapTo": {
+                    "type": "string"
+                  },
+                  "scoped": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": ["side", "validation"],
+                "additionalProperties": false
+              }
+            },
+            "hooks": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
           },
-          "default": {
-            "type": "string",
-            "description": "Default value (can use EJS template)"
-          },
-          "side": {
-            "type": "string",
-            "enum": ["client", "server"],
-            "description": "Environment variable visibility side"
-          },
-          "scoped": {
-            "type": "boolean",
-            "default": true,
-            "description": "Whether to prefix the variable with project name (default: true). Set to false for global/shared variables."
-          },
-          "description": {
-            "type": "string",
-            "description": "Description of the variable"
-          },
-          "mapTo": {
-            "type": "string",
-            "description": "Map to another internal configuration key"
-          }
+          "required": ["id", "name", "type"],
+          "additionalProperties": false
         },
-        "required": ["validation", "side"]
-      }
-    },
-    "provides": {
-      "type": "object",
-      "description": "Features or capabilities provided by this blueprint",
-      "properties": {
-        "composition": { "type": "boolean" },
-        "providers": { "type": "boolean" },
-        "driver": {
-          "type": "string",
-          "description": "Type of driver provided (e.g. postgres, mysql)"
-        },
-        "factory": { "type": "string" },
-        "exports": { "type": "array", "items": { "type": "string" } },
-        "features": { "type": "object" }
-      }
-    },
-    "hooks": {
-      "type": "object",
-      "additionalProperties": { "type": "string" }
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/id"
+            },
+            "name": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/name"
+            },
+            "version": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/version"
+            },
+            "description": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/description"
+            },
+            "tags": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/tags"
+            },
+            "path": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/path"
+            },
+            "type": {
+              "type": "string",
+              "const": "driver"
+            },
+            "sharedDriver": {
+              "type": "string"
+            },
+            "env": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "required": ["id", "name", "type", "sharedDriver"],
+          "additionalProperties": false
+        }
+      ]
     }
   },
-  "allOf": [
-    {
-      "if": { "properties": { "type": { "const": "adapter" } } },
-      "then": { "required": ["capability"] }
-    },
-    {
-      "if": { "properties": { "type": { "const": "driver" } } },
-      "then": { "required": ["sharedDriver"] }
-    }
-  ]
+  "$schema": "http://json-schema.org/draft-07/schema#"
 }

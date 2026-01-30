@@ -1,21 +1,23 @@
 import { z } from 'zod'
-import { validateKebabCase } from '../validations/naming.validation'
 
-export const adapterBlueprintSchema = z.object({
-  id: z
-    .string()
-    .min(1, 'ID is required')
-    .regex(/^[a-z0-9-]+$/, 'ID must be kebab-case'),
-  name: z
-    .string()
-    .min(1, 'Adapter name is required')
-    .refine((val) => !validateKebabCase(val), {
-      message: 'Name must be kebab-case',
-    }),
+export const baseBlueprintSchema = z.object({
+  id: z.string().min(1, 'ID is required'),
+  name: z.string().min(1, 'Name is required'),
   version: z.string().optional(),
   description: z.string().optional(),
-  type: z.enum(['app', 'adapter', 'driver', 'feature', 'starter']),
+  tags: z.array(z.string()).optional(),
+  path: z.string().optional(),
+})
+
+export const appBlueprintSchema = baseBlueprintSchema.extend({
+  type: z.literal('app'),
+  framework: z.string().optional(),
   category: z.string().optional(),
+  env: z.record(z.string(), z.any()).optional(),
+})
+
+export const adapterBlueprintSchema = baseBlueprintSchema.extend({
+  type: z.literal('adapter'),
   capability: z.string().optional(),
   sharedDriver: z.string().optional(),
   drivers: z
@@ -40,6 +42,7 @@ export const adapterBlueprintSchema = z.object({
     .optional(),
   env: z
     .record(
+      z.string(),
       z.object({
         side: z.enum(['client', 'server']),
         description: z.string().optional(),
@@ -52,7 +55,22 @@ export const adapterBlueprintSchema = z.object({
       })
     )
     .optional(),
-  hooks: z.record(z.string()).optional(),
+  hooks: z.record(z.string(), z.string()).optional(),
 })
 
+export const driverBlueprintSchema = baseBlueprintSchema.extend({
+  type: z.literal('driver'),
+  sharedDriver: z.string(),
+  env: z.record(z.string(), z.any()).optional(),
+})
+
+export const blueprintSchema = z.discriminatedUnion('type', [
+  appBlueprintSchema,
+  adapterBlueprintSchema,
+  driverBlueprintSchema,
+])
+
+export type Blueprint = z.infer<typeof blueprintSchema>
+export type AppBlueprint = z.infer<typeof appBlueprintSchema>
 export type AdapterBlueprint = z.infer<typeof adapterBlueprintSchema>
+export type DriverBlueprint = z.infer<typeof driverBlueprintSchema>

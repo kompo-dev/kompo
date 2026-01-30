@@ -1,6 +1,7 @@
 import path from 'node:path'
-import { log } from '@clack/prompts'
+import { log, spinner } from '@clack/prompts'
 import { LIBS_DIR } from '@kompo/kit'
+import color from 'picocolors'
 import { createFsEngine } from '../../engine/fs-engine'
 import type { CapabilityManifest } from '../../registries/capability.registry'
 import type { EnvVisibility } from '../../utils/env-naming'
@@ -499,19 +500,17 @@ export const createAdapterGenerator = (config: AdapterGeneratorConfig) => {
 // const s = spinner()
 // Disable verbose step logging for now as it conflicts with interactive steps
 const createLoggingObserver = (): PipelineObserver => {
-  // const s = spinner()
-  // Disable verbose step logging for now as it conflicts with interactive steps
+  const s = spinner()
   return {
-    onStepStart: (_stepId) => {
-      // s.start(`Starting step: ${stepId}`)
+    onStepStart: (stepId) => {
+      s.start(`Step: ${color.cyan(stepId)}`)
     },
-    onStepComplete: (_stepId) => {
-      // s.stop(`Completed step: ${stepId}`)
+    onStepComplete: (stepId) => {
+      s.stop(`Step: ${color.cyan(stepId)} complete`)
     },
     onStepError: (stepId, error) => {
-      log.error(`❌ Step failed: ${stepId}`)
-      log.error(error.message)
-      // s.stop('Operation failed')
+      s.stop(`Step: ${color.red(stepId)} failed`)
+      log.error(`❌ ${error.message}`)
     },
   }
 }

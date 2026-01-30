@@ -244,9 +244,9 @@ export function detectEnabledFrameworks(repoRoot: string): FrameworkId[] {
   if (!config || !config.apps) return []
 
   const frameworks = new Set<FrameworkId>()
-  Object.values(config.apps).forEach((app: any) => {
-    if (app.frontend) {
-      frameworks.add(app.frontend)
+  Object.values(config.apps).forEach((app) => {
+    if (app.framework) {
+      frameworks.add(app.framework)
     }
   })
 
@@ -261,8 +261,8 @@ export function getFrameworksForTarget(repoRoot: string, targetApp?: string): Fr
   // If a specific target app is provided, try to find its framework
   if (targetApp) {
     // 1. Try exact path match
-    if (config.apps[targetApp]?.frontend) {
-      return [config.apps[targetApp].frontend]
+    if (config.apps[targetApp]?.framework) {
+      return [config.apps[targetApp].framework]
     }
 
     // 2. Try matching by package name or directory name
@@ -277,8 +277,8 @@ export function getFrameworksForTarget(repoRoot: string, targetApp?: string): Fr
       return folderName === targetApp
     })
 
-    if (foundEntry?.[1].frontend) {
-      return [foundEntry[1].frontend]
+    if (foundEntry?.[1].framework) {
+      return [foundEntry[1].framework]
     }
 
     // Strict Mode: If target is specified but not found or has no frontend, return nothing.

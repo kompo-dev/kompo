@@ -1,8 +1,6 @@
 import path from 'node:path'
 import { intro, outro, spinner } from '@clack/prompts'
 import {
-  BACKEND_TYPES,
-  type BackendTypeId,
   FRAMEWORKS,
   type FrameworkId,
   getRequiredFeatures,
@@ -20,7 +18,6 @@ import { getTemplateEngine } from '../../utils/project'
 export interface FrameworkGeneratorContext {
   targetDir: string
   framework: FrameworkId
-  backendType?: BackendTypeId
   scope: string
   packageName: string
   projectName: string
@@ -37,7 +34,6 @@ export interface FrameworkGeneratorContext {
 export async function generateFramework(ctx: FrameworkGeneratorContext) {
   const {
     framework,
-    backendType,
     targetDir,
     scope,
     packageName,
@@ -51,7 +47,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   const fs = createFsEngine()
   const templates = await getTemplateEngine(ctx.blueprintPath)
 
-  intro(`Setting up framework: ${framework}`)
+  s.start(`Setting up ${color.cyan(framework)} framework...`)
 
   const repoRoot = cwd // Assume cwd is repo root
   const libsDir = LIBS_DIR
@@ -59,9 +55,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
 
   // 1. Create Shared Config
   if (!(await fs.fileExists(path.join(configDir, 'package.json')))) {
-    s.start('Setting up shared configuration')
-    // Use universal shared config template
-    // libs/config extends tsconfig.base.json at repo root
+    s.message('Scaffolding shared configuration...')
     const configTsconfigPath = path.relative(configDir, path.join(repoRoot, 'tsconfig.base.json'))
     await templates.renderDir(
       'libs/config/files',
@@ -69,14 +63,11 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
       { scope, framework, tsconfigPath: configTsconfigPath },
       { merge: false }
     )
-    s.stop('Setting up shared configuration')
   }
 
   // 2. Shared Domains are created on-demand via domain.generator.ts
 
   // 3. Shared Utils are created on-demand via specialized generators
-
-  s.stop('Setting up shared configuration')
 
   // 4. Create App Files
   const { injectEnvSnippet } = await import('../../utils/env')
@@ -342,10 +333,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   // Catalog
   const features = getRequiredFeatures(
     framework === FRAMEWORKS.VITE ? FRAMEWORKS.VITE : FRAMEWORKS.NEXTJS,
-    designSystem,
-    backendType !== BACKEND_TYPES.NONE && backendType !== BACKEND_TYPES.NEXTJS
-      ? backendType
-      : undefined
+    designSystem
   )
 
   // [KOMPO] Manual Catalog Sync for App Design System
@@ -393,5 +381,5 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   // from apps/<framework>/catalog.json
   await regenerateCatalog(repoRoot, { silent: true })
 
-  outro(color.green(`Framework ${framework} setup complete!`))
+  s.stop(color.green(`Framework ${framework} setup complete!`))
 }

@@ -6,12 +6,10 @@ export interface TemplateConfig {
   tags: string[]
   plans: {
     community: {
-      frontend: string[]
-      backend: string[]
+      frameworks: string[]
     }
     enterprise: {
-      frontend: string[]
-      backend: string[]
+      frameworks: string[]
     }
   }
   dependencies: {
@@ -28,7 +26,6 @@ export interface TemplateConfig {
 }
 
 export interface TemplateOptions {
-  frontend?: string
-  backend?: string
+  framework?: string
   plan?: 'community' | 'enterprise'
 }

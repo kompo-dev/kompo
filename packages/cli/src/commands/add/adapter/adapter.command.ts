@@ -269,9 +269,8 @@ export async function runAddAdapter(
 
   let preferredDriver: string | undefined
   if (options.app && kompoConfig?.apps?.[options.app]) {
-    // biome-ignore lint/suspicious/noExplicitAny: dynamic config
-    const appConf = kompoConfig.apps[options.app] as any
-    preferredDriver = appConf.frontend || appConf.framework
+    const appConf = kompoConfig.apps[options.app]
+    preferredDriver = appConf.framework
   }
 
   while (true) {

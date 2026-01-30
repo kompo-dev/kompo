@@ -6,8 +6,13 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { Blueprint, FeatureManifest, StarterManifest } from './types'
 
-// Fix __dirname for ES modules
+export * from './schemas/blueprint.schema'
+export * from './schemas/feature.schema'
+export * from './schemas/starter.schema'
+export * from './schemas/step.schema'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -24,331 +29,235 @@ const ENTERPRISE_BLUEPRINTS = join(BLUEPRINTS_ROOT, '..', '..', 'enterprise', 'b
 const ENTERPRISE_APPS = join(ENTERPRISE_BLUEPRINTS, 'starters')
 const ENTERPRISE_FEATURES = join(ENTERPRISE_BLUEPRINTS, 'features')
 
-export interface BlueprintConfig {
-  version: number
-  name: string
-  description: string
-  category: string
-  tags?: string[] // Optional for backward compatibility
-  plans?: {
-    community: {
-      frontend: string[]
-      backend: string[]
-    }
-    enterprise: {
-      frontend: string[]
-      backend: string[]
-    }
-  }
-  dependencies?: {
-    community: string[]
-    enterprise: string[]
-  }
-  steps?: Array<{
-    action: string
-    plugin?: string
-    blueprint?: string
-    app: string
-    adapter?: string
-  }>
-  // New unified format
-  type?: 'app' | 'feature' | 'plugin'
-  path?: string
-  stack?: {
-    required: string[]
-    backend?: string[]
-    designSystem: string[]
-    optional?: string[]
-  }
-  blueprint?: string
-  domains?: string[]
-  domainPorts?: Record<string, string[]>
-  adapters?: Record<string, string>
-  drivers?: Record<string, string>
-  instances?: Record<string, string>
-  features?: (string | Record<string, unknown>)[]
-  chains?: string[]
-}
-
-export interface BlueprintOptions {
-  frontend?: string
-  backend?: string
-  plan?: 'community' | 'enterprise'
-}
-
-/**
- * Detect current plan (community/enterprise)
- */
 function detectPlan(): 'community' | 'enterprise' {
-  // Check if enterprise plugins directory exists
   const enterprisePath = join(process.cwd(), 'packages', 'enterprise')
   return existsSync(enterprisePath) ? 'enterprise' : 'community'
 }
 
-/**
- * Load blueprints from a directory (recursively for starters)
- */
-function loadBlueprintsFrom(dir: string, maxDepth = 1): BlueprintConfig[] {
-  if (!existsSync(dir)) {
-    return []
-  }
-
-  const blueprints: BlueprintConfig[] = []
+function loadStartersFrom(dir: string, maxDepth = 1): StarterManifest[] {
+  if (!existsSync(dir)) return []
+  const starters: StarterManifest[] = []
 
   function scan(currentDir: string, currentDepth: number) {
     if (currentDepth > maxDepth) return
-
     const entries = readdirSync(currentDir, { withFileTypes: true })
-
     for (const entry of entries) {
       if (entry.isDirectory()) {
         const fullPath = join(currentDir, entry.name)
-
-        // Priority: starter.json (UI/Steps) -> blueprint.json (Technical/Legacy)
-        let manifestPath = join(fullPath, 'starter.json')
-        if (!existsSync(manifestPath)) {
-          manifestPath = join(fullPath, 'blueprint.json')
-        }
-
-        if (existsSync(manifestPath)) {
+        const textPath = join(fullPath, 'starter.json')
+        if (existsSync(textPath)) {
           try {
-            const content = readFileSync(manifestPath, 'utf-8')
-            const manifest = JSON.parse(content) as BlueprintConfig
-
-            // If we loaded starter.json, check if there is a sibling blueprint.json
-            // and merge it (blueprint.json often contains the content/files config)
-            if (manifestPath.endsWith('starter.json')) {
-              const siblingBlueprintPath = join(fullPath, 'blueprint.json')
-              if (existsSync(siblingBlueprintPath)) {
-                try {
-                  const blueprintContent = JSON.parse(readFileSync(siblingBlueprintPath, 'utf-8'))
-                  // Merge: blueprint wins for technical keys, starter wins for UI stuff?
-                  // No, starter.json is the Entry Point. It has steps.
-                  // blueprint.json has the content definitions (type: app, drivers, etc)
-                  // We merge them so the consumer gets a full picture.
-                  Object.assign(manifest, blueprintContent, manifest)
-                  // (manifest keys overwrite blueprint keys effectively, e.g. title)
-                } catch {}
-              }
-            }
-
+            const content = readFileSync(textPath, 'utf-8')
+            const manifest = JSON.parse(content) as StarterManifest
             manifest.path = fullPath
-            blueprints.push(manifest)
+            starters.push(manifest)
           } catch {}
         }
-
-        // Recurse
         scan(fullPath, currentDepth + 1)
       }
     }
   }
+  scan(dir, 1)
+  return starters
+}
 
+function loadFeaturesFrom(dir: string, maxDepth = 1): FeatureManifest[] {
+  if (!existsSync(dir)) return []
+  const features: FeatureManifest[] = []
+
+  function scan(currentDir: string, currentDepth: number) {
+    if (currentDepth > maxDepth) return
+    const entries = readdirSync(currentDir, { withFileTypes: true })
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const fullPath = join(currentDir, entry.name)
+        const textPath = join(fullPath, 'features.json')
+        if (existsSync(textPath)) {
+          try {
+            const content = readFileSync(textPath, 'utf-8')
+            const manifest = JSON.parse(content) as FeatureManifest
+            manifest.path = fullPath
+            if (manifest.type !== 'feature') manifest.type = 'feature'
+            features.push(manifest)
+          } catch {}
+        }
+        scan(fullPath, currentDepth + 1)
+      }
+    }
+  }
+  scan(dir, 1)
+  return features
+}
+
+function loadBlueprintsFrom(dir: string, maxDepth = 1): Blueprint[] {
+  if (!existsSync(dir)) return []
+  const blueprints: Blueprint[] = []
+
+  function scan(currentDir: string, currentDepth: number) {
+    if (currentDepth > maxDepth) return
+    const entries = readdirSync(currentDir, { withFileTypes: true })
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const fullPath = join(currentDir, entry.name)
+        const textPath = join(fullPath, 'blueprint.json')
+        if (existsSync(textPath)) {
+          try {
+            const content = readFileSync(textPath, 'utf-8')
+            const manifest = JSON.parse(content) as Blueprint
+            manifest.path = fullPath
+            blueprints.push(manifest)
+          } catch {}
+        }
+        scan(fullPath, currentDepth + 1)
+      }
+    }
+  }
   scan(dir, 1)
   return blueprints
 }
 
-/**
- * List all available blueprints for the current plan
- */
-export function listBlueprints(): BlueprintConfig[] {
-  const plan = detectPlan()
-  const blueprints: BlueprintConfig[] = []
+export function listBlueprints(): Blueprint[] {
+  const blueprints: Blueprint[] = []
+  const elementsDir = getTemplatesDir()
+  const libsDir = join(elementsDir, 'libs')
 
-  // Always include community blueprints (Apps and Features)
-  blueprints.push(...loadBlueprintsFrom(COMMUNITY_APPS))
-  blueprints.push(...loadBlueprintsFrom(COMMUNITY_FEATURES))
-
-  // Include enterprise blueprints if plan is enterprise
-  if (plan === 'enterprise') {
-    // Check if enterprise uses apps/features structure or flat
-    if (existsSync(ENTERPRISE_APPS)) {
-      blueprints.push(...loadBlueprintsFrom(ENTERPRISE_APPS))
-    }
-    if (existsSync(ENTERPRISE_FEATURES)) {
-      blueprints.push(...loadBlueprintsFrom(ENTERPRISE_FEATURES))
-    }
-    // Fallback: load from root if subdirs don't exist (legacy enterprise)
-    if (!existsSync(ENTERPRISE_APPS) && !existsSync(ENTERPRISE_FEATURES)) {
-      blueprints.push(...loadBlueprintsFrom(ENTERPRISE_BLUEPRINTS))
-    }
+  if (existsSync(libsDir)) {
+    blueprints.push(...loadBlueprintsFrom(libsDir, 4))
   }
 
   return blueprints
 }
 
-/**
- * Get a specific starter by name (or path)
- */
-export function getStarter(name: string): BlueprintConfig | null {
-  const checkOne = (fullDir: string) => {
-    const p = join(fullDir, 'starter.json')
-    if (existsSync(p)) {
-      try {
-        const content = readFileSync(p, 'utf-8')
-        const manifest = JSON.parse(content) as BlueprintConfig
-        manifest.path = dirname(p)
-        return manifest
-      } catch {
-        return null
-      }
+export function listFeatures(): FeatureManifest[] {
+  const plan = detectPlan()
+  const features: FeatureManifest[] = []
+
+  features.push(...loadFeaturesFrom(COMMUNITY_FEATURES))
+
+  if (plan === 'enterprise') {
+    if (existsSync(ENTERPRISE_FEATURES)) {
+      features.push(...loadFeaturesFrom(ENTERPRISE_FEATURES))
     }
-    return null
   }
 
-  // Normalize name: support dot notation (fw.ds.starter) -> fw/ds/starter
-  // This allows explicit addressing: kompo new -b nextjs.shadcn.nft-marketplace
+  return features
+}
+
+export function listStarters(): StarterManifest[] {
+  const plan = detectPlan()
+  const starters: StarterManifest[] = []
+
+  starters.push(...loadStartersFrom(COMMUNITY_APPS))
+
+  if (plan === 'enterprise') {
+    if (existsSync(ENTERPRISE_APPS)) {
+      starters.push(...loadStartersFrom(ENTERPRISE_APPS))
+    }
+  }
+
+  return starters
+}
+
+export function getFeature(name: string): FeatureManifest | null {
+  const p = join(COMMUNITY_FEATURES, name, 'features.json')
+  if (existsSync(p)) {
+    try {
+      const content = readFileSync(p, 'utf-8')
+      const manifest = JSON.parse(content) as FeatureManifest
+      manifest.path = dirname(p)
+      manifest.type = 'feature'
+      return manifest
+    } catch {}
+  }
+
+  if (existsSync(join(ENTERPRISE_FEATURES, name))) {
+    const ep = join(ENTERPRISE_FEATURES, name, 'features.json')
+    if (existsSync(ep)) {
+      try {
+        const content = readFileSync(ep, 'utf-8')
+        const manifest = JSON.parse(content) as FeatureManifest
+        manifest.path = dirname(ep)
+        manifest.type = 'feature'
+        return manifest
+      } catch {}
+    }
+  }
+  return null
+}
+
+export function loadStarterFromPath(fullDir: string): StarterManifest | null {
+  const p = join(fullDir, 'starter.json')
+  if (existsSync(p)) {
+    try {
+      const content = readFileSync(p, 'utf-8')
+      const manifest = JSON.parse(content) as StarterManifest
+      manifest.path = dirname(p)
+      return manifest
+    } catch {
+      return null
+    }
+  }
+  return null
+}
+
+export function getStarter(name: string): StarterManifest | null {
   const relativePath = name.split('.').join('/')
 
-  // 1. Check Community Apps (Starters Root)
-  let starter = checkOne(join(COMMUNITY_APPS, relativePath))
+  const starter = loadStarterFromPath(join(COMMUNITY_APPS, relativePath))
   if (starter) return starter
 
-  // 2. Check Community Features
-  starter = checkOne(join(COMMUNITY_FEATURES, relativePath))
-  if (starter) return starter
-
-  // 3. Check Enterprise
   if (existsSync(join(ENTERPRISE_APPS, relativePath))) {
-    const entStarter = checkOne(join(ENTERPRISE_APPS, relativePath))
-    if (entStarter) return entStarter
-  }
-  if (existsSync(join(ENTERPRISE_FEATURES, relativePath))) {
-    const entFeat = checkOne(join(ENTERPRISE_FEATURES, relativePath))
-    if (entFeat) return entFeat
+    return loadStarterFromPath(join(ENTERPRISE_APPS, relativePath))
   }
 
-  // Legacy Enterprise Fallback
-  const legacyEntPath = join(ENTERPRISE_BLUEPRINTS, relativePath)
-  if (existsSync(legacyEntPath)) {
-    return checkOne(legacyEntPath)
-  }
-
-  // Support absolute/relative path if passed directly
   if (existsSync(join(name, 'starter.json'))) {
-    return checkOne(name)
+    return loadStarterFromPath(name)
   }
 
   return null
 }
 
-/**
- * Get a specific blueprint by name
- */
-export function getBlueprint(name: string): BlueprintConfig | null {
-  // Helper to check a path
-  const checkValues = (basePath: string) => {
-    // Check for blueprint.json ONLY (Strict separation)
-    const p = join(basePath, name, 'blueprint.json')
+export function getBlueprint(name: string): Blueprint | null {
+  const elementsDir = getTemplatesDir()
+  const candidates = [
+    join(elementsDir, 'libs', 'adapters', name),
+    join(elementsDir, 'libs', 'drivers', name),
+    join(elementsDir, 'libs', name),
+  ]
 
+  for (const dir of candidates) {
+    const p = join(dir, 'blueprint.json')
     if (existsSync(p)) {
       try {
         const content = readFileSync(p, 'utf-8')
-        const blueprint = JSON.parse(content) as BlueprintConfig
-        blueprint.path = dirname(p)
-        return blueprint
-      } catch {
-        return null
-      }
-    }
-    return null
-  }
-
-  // Check Community Apps
-  let bp = checkValues(COMMUNITY_APPS)
-  if (bp) return bp
-
-  // Check Community Features
-  bp = checkValues(COMMUNITY_FEATURES)
-  if (bp) return bp
-
-  // Check Enterprise if applicable
-  if (existsSync(join(ENTERPRISE_APPS, name))) return checkValues(ENTERPRISE_APPS)
-  if (existsSync(join(ENTERPRISE_FEATURES, name))) return checkValues(ENTERPRISE_FEATURES)
-  const legacyEntPath = join(ENTERPRISE_BLUEPRINTS, name, 'blueprint.json')
-  if (existsSync(legacyEntPath)) {
-    try {
-      const content = readFileSync(legacyEntPath, 'utf-8')
-      const blueprint = JSON.parse(content) as BlueprintConfig
-      blueprint.path = dirname(legacyEntPath)
-      return blueprint
-    } catch {
-      return null
-    }
-  }
-
-  // Support absolute/relative path
-  if (existsSync(join(name, 'blueprint.json'))) {
-    try {
-      const p = join(name, 'blueprint.json')
-      const content = readFileSync(p, 'utf-8')
-      const blueprint = JSON.parse(content) as BlueprintConfig
-      blueprint.path = name
-      return blueprint
-    } catch {
-      return null
+        const bp = JSON.parse(content) as Blueprint
+        bp.path = dir
+        return bp
+      } catch {}
     }
   }
 
   return null
 }
 
-/**
- * Check if a blueprint is available for a specific plan
- */
-export function isBlueprintAvailableForPlan(
-  blueprint: BlueprintConfig,
-  plan: 'community' | 'enterprise'
-): boolean {
-  return plan in (blueprint.plans || {})
+export function getBlueprintsByCategory(category: string): Blueprint[] {
+  return listBlueprints().filter((b) => 'category' in b && b.category === category)
 }
 
-/**
- * Get blueprints by category
- */
-export function getBlueprintsByCategory(category: string): BlueprintConfig[] {
-  return listBlueprints().filter((b) => b.category === category)
-}
-
-/**
- * Search blueprints by query
- */
-export function searchBlueprints(query: string): BlueprintConfig[] {
+export function searchBlueprints(query: string): Blueprint[] {
   const lowerQuery = query.toLowerCase()
   return listBlueprints().filter(
     (b) =>
       b.name.toLowerCase().includes(lowerQuery) ||
-      b.description.toLowerCase().includes(lowerQuery) ||
+      b.description?.toLowerCase().includes(lowerQuery) ||
       b.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))
   )
 }
 
-/**
- * Check if a blueprint is compatible with the current stack
- */
-export function checkCompatibility(blueprint: BlueprintConfig, currentStack: string[]): boolean {
-  if (!blueprint.stack) return true
-
-  // Check required stack
-  const missing = blueprint.stack.required.filter((s) => !currentStack.includes(s))
-  if (missing.length > 0) return false
-
-  // Check design system
-  const hasDesignSystem = blueprint.stack.designSystem.some((ds) => currentStack.includes(ds))
-  if (!hasDesignSystem) return false
-
-  return true
-}
-
-/**
- * Get blueprints by type
- */
-export function getBlueprintsByType(type: 'app' | 'plugin'): BlueprintConfig[] {
+export function getBlueprintsByType(type: 'feature' | 'adapter' | 'app' | 'driver'): Blueprint[] {
   return listBlueprints().filter((b) => b.type === type)
 }
 
-/**
- * Get dependencies from a blueprint's catalog.json
- */
 export function getBlueprintDependencies(templatePath: string): string[] {
   const fullPath = join(getTemplatesDir(), templatePath, 'catalog.json')
   if (existsSync(fullPath)) {
@@ -363,22 +272,16 @@ export function getBlueprintDependencies(templatePath: string): string[] {
   return []
 }
 
-/**
- * Check if a blueprint has a specific snippet
- */
 export function hasBlueprintSnippet(templatePath: string, snippetName: string): boolean {
   const fullPath = join(getTemplatesDir(), templatePath, 'snippets', `${snippetName}.eta`)
   return existsSync(fullPath)
 }
 
-/**
- * Get internal paths for standard composition templates based on framework
- */
 export function getFrameworkCompositionTemplates(framework: string): string[] {
-  // Map framework aliases to internal blueprint paths
   const frameworkMap: Record<string, string> = {
     nextjs: 'apps/nextjs/base',
     vite: 'apps/vite/base',
+    vanilla: 'apps/vanilla/base',
   }
 
   const base = frameworkMap[framework.toLowerCase()]
@@ -390,9 +293,6 @@ export function getFrameworkCompositionTemplates(framework: string): string[] {
   ]
 }
 
-/**
- * List all available design systems by scanning the libs/ui directory
- */
 export function listDesignSystems(): string[] {
   const uiDir = join(getTemplatesDir(), 'libs', 'ui')
   if (!existsSync(uiDir)) return []
@@ -402,9 +302,6 @@ export function listDesignSystems(): string[] {
     .map((dirent) => dirent.name)
 }
 
-/**
- * Resolve the internal path to a catalog.json for various component types
- */
 export function getBlueprintCatalogPath(
   name: string,
   type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver',
@@ -421,7 +318,6 @@ export function getBlueprintCatalogPath(
   } else if (type === 'feature') {
     candidatePath = join(templatesDir, 'features', name, filename)
   } else if (type === 'lib' || type === 'design-system') {
-    // Design systems are in libs/ui
     if (type === 'design-system') {
       candidatePath = join(templatesDir, 'libs', 'ui', name, filename)
     } else {
@@ -435,7 +331,6 @@ export function getBlueprintCatalogPath(
       candidatePath = join(templatesDir, 'libs', 'adapters', name, filename)
     }
   } else if (type === 'driver') {
-    // Support arbitrary nesting for drivers (e.g. orm/drizzle/pglite)
     candidatePath = join(templatesDir, 'libs', 'drivers', name, filename)
   }
 

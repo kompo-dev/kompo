@@ -12,11 +12,12 @@ export {
   parseEnvFile,
   setupTestFixtures,
 } from './__tests__/test-utils'
-export type { ApplyConfig, ApplyContext } from './apply-config'
-// Apply config utilities
+
 export {
+  type ApplyConfig,
   extractPluginsFromSteps,
   getPluginsToMerge,
+  type ProjectStructure,
 } from './apply-config'
 export type { CatalogEntry, KompoCatalog, PackageGroup, WorkspaceConfig } from './catalog'
 
@@ -40,8 +41,6 @@ export type { FsEngine, KompoContext, TemplateEngine } from './context'
 // Helper functions
 export { defineKompoPlugin } from './define-plugin'
 export {
-  BACKEND_TYPES,
-  type BackendTypeId,
   DESIGN_SYSTEMS,
   type DesignSystemId,
   FRAMEWORKS,
