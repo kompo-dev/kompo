@@ -1,0 +1,17 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@kompo/blueprints": "0.1.0-beta.1",
+    "@kompo/cli": "0.1.0-beta.1",
+    "@kompo/config": "0.1.0-beta.1",
+    "@kompo-dev/create-kompo": "0.1.0-beta.1",
+    "create-kompo": "0.1.0-beta.1",
+    "@kompo/kit": "0.1.0-beta.1",
+    "studio": "0.0.0",
+    "@kompo/tsconfig": "0.1.0-beta.1"
+  },
+  "changesets": [
+    "six-oranges-judge"
+  ]
+}
