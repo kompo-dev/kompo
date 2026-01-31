@@ -32,8 +32,9 @@ jobs:
         with:
           # This expects you to have a script called "release:version" that runs "changeset version"
           version: pnpm release:version
-          # This expects you to have a script called "release:publish" that runs "changeset publish"
+          # This expects you to have a script called "release:publish"
           publish: pnpm release:publish
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

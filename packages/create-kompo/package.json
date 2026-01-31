@@ -3,6 +3,10 @@
   "version": "0.0.2",
   "private": true,
   "description": "Create Kompo App",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kompo-dev/kompo"
+  },
   "main": "index.js",
   "bin": {
     "create-kompo": "./index.js"

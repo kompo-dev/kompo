@@ -1,0 +1,28 @@
+{
+  "name": "create-kompo-dev",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Create Kompo App",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kompo-dev/kompo"
+  },
+  "main": "index.js",
+  "bin": {
+    "create-kompo-dev": "./index.js"
+  },
+  "scripts": {
+    "clean": "rimraf dist node_modules",
+    "test": "echo \"Skipping tests for create-kompo-dev public wrapper\" && exit 0"
+  },
+  "keywords": [
+    "kompo",
+    "create-kompo-dev",
+    "cli"
+  ],
+  "author": "SmarttDev",
+  "license": "MIT",
+  "dependencies": {
+    "@kompo-dev/create-kompo": "latest"
+  }
+}
