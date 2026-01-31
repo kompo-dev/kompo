@@ -38,6 +38,7 @@ jobs:
           version: pnpm release:version
           # This expects you to have a script called "release:publish"
           publish: pnpm release:publish
+          commit: "chore: version packages"
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
