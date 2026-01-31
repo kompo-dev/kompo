@@ -1,11 +1,16 @@
 {
   "name": "create-kompo-dev",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "description": "Create Kompo App",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kompo-dev/kompo"
+    "url": "https://github.com/kompo-dev/kompo.git",
+    "directory": "packages/create-kompo-dev"
+  },
+  "homepage": "https://kompo.dev",
+  "bugs": {
+    "url": "https://github.com/kompo-dev/kompo/issues"
   },
   "main": "index.js",
   "bin": {
@@ -17,7 +22,11 @@
   },
   "keywords": [
     "kompo",
+    "kompo-dev",
     "create-kompo-dev",
+    "web3",
+    "typescript",
+    "framework",
     "cli"
   ],
   "author": "SmarttDev",
