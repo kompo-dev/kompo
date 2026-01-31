@@ -1,5 +1,5 @@
 {
-  "name": "studio",
+  "name": "@kompo/studio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
