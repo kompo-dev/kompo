@@ -1,6 +1,7 @@
 {
   "name": "@kompo/cli",
   "version": "0.1.0-beta.1",
+  "private": true,
   "description": "Kompo CLI - Web3 Component as a Service",
   "type": "module",
   "main": "src/index.ts",

@@ -13,7 +13,7 @@ const program = new Command('create-kompo')
 program
   .version(packageJson.version)
   .argument('[directory]', 'Project directory')
-  .option('-b, --blueprint <name>', 'Blueprint to use')
+  .option('-t, --template <name>', 'Template to use')
   .action(async (directory, options) => {
     console.clear()
     intro(color.bgBlue(color.white(' create-kompo ')))
@@ -46,7 +46,7 @@ program
     // 1. Clone Template
     s.start('Downloading template...')
     try {
-      await downloadTemplate('github:kompo-dev/core', {
+      await downloadTemplate('github:kompo-dev/kompo', {
         dir: targetDir,
         force: true, // since we checked it's empty or doesn't exist (mostly)
       })
@@ -77,9 +77,9 @@ program
 
     try {
       const args = ['kompo', 'new']
-      if (options.blueprint) {
-        args.push('--yes', '--blueprint', options.blueprint)
-        console.log(color.dim(`Applying blueprint: ${options.blueprint}...`))
+      if (options.template) {
+        args.push('--yes', '--template', options.template)
+        console.log(color.dim(`Applying template: ${options.template}...`))
       } else {
         console.log(color.dim('Running interactive setup...'))
       }

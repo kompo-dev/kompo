@@ -34,7 +34,12 @@
     "test:e2e": "./scripts/test-e2e.sh",
     "test:templates": "./scripts/test-quick.sh",
     "type-check": "turbo run type-check",
-    "type-check:kompo": "turbo run type-check --filter='./packages/*'"
+    "type-check:kompo": "turbo run type-check --filter='./packages/*'",
+    "changeset": "changeset",
+    "release:version": "changeset version",
+    "release:publish": "turbo run build && changeset publish",
+    "release:beta-enter": "changeset pre enter beta",
+    "release:beta-exit": "changeset pre exit"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",
