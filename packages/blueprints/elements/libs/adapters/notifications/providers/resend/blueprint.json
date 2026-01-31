@@ -3,5 +3,13 @@
   "version": "1.0.0",
   "type": "adapter",
   "family": "notifications",
-  "id": "resend"
+  "id": "resend",
+  "env": {
+    "RESEND_API_KEY": {
+      "side": "server",
+      "validation": "z.string()",
+      "default": "re_123AZE",
+      "description": "Resend API Key"
+    }
+  }
 }

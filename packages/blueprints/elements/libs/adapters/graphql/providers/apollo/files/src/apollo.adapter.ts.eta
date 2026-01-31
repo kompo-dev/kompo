@@ -1,38 +1,22 @@
-import { ApolloClient, InMemoryCache, HttpLink, type NormalizedCacheObject, type ApolloClientOptions } from '@apollo/client';
-import type { <%= it.pascalName %>, GraphqlQueryOptions, GraphqlMutationOptions } from '@<%= it.scope %>/domains';
+import { client, type ApolloConfig, type ApolloClient, type NormalizedCacheObject } from '<%= it.infraPackageName %>';
+import type { <%= it.pascalName %>, GraphqlQueryOptions, GraphqlMutationOptions } from '<%= it.portImportPath %>';
 
 export type ApolloAdapter = <%= it.pascalName %>;
 
-export type ApolloConfig = ApolloClientOptions<NormalizedCacheObject> & {
-  apiKey?: string;
-  headerKey?: string;
-  url: string;
-}
-
-export function create<%= it.pascalName %>Adapter(config: ApolloConfig): ApolloAdapter {
-  const httpLink = new HttpLink({
-    uri: config.url,
-    headers: {
-      ...(config.apiKey ? { [config.headerKey || 'Authorization']: config.apiKey } : {}),
-      ...config.headers,
-    },
-  });
-
-  const client = new ApolloClient({
-    link: httpLink,
-    cache: new InMemoryCache(),
-    ...config,
-  });
+export function create<%= it.pascalName %>Adapter(customClient?: ApolloClient<NormalizedCacheObject>): ApolloAdapter {
+  const localClient = customClient || client;
 
   return {
     query: async <T>(query: string, variables?: Record<string, any>, options?: GraphqlQueryOptions): Promise<T> => {
-      // Note: In a real implementation you would parse 'query' string to gql AST if needed
-      // or expect 'query' to be already AST. For simplicity assuming string or relying on gql tag in usage.
-      // However, @apollo/client expects DocumentNode usually.
-      throw new Error('Method not fully implemented in template - requires gql parsing');
+      // Logic to use localClient.query
+      // Note: Apollo Client expects DocumentNode or gql template literal, but ports define string.
+      // You might need 'graphql-tag' or assume string is sufficient if Apollo supports it (it usually wants AST).
+      // For this template, we'll assume the user handles AST conversion or we wrap it if we add graphql-tag to infra.
+      throw new Error('Method not fully implemented in template'); 
     },
     mutate: async <T>(mutation: string, variables?: Record<string, any>, options?: GraphqlMutationOptions): Promise<T> => {
-      throw new Error('Method not fully implemented in template - requires gql parsing');
+       // Logic to use localClient.mutate
+       throw new Error('Method not fully implemented in template');
     }
   };
 }

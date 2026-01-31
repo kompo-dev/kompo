@@ -1,6 +1,6 @@
 'use client'
 
-import { PrivyProvider as BasePrivyProvider } from '@privy-io/react-auth'
+import { PrivyProvider as BasePrivyProvider, privyConfig } from '<%= it.infraPackageName %>'
 import type { ReactNode } from 'react'
 
 interface PrivyProviderProps {
@@ -8,7 +8,7 @@ interface PrivyProviderProps {
 }
 
 export function PrivyProvider({ children }: PrivyProviderProps) {
-  const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
+  const { appId } = privyConfig
 
   if (!appId) {
     throw new Error('Missing NEXT_PUBLIC_PRIVY_APP_ID environment variable')

@@ -88,6 +88,7 @@ export function Graph() {
 
       {/* MiniMap Toggle Button */}
       <button
+        type="button"
         onClick={() => setShowMiniMap(!showMiniMap)}
         className="absolute bottom-5 right-5 z-50 bg-background border border-border p-2 rounded-md shadow-md hover:bg-muted text-xs font-medium"
         title="Toggle MiniMap"

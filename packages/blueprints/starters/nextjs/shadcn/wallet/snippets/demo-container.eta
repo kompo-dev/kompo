@@ -1,6 +1,8 @@
-<div className="p-8 border rounded-xl shadow-lg bg-white my-8 text-center">
-  <h2 className="text-2xl font-bold mb-6">Wallet Integration Demo</h2>
-  <div className="flex justify-center">
-    {mounted && <ConnectButton />}
+<section className="demo-container w-full max-w-6xl mx-auto px-6 py-12">
+  <div className="p-8 border rounded-xl shadow-lg bg-white my-8 text-center">
+    <h2 className="text-2xl font-bold mb-6">Wallet Integration Demo</h2>
+    <div className="flex justify-center">
+      {mounted && <ConnectButton />}
+    </div>
   </div>
-</div>
+</section>

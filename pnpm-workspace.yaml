@@ -2,5 +2,5 @@ packages:
   - apps/*
   - libs/**
   - packages/*
-  - "!.archived/**"
+
 catalog:

@@ -1,0 +1,10 @@
+// Basic config could duplicate auth config or we just export deps
+// Ideally we might want to share wagmi config creation if Privy allows it (Privy Wagmi Connector)
+
+export const privyConfig = {
+  appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID || '',
+};
+
+export * from '@privy-io/react-auth';
+// If using wagmi with privy
+export * from '@wagmi/core';

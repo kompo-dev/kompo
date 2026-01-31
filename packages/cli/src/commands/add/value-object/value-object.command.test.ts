@@ -4,28 +4,37 @@ import * as projectUtils from '../../../utils/project'
 import { runAddValueObject } from './value-object.command'
 
 // Mock dependencies
-vi.mock('@clack/prompts', async (importOriginal) => {
-  const actual = await importOriginal<typeof prompts>()
-  return {
-    ...actual,
-    select: vi.fn(),
-    confirm: vi.fn(),
-    cancel: vi.fn(),
-    isCancel: vi.fn((val) => val === Symbol.for('clack:cancel')),
-  }
-})
+vi.mock('@clack/prompts', () => ({
+  select: vi.fn(),
+  confirm: vi.fn(),
+  cancel: vi.fn(),
+  isCancel: vi.fn((val) => val === Symbol.for('clack:cancel')),
+  log: {
+    message: vi.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+  },
+  spinner: () => ({ start: vi.fn(), stop: vi.fn(), message: vi.fn() }),
+}))
 
-vi.mock('../../../utils/format')
+vi.mock('../../../utils/format', () => ({
+  runFormat: vi.fn(),
+}))
 
-// Mock kit
 vi.mock('@kompo/kit', () => ({
-  readKompoConfig: vi.fn(() => ({
-    domains: {
-      'test-domain': {
-        entities: ['user'],
-      },
-    },
-  })),
+  readKompoConfig: vi.fn(),
+  LIBS_DIR: 'libs',
+}))
+
+vi.mock('../../../utils/project', () => ({
+  ensureProjectContext: vi.fn(),
+  findRepoRoot: vi.fn(),
+  getDomains: vi.fn(),
+  getDomainPath: vi.fn(),
+  getApps: vi.fn().mockResolvedValue([]),
+  getTemplateEngine: vi.fn(),
 }))
 
 const { mockFs, mockTemplates } = vi.hoisted(() => ({
@@ -36,6 +45,7 @@ const { mockFs, mockTemplates } = vi.hoisted(() => ({
   },
   mockTemplates: {
     render: vi.fn().mockResolvedValue('mock-content'),
+    renderDir: vi.fn().mockResolvedValue(undefined),
   },
 }))
 
@@ -43,23 +53,32 @@ vi.mock('../../../engine/fs-engine', () => ({
   createFsEngine: () => mockFs,
 }))
 
-vi.mock('../../../utils/project', async (importOriginal) => {
-  const actual = await importOriginal<typeof projectUtils>()
-  return {
-    ...actual,
-    findRepoRoot: vi.fn().mockResolvedValue('/mock/root'),
-    getDomains: vi.fn().mockResolvedValue(['test-domain']),
-    getDomainPath: vi.fn().mockResolvedValue('/mock/root/domains/test-domain'),
-    getTemplateEngine: vi.fn().mockResolvedValue(mockTemplates),
-  }
-})
-
 describe('runAddValueObject', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(projectUtils.findRepoRoot).mockResolvedValue('/mock/root')
+
+    vi.mocked(projectUtils.ensureProjectContext).mockResolvedValue({
+      repoRoot: '/mock/root',
+      config: {
+        version: 1,
+        project: { name: 'test', org: 'test-org' },
+        catalog: { lastUpdated: '2024-01-01', sources: [] },
+        apps: {},
+        steps: [],
+        domains: {
+          'test-domain': {
+            entities: ['user'],
+            ports: [],
+            useCases: [],
+          },
+        },
+      },
+    } as any)
+
     vi.mocked(projectUtils.getDomains).mockResolvedValue(['test-domain'])
     vi.mocked(projectUtils.getDomainPath).mockResolvedValue('/mock/root/domains/test-domain')
+    vi.mocked(projectUtils.getTemplateEngine).mockResolvedValue(mockTemplates as any)
+
     mockFs.fileExists.mockResolvedValue(false)
   })
 
@@ -70,7 +89,6 @@ describe('runAddValueObject', () => {
 
     await runAddValueObject('email-address', {})
 
-    // domains/test-domain/value-objects/EmailAddress.ts
     expect(mockFs.ensureDir).toHaveBeenCalledWith(
       expect.stringContaining('/domains/test-domain/value-objects')
     )
@@ -81,11 +99,10 @@ describe('runAddValueObject', () => {
   })
 
   it('should create entity specific VO', async () => {
-    vi.mocked(prompts.select).mockResolvedValueOnce('user') // Entity org(Domain skipped)
+    vi.mocked(prompts.select).mockResolvedValueOnce('user')
 
     await runAddValueObject('password', { domain: 'test-domain' })
 
-    // domains/test-domain/entities/user/value-objects/Password.ts
     expect(mockFs.ensureDir).toHaveBeenCalledWith(
       expect.stringContaining('/entities/user/value-objects')
     )
@@ -96,11 +113,10 @@ describe('runAddValueObject', () => {
   })
 
   it('should create global shared kernel VO', async () => {
-    vi.mocked(prompts.select).mockResolvedValueOnce('global-shared') // org(Domain skipped)
+    vi.mocked(prompts.select).mockResolvedValueOnce('global-shared')
 
     await runAddValueObject('money', { domain: 'test-domain' })
 
-    // libs/kernel/src/Money.ts
     expect(mockFs.ensureDir).toHaveBeenCalledWith(expect.stringContaining('/libs/kernel/src'))
     expect(mockFs.writeFile).toHaveBeenCalledWith(
       expect.stringContaining('Money.ts'),

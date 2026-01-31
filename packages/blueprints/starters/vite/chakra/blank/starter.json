@@ -1,0 +1,14 @@
+{
+  "description": "React + Vite application configured with Chakra UI",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "vite",
+      "designSystem": "chakra"
+    }
+  ],
+  "name": "Blank",
+  "id": "vite.chakra.blank"
+}

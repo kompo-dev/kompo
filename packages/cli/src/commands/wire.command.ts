@@ -163,7 +163,7 @@ export async function runWire(
         if (adapterConfig) {
           // Resolve factory name and package name from manifest/package.json
           let explicitFactoryName: string | undefined
-          let explicitEnv: Record<string, any> | undefined
+          let explicitEnv: Record<string, unknown> | undefined
           let explicitConfigMapping: Record<string, string> | undefined
 
           const { isSpecialized, alias, baseAdapterName } = parseAdapterId(adapterId)
@@ -211,7 +211,7 @@ export async function runWire(
           }
 
           const factoryName =
-            (adapterConfig as any).exportName ||
+            adapterConfig.exportName ||
             (!isSpecialized ? explicitFactoryName : undefined) ||
             getAdapterFactoryName(baseAdapterName, alias)
 
@@ -223,7 +223,7 @@ export async function runWire(
 
           // 3. Combine
           const variableName = `${baseName}${suffix}`
-          const isInstance = (adapterConfig as any).isInstance || false
+          const isInstance = adapterConfig.isInstance || false
 
           // Also inject dependency into the app
           const { injectDependencies } = await import('../utils/dependencies')
@@ -301,13 +301,21 @@ export async function runWire(
 
       if (!factory) return []
 
-      const fn = factory.getInitializer() as any
-      const firstParam = fn.getParameters()[0]
+      const fn = factory.getInitializer()
+      if (!fn) return []
+
+      // We know it's a function per the filter above
+      // But we need to check if parameters exist
+      const callSig =
+        fn.asKind(SyntaxKind.ArrowFunction) || fn.asKind(SyntaxKind.FunctionExpression)
+      if (!callSig) return []
+
+      const firstParam = callSig.getParameters()[0]
 
       if (firstParam) {
         const nameNode = firstParam.getNameNode()
         if (nameNode.isKind(SyntaxKind.ObjectBindingPattern)) {
-          return nameNode.getElements().map((e: any) => e.getName())
+          return nameNode.getElements().map((e) => e.getName())
         }
       }
     } catch (e) {

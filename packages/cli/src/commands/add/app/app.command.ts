@@ -2,8 +2,6 @@ import path from 'node:path'
 import { cancel, isCancel, log, select, text } from '@clack/prompts'
 import {
   addStep,
-  BACKEND_TYPES,
-  type BackendTypeId,
   type DesignSystemId,
   FRAMEWORKS,
   type FrameworkId,
@@ -32,9 +30,8 @@ export function createAddAppCommand(): Command {
   return new Command('app')
     .description('Add a new application to the project')
     .argument('[name]', 'Application name')
-    .option('--framework <name>', 'Framework (nextjs, vite)')
-    .option('--backend <name>', 'Backend (nextjs, express, none)')
-    .option('--design <name>', 'Design system (tailwind, shadcn)')
+    .option('--framework <name>', 'Framework (nextjs, vite, express)')
+    .option('--design <name>', 'Design system (tailwind, shadcn, vanilla)')
     .option('--org <name>', 'Organization name')
     .option('-y, --yes', 'Skip prompts')
     .action(async (name, options) => {
@@ -44,7 +41,6 @@ export function createAddAppCommand(): Command {
 
 export interface AddAppOptions {
   framework?: string
-  backend?: string
   design?: string
   org?: string
   yes?: boolean
@@ -65,28 +61,21 @@ export async function runAddApp(
   let appName = nameArg
   let targetDir = ''
   let framework = options.framework as FrameworkId | undefined
-  let backend = options.backend as BackendTypeId | undefined
 
   // 1. App Type & Framework Selection (Navigation Loop)
   if (!framework) {
     if (options.yes) {
       // Default to Next.js Fullstack if yes flag is used without args
       framework = FRAMEWORKS.NEXTJS
-      backend = BACKEND_TYPES.NEXTJS
     } else {
       const selection = await selectWithNavigation('What kind of application do you want to add?', [
         {
           label: 'Frontend / Fullstack Web App',
           value: 'frontend',
-          hint: 'Next.js, Vite',
+          hint: 'Vite, Next.js',
           submenuMessage: 'What kind of application do you want to add?',
           options: [
-            {
-              label: 'Next.js Fullstack',
-              value: 'nextjs-fullstack',
-              hint: 'App Router + API + Database',
-            },
-            { label: 'Next.js (Frontend Only)', value: FRAMEWORKS.NEXTJS, hint: 'App Router' },
+            { label: 'Next.js (App Router)', value: FRAMEWORKS.NEXTJS, hint: 'App Router + API' },
             { label: 'React + Vite', value: FRAMEWORKS.VITE, hint: 'SPA' },
           ],
         },
@@ -99,26 +88,19 @@ export async function runAddApp(
         },
       ])
 
-      // Map selection to framework/backend variables
-      if (selection === 'nextjs-fullstack') {
-        framework = FRAMEWORKS.NEXTJS
-        backend = BACKEND_TYPES.NEXTJS
-      } else if (selection === 'express') {
-        framework = FRAMEWORKS.VITE
-        backend = BACKEND_TYPES.EXPRESS
+      // Map selection to framework variables
+      if (selection === 'express') {
+        framework = FRAMEWORKS.EXPRESS
       } else {
         framework = selection as FrameworkId
-        backend = BACKEND_TYPES.NONE
       }
 
       // Feedback Log
       if (framework) {
         const fwName =
           framework === FRAMEWORKS.NEXTJS
-            ? backend === BACKEND_TYPES.NEXTJS
-              ? 'Next.js Fullstack'
-              : 'Next.js (Frontend)'
-            : backend === BACKEND_TYPES.EXPRESS
+            ? 'Next.js'
+            : framework === FRAMEWORKS.EXPRESS
               ? 'Express (Node.js)'
               : 'React + Vite'
 
@@ -128,15 +110,6 @@ export async function runAddApp(
   }
 
   // Handle CLI args direct set
-  if ((framework as string) === 'nextjs-fullstack') {
-    framework = FRAMEWORKS.NEXTJS
-    backend = BACKEND_TYPES.NEXTJS
-  }
-
-  // ensure backend is set if passed via CLI or defaults
-  if (!backend && framework) {
-    backend = BACKEND_TYPES.NONE
-  }
 
   // 3. App Name Prompt (Loop for validity)
   while (true) {
@@ -176,7 +149,14 @@ export async function runAddApp(
     break
   }
 
+  // 4. Design System (Skip for pure backend frameworks)
+  const isBackend = framework === FRAMEWORKS.EXPRESS
   let designSystem = options.design
+
+  if (isBackend) {
+    designSystem = designSystem || 'vanilla'
+  }
+
   if (!designSystem) {
     if (options.yes) {
       designSystem = 'vanilla'
@@ -196,31 +176,22 @@ export async function runAddApp(
   await generateFramework({
     cwd: repoRoot,
     targetDir,
-    framework: (framework === FRAMEWORKS.NEXTJS
-      ? FRAMEWORKS.NEXTJS
-      : FRAMEWORKS.VITE) as FrameworkId,
+    framework: framework as FrameworkId,
     scope: org,
     packageName: `@${org}/${appName}`,
     projectName: appName,
     frontendAppName: appName,
     designSystem,
     ports: ['default'],
-    backendType: backend as BackendTypeId,
     apps: {
       ...config.apps,
       [`apps/${appName}`]: {
-        framework: (framework === FRAMEWORKS.VITE
-          ? FRAMEWORKS.VITE
-          : FRAMEWORKS.NEXTJS) as FrameworkId,
+        framework: framework as FrameworkId,
       },
     },
     targetApp: `apps/${appName}`,
     blueprintPath: options.blueprintPath,
   })
-
-  if (backend !== 'none' && backend !== 'nextjs') {
-    // For express, we might need a separate app, handle later if needed
-  }
 
   await generateDesignSystem({
     targetDir,
@@ -232,12 +203,7 @@ export async function runAddApp(
   // Update Config
   upsertApp(repoRoot, `apps/${appName}`, {
     packageName: `@${org}/${appName}`,
-    frontend: (framework === FRAMEWORKS.VITE ? FRAMEWORKS.VITE : FRAMEWORKS.NEXTJS) as FrameworkId,
-    backend: (backend === BACKEND_TYPES.NEXTJS
-      ? BACKEND_TYPES.NEXTJS
-      : backend === BACKEND_TYPES.EXPRESS
-        ? BACKEND_TYPES.EXPRESS
-        : BACKEND_TYPES.NONE) as BackendTypeId,
+    framework: framework as FrameworkId,
     designSystem: designSystem as DesignSystemId,
     ports: { default: 'default' },
   })
@@ -270,17 +236,13 @@ export async function runAddApp(
     }
   }
 
-  const frameworkId = framework === FRAMEWORKS.VITE ? FRAMEWORKS.VITE : FRAMEWORKS.NEXTJS
+  const frameworkId = framework as string
   await mergeCatalogFor(frameworkId, 'app', { name: frameworkId })
 
   if (designSystem && designSystem !== 'vanilla') {
     await mergeCatalogFor(designSystem, 'design-system', { name: designSystem })
   }
-  const features = getRequiredFeatures(
-    framework === FRAMEWORKS.VITE ? FRAMEWORKS.VITE : FRAMEWORKS.NEXTJS,
-    designSystem,
-    backend !== BACKEND_TYPES.NONE && backend !== BACKEND_TYPES.NEXTJS ? backend : undefined
-  )
+  const features = getRequiredFeatures(framework as string, designSystem)
   updateCatalogFromFeatures(repoRoot, features)
   updateCatalogSources(repoRoot, features)
 

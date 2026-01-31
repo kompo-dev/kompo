@@ -134,12 +134,14 @@
       "properties": {
         "packageName": { "type": "string" },
         "profileId": { "type": "string" },
-        "frontend": { "type": "string", "enum": ["nextjs", "vite"] },
-        "backend": {
+        "framework": {
           "type": "string",
-          "enum": ["nextjs", "nestjs", "express", "none"]
+          "enum": ["nextjs", "vite", "express"]
         },
-        "designSystem": { "type": "string", "enum": ["shadcn", "tailwind"] },
+        "designSystem": {
+          "type": "string",
+          "enum": ["shadcn", "tailwind", "vanilla"]
+        },
         "ports": {
           "type": "object",
           "description": "Map of port type to array of adapter IDs",
@@ -154,7 +156,7 @@
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["packageName", "frontend", "backend", "designSystem", "ports"]
+      "required": ["packageName", "framework", "ports"]
     },
     "HistoryEntry": {
       "type": "object",

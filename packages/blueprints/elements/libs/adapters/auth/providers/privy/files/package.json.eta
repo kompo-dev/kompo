@@ -1,6 +1,6 @@
 {
-  "name": "@<%= it.scope %>/adapter-auth-<%= it.name %>",
-  "version": "0.0.1",
+  "name": "@<%= it.scope %>/<%= it.name %>",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
@@ -15,17 +15,15 @@
       "types": "./src/provider.tsx"
     }
   },
-  "scripts": {
-    "test": "vitest run"
-  },
   "dependencies": {
-    "@privy-io/react-auth": "catalog:"
+    "<%= it.infraPackageName %>": "workspace:*"
   },
   "peerDependencies": {
     "react": "catalog:",
     "react-dom": "catalog:"
   },
   "devDependencies": {
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "typescript": "catalog:"
   }
 }

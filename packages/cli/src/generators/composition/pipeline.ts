@@ -1,14 +1,5 @@
-import { LIBS_DIR } from '@kompo/kit'
-import { createFsEngine } from '../../engine/fs-engine'
-import { installDependencies } from '../../utils/install'
-import { getTemplateEngine } from '../../utils/project' // Or where getTemplateEngine is
 import type { StepRegistry } from './step.registry'
-import type {
-  AdapterGeneratorStep,
-  GeneratorContext,
-  GeneratorResult,
-  GeneratorUtils,
-} from './types'
+import type { GeneratorContext, GeneratorResult, GeneratorUtils } from './types'
 
 // We need to implement createGeneratorUtils here or import it
 // Since it depends on context, let's include a helper to create it.
@@ -35,15 +26,21 @@ export const createPipeline = (registry: StepRegistry): Pipeline => {
   const observers: PipelineObserver[] = []
 
   const notifyStepStart = (stepId: string, context: GeneratorContext): void => {
-    observers.forEach((observer) => observer.onStepStart?.(stepId, context))
+    observers.forEach((observer) => {
+      observer.onStepStart?.(stepId, context)
+    })
   }
 
   const notifyStepComplete = (stepId: string, result: any): void => {
-    observers.forEach((observer) => observer.onStepComplete?.(stepId, result))
+    observers.forEach((observer) => {
+      observer.onStepComplete?.(stepId, result)
+    })
   }
 
   const notifyStepError = (stepId: string, error: Error): void => {
-    observers.forEach((observer) => observer.onStepError?.(stepId, error))
+    observers.forEach((observer) => {
+      observer.onStepError?.(stepId, error)
+    })
   }
 
   return {

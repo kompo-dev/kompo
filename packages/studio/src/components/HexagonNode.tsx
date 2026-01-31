@@ -10,8 +10,9 @@ interface HexagonNodeData extends Record<string, unknown> {
 type HexagonNode = Node<HexagonNodeData>
 
 export function HexagonNode({ data }: NodeProps<HexagonNode>) {
-  // @ts-expect-error - Dynamic icon access
-  const Icon = data.icon && Icons[data.icon] ? Icons[data.icon] : null
+  const Icon = data.icon
+    ? (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[data.icon]
+    : null
 
   return (
     <div className="relative flex items-center justify-center w-24 h-24 group">
@@ -19,6 +20,7 @@ export function HexagonNode({ data }: NodeProps<HexagonNode>) {
         viewBox="0 0 100 100"
         className="absolute inset-0 w-full h-full text-primary transition-all duration-300 drop-shadow-md group-hover:drop-shadow-xl"
       >
+        <title>{data.label}</title>
         <polygon
           points="50 0, 95 25, 95 75, 50 100, 5 75, 5 25"
           className="fill-background stroke-primary stroke-2 transition-colors"

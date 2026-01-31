@@ -1,40 +1,40 @@
-/**
- * Load .env from monorepo root into process.env.
- * Uses createRequire to dynamically load dependencies in a bundler-safe way.
- */
-import { createRequire } from 'node:module'
+import fs from 'node:fs'
+import path from 'node:path'
 
-export function loadEnvSync(): void {
+/**
+ * Smart environment loader for Kompo monorepo.
+ * Searches for a .env file starting from the current work directory and moving up.
+ */
+export function loadEnv() {
   // Only run in Node.js environment
   if (typeof process === 'undefined' || !process.versions?.node) {
-    return
+    return false
   }
 
-  try {
-    const require = createRequire(import.meta.url)
-    const fs = require('node:fs')
-    const path = require('node:path')
-    const { parse } = require('dotenv')
+  let currentDir = process.cwd()
+  const root = path.parse(currentDir).root
 
-    let currentDir = process.cwd()
-    // Search upwards for pnpm-workspace.yaml
-    for (let i = 0; i < 5; i++) {
-      if (fs.existsSync(path.join(currentDir, 'pnpm-workspace.yaml'))) {
-        const envPath = path.join(currentDir, '.env')
-        if (fs.existsSync(envPath)) {
-          const envConfig = parse(fs.readFileSync(envPath))
-          for (const k in envConfig) {
-            // Only set if not already set (allow override by CLI environment)
-            if (!process.env[k]) {
-              process.env[k] = envConfig[k]
-            }
-          }
-        }
-        break
+  while (currentDir !== root) {
+    const envPath = path.join(currentDir, '.env')
+
+    if (fs.existsSync(envPath)) {
+      try {
+        // Use Node.js 20+ native env loader
+        process.loadEnvFile(envPath)
+        return true
+      } catch (_e) {
+        // Fallback or silent fail
+        return false
       }
-      currentDir = path.dirname(currentDir)
     }
-  } catch (e) {
-    // console.warn('[Config] Failed to load .env synchronously:', e)
+
+    currentDir = path.dirname(currentDir)
   }
+
+  return false
 }
+
+/**
+ * Legacy alias for backward compatibility
+ */
+export const loadEnvSync = loadEnv

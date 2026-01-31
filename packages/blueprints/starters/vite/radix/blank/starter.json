@@ -1,0 +1,14 @@
+{
+  "description": "React + Vite application configured with Radix UI",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "vite",
+      "designSystem": "radix"
+    }
+  ],
+  "name": "Blank",
+  "id": "vite.radix.blank"
+}

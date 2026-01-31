@@ -1,0 +1,9 @@
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export const privyConfig = {
+  appId: serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_PRIVY_APP_ID || '',
+  // Add other default privy config here if needed
+};
+
+// Exporting types or helpers if needed
+export type PrivyConfig = typeof privyConfig;

@@ -1,0 +1,116 @@
+{
+  "$ref": "#/definitions/Kompo Feature Schema",
+  "definitions": {
+    "Kompo Feature Schema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "feature"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "path": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "string",
+                "enum": ["new", "add", "remove", "wire", "generate"]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "app",
+                  "feature",
+                  "domain",
+                  "port",
+                  "adapter",
+                  "case",
+                  "entity",
+                  "driver",
+                  "design-system",
+                  "use-case"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "driver": {
+                "type": "string"
+              },
+              "sharedDriver": {
+                "type": "string"
+              },
+              "port": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "capability": {
+                "type": "string"
+              },
+              "app": {
+                "type": "string"
+              },
+              "alias": {
+                "type": "string"
+              },
+              "designSystem": {
+                "type": "string"
+              },
+              "design": {
+                "type": "string"
+              },
+              "portType": {
+                "type": "string"
+              },
+              "framework": {
+                "type": "string"
+              }
+            },
+            "required": ["command", "type", "name"],
+            "additionalProperties": {}
+          }
+        },
+        "category": {
+          "type": "string"
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": ["id", "name", "type"],
+      "additionalProperties": {}
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

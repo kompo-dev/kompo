@@ -1,0 +1,30 @@
+import { privyConfig } from '<%= it.infraPackageName %>';
+import { Ports } from '<%= it.portImportPath %>';
+
+export type <%= it.className %>Config = {
+  // configuration needed by the adapter, if any
+}
+
+export const <%= it.adapterCamelName %> = (configStr: <%= it.className %>Config): Ports.<%= it.portPascalName %> => {
+  // Since Privy provides hooks (usePrivy), the actual implementation of these methods
+  // often happens inside the React Component context where the hook is available.
+  // This adapter instance might serve as a configuration carrier or a bridge if we wrapp hooks.
+  
+  // For a pure adapter interface, we would need to pass the privy instance or methods here.
+  // Assuming this adapter is initialized where hooks are available or passed:
+  
+  return {
+    getAccountProfile: async (address: string) => {
+       // Placeholder: In a real implementation this would likely call an API or use a passed 'user' object from usePrivy()
+       return {
+         address,
+         ensName: undefined,
+         avatar: undefined
+       }
+    },
+    signMessage: async (message: string) => {
+        // Placeholder: Needs access to `signMessage` from `usePrivy()`
+        throw new Error("Sign message must be called from within Privy Context context or method must be passed `signMessage` handler.");
+    }
+  }
+}

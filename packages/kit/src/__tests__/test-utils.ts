@@ -60,7 +60,7 @@ export function createMockFs(): MockFsEngine {
       // Return files that start with the given directory path
       const result: string[] = []
       for (const filePath of files.keys()) {
-        if (filePath.startsWith(dirPath + '/')) {
+        if (filePath.startsWith(`${dirPath}/`)) {
           const relativePath = filePath.slice(dirPath.length + 1)
           const firstSegment = relativePath.split('/')[0]
           if (!result.includes(firstSegment)) {
@@ -98,6 +98,9 @@ export function createMockTemplates(): MockTemplateEngine {
     },
     async exists(_templatePath: string): Promise<boolean> {
       return true
+    },
+    async renderString(template: string, _data: unknown): Promise<string> {
+      return template
     },
     dir: '',
   }

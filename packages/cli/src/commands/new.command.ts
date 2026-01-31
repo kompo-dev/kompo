@@ -1,38 +1,36 @@
 import nodeFs from 'node:fs'
 import path from 'node:path'
 import { cancel, intro, isCancel, log, note, outro, select, spinner, text } from '@clack/prompts'
-
-import { getBlueprint } from '@kompo/blueprints'
-
+import { starterManifestSchema as blueprintValidationSchema, type Step } from '@kompo/blueprints'
+import type { StarterManifest } from '@kompo/blueprints/types'
 import {
-  BACKEND_TYPES,
   DESIGN_SYSTEMS,
   extractPluginsFromSteps,
   FRAMEWORKS,
   initKompoConfig,
+  type KompoConfig,
   mergeBlueprintCatalog,
+  type ProjectStructure,
   readKompoConfig,
   updateCatalogFromFeatures,
 } from '@kompo/kit'
-
 import { Command } from 'commander'
 import color from 'picocolors'
 import { createFsEngine } from '../engine/fs-engine'
-import type { FeatureBlueprint } from '../registries/feature.registry'
 import type { KompoPluginRegistry } from '../registries/plugin.registry'
-import { type BlueprintManifest, registerBlueprintProvider } from '../registries/template.registry'
-import { blueprintValidationSchema, type Step } from '../schemas/step.schema'
+import { registerStarterProvider } from '../registries/starter.registry'
 import { runFormat, runSort } from '../utils/format'
 import { installDependencies } from '../utils/install'
 import { findRepoRoot } from '../utils/project'
 import { createKebabCaseValidator, RESTRICTED_APP_NAMES } from '../validations/naming.validation'
 
-// Register OSS Blueprint Provider (Default)
-registerBlueprintProvider({
-  name: 'OSS Blueprints',
-  getBlueprint: async (name) => {
-    const b = getBlueprint(name)
-    return (b as unknown as BlueprintManifest) || null
+// Register OSS Starter Provider (Default)
+registerStarterProvider({
+  name: 'OSS Starters',
+  getStarter: async (name) => {
+    const { getStarter } = await import('@kompo/blueprints')
+    const bp = getStarter(name)
+    return bp || null
   },
 })
 
@@ -107,22 +105,6 @@ export function createNewCommand(registry: KompoPluginRegistry): Command {
   return cmd
 }
 
-export interface BlueprintConfig {
-  framework: string
-  backend: string
-  designSystem?: string
-  frontend?: string
-  ports?: string[]
-  chains?: string[]
-  adapters?: Record<string, string>
-  drivers?: Record<string, string> // Added for driver selection (Port -> Driver)
-  domains?: string[]
-  features?: (FeatureBlueprint | string)[]
-  wirings?: { app: string; port: string; adapter: string }[] // Added for explicit wiring
-  domainPorts?: Record<string, string[]>
-  instances?: Record<string, string>
-}
-
 export async function runNewCommand(
   nameArg: string | undefined,
   options: {
@@ -134,9 +116,9 @@ export async function runNewCommand(
   },
   _registry: KompoPluginRegistry
 ): Promise<void> {
-  let blueprintConfig: BlueprintConfig | null = null
-  let selectedBlueprint: BlueprintManifest | null = null
-  const stepsToExecute: any[] = []
+  let blueprintConfig: ProjectStructure | null = null
+  let selectedStarter: StarterManifest | null = null
+  const stepsToExecute: Step[] = []
 
   const fs = createFsEngine()
   const { getTemplatesDir } = await import('@kompo/blueprints')
@@ -166,32 +148,16 @@ export async function runNewCommand(
       }
       intro(`🚀 Creating new Kompo project from manifest: ${manifestPath}`)
 
-      // We define a flexible manifest type on the fly or duplicate
-      // ProjectBlueprintManifest
-      interface LocalManifest {
-        framework?: string
-        backend?: string
-        designSystem?: string
-        ports?: string[]
-        adapters?: Record<string, string>
-        drivers?: Record<string, string>
-        chains?: string[]
-        features?: FeatureBlueprint[]
-        frontend?: string
-      }
-      const manifest = await fs.readJson<LocalManifest>(manifestPath)
+      const manifest = await fs.readJson<Record<string, any>>(manifestPath)
 
-      blueprintConfig = {
-        framework: manifest.framework || FRAMEWORKS.NEXTJS, // Default to nextjs basic? Or keep fullstack string?
-        backend: manifest.backend || BACKEND_TYPES.NEXTJS,
-        designSystem: manifest.designSystem || DESIGN_SYSTEMS.TAILWIND,
-        ports: manifest.ports || [],
-        adapters: manifest.adapters || {},
-        drivers: manifest.drivers || {},
-        chains: manifest.chains || [],
-        features: manifest.features || [],
-        frontend: manifest.frontend,
-      }
+      // Treat the local JSON as a starter manifest
+      selectedStarter = {
+        id: manifest.id || path.basename(manifestPath, '.json'),
+        name: manifest.name || path.basename(manifestPath, '.json'),
+        description: manifest.description || `Starter from ${manifestPath}`,
+        steps: manifest.steps || [],
+        ...manifest,
+      } as StarterManifest
     } else {
       // Load from registry (Starters)
       const { validateBlueprintName } = await import('../validations/naming.validation')
@@ -225,51 +191,10 @@ export async function runNewCommand(
       }
 
       // Assign to outer scope
-      selectedBlueprint = starter as unknown as BlueprintManifest
-      selectedBlueprint.name = options.template // Ensure name matches request if resolved from deep path
+      selectedStarter = starter
 
       intro(`🚀 Creating new Kompo project from starter: ${color.blueBright(starter.name)}`)
       log.message(starter.description)
-
-      // Use starter as config source
-      const blueprint = starter as any // Cast because BlueprintConfig might differ slightly from starter schema expectation here
-
-      // Extract config from blueprint
-      if ('steps' in blueprint) {
-        // Blueprint structure handling with Zod validation
-        const parseResult = blueprintValidationSchema.safeParse(blueprint)
-
-        if (!parseResult.success) {
-          log.error('❌ Blueprint validation failed')
-          console.error(parseResult.error.format())
-          process.exit(1)
-        }
-
-        const validBlueprint = parseResult.data
-        if (validBlueprint.steps) {
-          stepsToExecute.push(...validBlueprint.steps)
-        }
-        // We can safely cast because extractPluginsFromSteps expects StepEntry-like objects
-        // and our Zod schema matches that structure
-        const extracted = extractPluginsFromSteps((validBlueprint.steps || []) as Step[])
-
-        // Merge extracted config with explicit config from blueprint if present
-        blueprintConfig = {
-          framework: blueprint.framework || extracted.framework,
-          backend: extracted.backend,
-          designSystem: extracted.designSystem,
-          adapters: { ...extracted.adapters, ...(blueprint.adapters || {}) },
-          drivers: { ...extracted.drivers, ...(blueprint.drivers || {}) },
-          domains: extracted.domains,
-
-          features: blueprint.features,
-          wirings: extracted.wirings,
-          domainPorts: extracted.domainPorts,
-        }
-      } else {
-        // Modern / Enterprise manifest structure
-        blueprintConfig = blueprint
-      }
     }
   } else {
     // Interactive Hierarchical Selection
@@ -291,26 +216,11 @@ export async function runNewCommand(
         .filter((n) => !n.startsWith('.'))
     }
 
-    // Helper to get starter metadata if exists (to show description)
-    const getStarterMeta = async (pathStr: string) => {
-      const bpPath = path.join(pathStr, 'starter.json')
-
-      if (nodeFs.existsSync(bpPath)) {
-        try {
-          const bp = JSON.parse(await nodeFs.promises.readFile(bpPath, 'utf-8'))
-          const name = bp.name
-          const description = bp.description
-          return { description, name }
-        } catch {
-          return {}
-        }
-      }
-      return {}
-    }
+    const { loadStarterFromPath } = await import('@kompo/blueprints')
 
     let selectedFramework = ''
     let selectedDesignSystem = ''
-    let selectedStarter = ''
+    let selectedStarterName = ''
     let selectedBlueprintName = ''
 
     while (true) {
@@ -325,11 +235,11 @@ export async function runNewCommand(
 
       const frameworkChoices = await Promise.all(
         frameworks.map(async (f) => {
-          const meta = await getStarterMeta(path.join(startersDir, f))
+          const meta = loadStarterFromPath(path.join(startersDir, f))
           return {
-            label: meta.name || f.charAt(0).toUpperCase() + f.slice(1),
+            label: meta?.name || f.charAt(0).toUpperCase() + f.slice(1),
             value: f,
-            hint: meta.description,
+            hint: meta?.description,
           }
         })
       )
@@ -352,11 +262,11 @@ export async function runNewCommand(
 
         const dsChoices = await Promise.all(
           designSystems.map(async (d) => {
-            const meta = await getStarterMeta(path.join(dsDir, d))
+            const meta = loadStarterFromPath(path.join(dsDir, d))
             return {
-              label: meta.name || d.charAt(0).toUpperCase() + d.slice(1),
+              label: meta?.name || d.charAt(0).toUpperCase() + d.slice(1),
               value: d,
-              hint: meta.description,
+              hint: meta?.description,
             }
           })
         )
@@ -385,11 +295,11 @@ export async function runNewCommand(
 
           const starterChoices = await Promise.all(
             starters.map(async (s) => {
-              const meta = await getStarterMeta(path.join(stDir, s))
+              const meta = loadStarterFromPath(path.join(stDir, s))
               return {
-                label: meta.name || s.charAt(0).toUpperCase() + s.slice(1),
+                label: meta?.name || s.charAt(0).toUpperCase() + s.slice(1),
                 value: s,
-                hint: meta.description,
+                hint: meta?.description,
               }
             })
           )
@@ -410,15 +320,15 @@ export async function runNewCommand(
             break // break inner loop to go back to DS select
           }
 
-          selectedStarter = starter as string
+          selectedStarterName = starter as string
           selectedBlueprintName = path.join(
             selectedFramework,
             selectedDesignSystem,
-            selectedStarter
+            selectedStarterName
           )
           break
         }
-        if (selectedStarter) break
+        if (selectedStarterName) break
       }
     }
 
@@ -447,8 +357,7 @@ export async function runNewCommand(
           }
         }
 
-        selectedBlueprint = starter as unknown as BlueprintManifest
-        blueprintConfig = starter as any
+        selectedStarter = starter
       } else {
         log.error(`Failed to load blueprint: ${selectedBlueprintName}`)
         process.exit(1)
@@ -460,7 +369,9 @@ export async function runNewCommand(
   const cwd = process.cwd()
   const repoRoot = (await findRepoRoot(cwd)) || cwd
   const loadedConfig = readKompoConfig(repoRoot)
-  const existingOrg = (loadedConfig as any)?.project?.org || (loadedConfig as any)?.meta?.org
+  const existingOrg =
+    loadedConfig?.project?.org ||
+    (loadedConfig as KompoConfig & { meta?: { org: string } })?.meta?.org
   const isExistingProject = !!existingOrg
 
   let org: string
@@ -531,44 +442,17 @@ export async function runNewCommand(
     initKompoConfig(repoRoot, `${org}-project`, org)
   }
 
-  // 2.5. Process Blueprint Steps (Common for both interactive and flag modes)
-  if (selectedBlueprint && 'steps' in (selectedBlueprint as any)) {
-    const blueprint = selectedBlueprint as any
-    // Blueprint structure handling with Zod validation
-    const parseResult = blueprintValidationSchema.safeParse(blueprint)
+  // Phase 3: Extract Architecture and Merge Config
+  if (selectedStarter) {
+    const { config: extracted, steps } = summarizeStarter(selectedStarter)
 
-    if (!parseResult.success) {
-      log.error('❌ Blueprint validation failed')
-      console.error(parseResult.error.format())
-      process.exit(1)
+    // Add steps to execution queue if not already there
+    if (steps.length > 0 && stepsToExecute.length === 0) {
+      stepsToExecute.push(...steps)
     }
 
-    const validBlueprint = parseResult.data
-    if (validBlueprint.steps) {
-      // If interactive mode populated blueprintConfig but not stepsToExecute, do it here
-      // Note: Flag mode already does this? No, we should consolidate.
-      // If stepsToExecute is empty, we populate it
-      if (stepsToExecute.length === 0) {
-        stepsToExecute.push(...validBlueprint.steps)
-      }
-    }
-
-    const extracted = extractPluginsFromSteps((validBlueprint.steps || []) as Step[])
-
-    // Merge if not already done (for interactive mode especially)
-    if (blueprintConfig) {
-      blueprintConfig.framework = blueprintConfig.framework || extracted.framework
-      blueprintConfig.backend = blueprintConfig.backend || extracted.backend
-      blueprintConfig.designSystem = blueprintConfig.designSystem || extracted.designSystem
-      blueprintConfig.adapters = { ...extracted.adapters, ...(blueprintConfig.adapters || {}) }
-      blueprintConfig.drivers = { ...extracted.drivers, ...(blueprintConfig.drivers || {}) }
-      blueprintConfig.domains = [...(blueprintConfig.domains || []), ...(extracted.domains || [])]
-      blueprintConfig.wirings = [...(blueprintConfig.wirings || []), ...(extracted.wirings || [])]
-      blueprintConfig.domainPorts = {
-        ...extracted.domainPorts,
-        ...(blueprintConfig.domainPorts || {}),
-      }
-    }
+    // Since we consolidated loading, blueprintConfig is always derived from selectedStarter
+    blueprintConfig = extracted
   }
 
   // 3. Fullstack / Backend Selection Logic
@@ -578,10 +462,10 @@ export async function runNewCommand(
   // Ensure kompo.catalog.json exists (Smart Check)
   // If apps exist but catalog is missing, regenerate it to preserve state.
   // If no apps, create clean slate.
-  const { ensureKompoCatalog } = await import('@kompo/kit')
+  const { ensureKompoCatalog, getKompoCatalogPath } = await import('@kompo/kit')
   const { regenerateCatalog } = await import('../utils/catalog.utils')
 
-  const catalogPath = path.join(repoRoot, 'kompo.catalog.json')
+  const catalogPath = getKompoCatalogPath(repoRoot)
   if (!nodeFs.existsSync(catalogPath)) {
     // Check if we have existing apps to recover from
     if (loadedConfig?.apps && Object.keys(loadedConfig.apps).length > 0) {
@@ -601,10 +485,19 @@ export async function runNewCommand(
           message: 'Application Directory Name',
           defaultValue: step.name,
           placeholder: step.name,
-          validate: createKebabCaseValidator('application name', {
-            restrictedNames: RESTRICTED_APP_NAMES,
-            defaultValue: step.name,
-          }),
+          validate: (val) => {
+            const error = createKebabCaseValidator('application name', {
+              restrictedNames: RESTRICTED_APP_NAMES,
+              defaultValue: step.name,
+            })(val)
+            if (error) return error
+
+            const nameToCheck = val || step.name
+            const targetPath = path.join(repoRoot, 'apps', nameToCheck)
+            if (nodeFs.existsSync(targetPath)) {
+              return `Directory apps/${nameToCheck} already exists. Please choose another name.`
+            }
+          },
         })
 
         if (isCancel(appName)) {
@@ -612,15 +505,22 @@ export async function runNewCommand(
           process.exit(0)
         }
 
-        step.name = appName as string
+        const newName = appName as string
+        if (newName !== step.name) {
+          const oldName = step.name
+          step.name = newName
+          // Update references in other steps
+          for (const s of stepsToExecute) {
+            if (s.app === oldName) {
+              s.app = newName
+            }
+          }
+        }
       }
     }
   }
 
   // Sequencer Execution
-  const s = spinner()
-  s.start('Executing orchestration sequence...')
-
   const { runAddApp } = await import('./add/app/app.command')
   const { runAddAdapter } = await import('./add/adapter/adapter.command')
   const { runAddDomain } = await import('./add/domain/domain.command')
@@ -635,21 +535,16 @@ export async function runNewCommand(
     if (step.command === 'new' || (step.command === 'add' && step.type === 'app')) {
       await runAddApp(step.name, {
         framework: step.driver || step.framework,
-        backend: step.backend || BACKEND_TYPES.NONE,
         design: step.design || step.designSystem || DESIGN_SYSTEMS.VANILLA,
         org,
         yes: true,
         skipInstall: true,
-        blueprintPath: selectedBlueprint?.name
-          ? path.join(templatesDir, '../starters', selectedBlueprint.name)
+        blueprintPath: selectedStarter?.name
+          ? path.join(templatesDir, '../starters', selectedStarter.name)
           : undefined,
       })
     } else if (step.command === 'add' && step.type === 'domain') {
-      await runAddDomain(
-        step.name,
-        { app: step.app, skipEntity: true, nonInteractive: true },
-        {} as any
-      )
+      await runAddDomain(step.name, { app: step.app, skipEntity: true, nonInteractive: true })
     } else if (step.command === 'add' && step.type === 'port') {
       await runAddPort(step.name, {
         domain: step.domain,
@@ -659,7 +554,7 @@ export async function runNewCommand(
     } else if (step.command === 'add' && step.type === 'use-case') {
       await runAddUseCase(step.name, { domain: step.domain, nonInteractive: true })
     } else if (step.command === 'add' && step.type === 'entity') {
-      await runAddEntity(step.name, { domain: step.domain, nonInteractive: true }, {} as any)
+      await runAddEntity(step.name, { domain: step.domain, nonInteractive: true })
     } else if (step.command === 'add' && step.type === 'adapter') {
       await runAddAdapter({
         port: step.port,
@@ -676,13 +571,7 @@ export async function runNewCommand(
     }
   }
 
-  s.stop(color.green('Orchestration sequence completed.'))
-
   // Global Finalize
-  const sFinal = spinner()
-  sFinal.start('Finalizing project...')
-
-  // ... inside runNewCommand, before Finalizing project ...
 
   // Find primary app name for context
   const primaryAppStep = stepsToExecute.find((s) => s.command === 'add' && s.type === 'app')
@@ -698,6 +587,7 @@ export async function runNewCommand(
     _relativePath: string,
     context: Record<string, any> = {}
   ) => {
+    // Get templates
     const { getBlueprintCatalogPath } = await import('@kompo/blueprints')
     const candidatePath = getBlueprintCatalogPath(name, type)
 
@@ -716,7 +606,7 @@ export async function runNewCommand(
   // Merge Framework Catalog
   if (blueprintConfig?.framework) {
     const fw = blueprintConfig.framework
-    // handle 'nextjs-fullstack' vs 'nextjs' naming
+    // handle naming
     const normalizedFw = fw.includes('next')
       ? FRAMEWORKS.NEXTJS
       : fw.includes('vite')
@@ -762,7 +652,7 @@ export async function runNewCommand(
   // 4b. Merge Selected Blueprint Catalog (Highest Priority)
   // If the user selected a named blueprint (e.g. 'nft-marketplace'), it might have its own catalog.json
   // that should override generic framework versions.
-  if (selectedBlueprint?.name) {
+  if (selectedStarter?.name) {
     // The path to the blueprint itself.
     // We need to know where 'nft-marketplace' lives.
     // Standard blueprints are in 'packages/blueprints/apps/<name>'
@@ -776,14 +666,14 @@ export async function runNewCommand(
     const blueprintCatalogPath = path.join(
       templatesDir,
       '../starters',
-      selectedBlueprint.name,
+      selectedStarter.name,
       'catalog.json'
     )
 
     if (nodeFs.existsSync(blueprintCatalogPath)) {
       // Use the blueprint name as the catalog group
-      mergeBlueprintCatalog(repoRoot, selectedBlueprint.name, blueprintCatalogPath)
-      featuresToSync.push(selectedBlueprint.name)
+      mergeBlueprintCatalog(repoRoot, selectedStarter.name, blueprintCatalogPath)
+      featuresToSync.push(selectedStarter.name)
     }
   }
 
@@ -792,9 +682,8 @@ export async function runNewCommand(
   await installDependencies(repoRoot)
   runSort(repoRoot)
   runFormat(repoRoot)
-  sFinal.stop(color.green('Project ready!'))
+  log.success(color.green('Project ready!'))
 
-  outro(color.green('Success!'))
   const msgNote = `${color.reset(color.bgCyan(' Launch Application '))} \n
   ${color.reset(color.white('- pnpm dev or follow directions in README.md'))}\n
 ${color.reset(color.bgCyan(' Documentation '))} \n
@@ -803,4 +692,44 @@ ${color.reset(color.bgCyan(' Documentation '))} \n
 ${color.reset(color.bgCyan(' Have feedback? '))} \n
   ${color.reset(color.white('- Visit us on Github: https://github.com/kompo-dev/kompo.'))}`
   note(msgNote, color.green(color.bold('Enjoy !')))
+
+  outro(color.green('Project created successfully! 🚀'))
+}
+
+/**
+ * Summarize a starter into a project structure
+ */
+function summarizeStarter(starter: StarterManifest): {
+  config: ProjectStructure
+  steps: Step[]
+} {
+  // Validate steps if present
+  const parseResult = blueprintValidationSchema.safeParse(starter)
+  const validBlueprint = parseResult.success ? parseResult.data : starter
+  const steps = (validBlueprint.steps || []) as Step[]
+
+  // Extract from steps
+  const extracted = extractPluginsFromSteps(steps)
+
+  // Fallback for fields that might be at the root for flat starters
+  const flat = starter as Record<string, any>
+  const config: ProjectStructure = {
+    framework: extracted.framework || flat.framework || FRAMEWORKS.NEXTJS,
+    designSystem: extracted.designSystem || flat.designSystem || DESIGN_SYSTEMS.TAILWIND,
+    ports: extracted.ports?.length ? extracted.ports : flat.ports || [],
+    adapters: { ...(flat.adapters || {}), ...(extracted.adapters || {}) },
+    drivers: { ...(flat.drivers || {}), ...(extracted.drivers || {}) },
+    chains: Array.from(new Set([...(flat.chains || []), ...(extracted.chains || [])])),
+    domains: Array.from(new Set([...(flat.domains || []), ...(extracted.domains || [])])),
+    features: Array.from(
+      new Set([
+        ...(flat.features || []).map((f: any) => (typeof f === 'string' ? f : f.name)),
+        ...(extracted.features || []),
+      ])
+    ),
+    wirings: [...(flat.wirings || []), ...(extracted.wirings || [])],
+    domainPorts: { ...(flat.domainPorts || {}), ...extracted.domainPorts },
+  }
+
+  return { config, steps }
 }

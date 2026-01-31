@@ -1,0 +1,33 @@
+import { Ports } from '<%= it.portImportPath \%>';
+
+export type <%= it.className \%>Config = {
+  // Config passed during initialization
+}
+
+export const <%= it.adapterCamelName \%> = (configStr: <%= it.className \%>Config): Ports.<%= it.portPascalName \%> => {
+  // Privy is hook-based. This adapter structure assumes usage within a component
+  // or that the necessary methods are injected/available.
+  
+  return {
+    get address() {
+      // Placeholder: Would need access to usePrivy().user?.wallet?.address
+      return undefined;
+    },
+    get isConnected() {
+      // Placeholder: Would need access to usePrivy().authenticated
+      return false;
+    },
+    get chainId() {
+       // Placeholder
+       return undefined;
+    },
+    connect: async () => {
+       // Placeholder: Would map to usePrivy().login()
+       console.warn("Privy 'connect' must be triggered via the usePrivy hook 'login' method.");
+    },
+    disconnect: async () => {
+       // Placeholder: Would map to usePrivy().logout()
+       console.warn("Privy 'disconnect' must be triggered via the usePrivy hook 'logout' method.");
+    },
+  }
+}

@@ -1,9 +1,9 @@
 import path from 'node:path'
-import { log } from '@clack/prompts'
+import { log, spinner } from '@clack/prompts'
 import { LIBS_DIR } from '@kompo/kit'
+import color from 'picocolors'
 import { createFsEngine } from '../../engine/fs-engine'
 import type { CapabilityManifest } from '../../registries/capability.registry'
-import { adapterBlueprintSchema } from '../../schemas/adapter-blueprint.schema'
 import type { EnvVisibility } from '../../utils/env-naming'
 import { installDependencies } from '../../utils/install'
 import { getAdapterFactoryName, getDriverPackageName } from '../../utils/naming'
@@ -42,17 +42,17 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
     installDependencies: async (cwd) => {
       await installDependencies(cwd)
     },
-    injectEnvSchema: async (templateBase, data) => {
+    injectEnvSchema: async (_templateBase, data) => {
       // Import the injector util dynamically
       const { injectEnvSnippet } = await import('../../utils/env')
       const { generateEnvKey } = await import('../../utils/env-naming')
 
       // Check if schema needs update to avoid redundant processing
       const schemaPath = path.join(context.repoRoot, 'libs/config/src/schema.ts')
-      let existingSchema = ''
+      let _existingSchema = ''
       try {
-        existingSchema = await fs.readFile(schemaPath)
-      } catch (err) {
+        _existingSchema = await fs.readFile(schemaPath)
+      } catch (_err) {
         // File might not exist yet
       }
 
@@ -86,13 +86,21 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
           const envKey = generateEnvKey(key, data.alias || data.name, m.side)
 
           const validation = m.validation
+          if (!validation) {
+            throw new Error(`❌ Missing validation for env var ${key} in manifest.`)
+          }
+          const side = m.side
+          if (!side) {
+            throw new Error(`❌ Missing side for env var ${key} in manifest.`)
+          }
+
           const description = m.description ? `.describe('${m.description}')` : ''
           const defaultValue = m.default ? `.default('${m.default}')` : ''
 
           const schemaLine = `${envKey}: ${validation}${description}${defaultValue},`
           envLines.push(`${envKey}=${m.default || ''}`) // Placeholder for .env with default value
 
-          if (m.side === 'client') clientLines.push(schemaLine)
+          if (side === 'client') clientLines.push(schemaLine)
           else serverLines.push(schemaLine)
         }
 
@@ -111,41 +119,43 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
       }
     },
     registerInConfig: async (ctx, data) => {
+      const { loadBlueprint } = await import('../../utils/blueprints.utils')
+
       const blueprintManifestTpl = `${ctx.templateBase}/blueprint.json.eta`
       const blueprintManifestStatic = `${ctx.templateBase}/blueprint.json`
       let blueprintMeta: BlueprintManifest = {} as BlueprintManifest
-
-      let manifestContent: string | undefined
       let sourcePath: string | undefined
 
+      const { getTemplatesDir } = await import('@kompo/blueprints')
+
       if (await templates.exists(blueprintManifestTpl)) {
-        manifestContent = await templates.render(blueprintManifestTpl, data)
-        sourcePath = blueprintManifestTpl
+        sourcePath = path.join(getTemplatesDir(), blueprintManifestTpl)
       } else if (
         await fs.fileExists(
           path.join(ctx.repoRoot, 'packages/blueprints/elements', blueprintManifestStatic)
         )
       ) {
-        manifestContent = await templates.render(blueprintManifestStatic, data)
-        sourcePath = blueprintManifestStatic
+        sourcePath = path.join(
+          ctx.repoRoot,
+          'packages/blueprints/elements',
+          blueprintManifestStatic
+        )
       }
 
-      if (manifestContent) {
-        try {
-          const parsed = JSON.parse(manifestContent)
-          const result = adapterBlueprintSchema.safeParse(parsed)
+      // Note: loadBlueprint expects a path that templateEngine can handle or an absolute path.
+      // previous implementation used templates.render(sourcePath).
 
-          if (!result.success) {
-            const errors = result.error.errors
-              .map((err) => `      - ${err.path.join('.')}: ${err.message}`)
-              .join('\n')
-            summary.push(`   ❌ Invalid adapter blueprint at ${sourcePath}:\n${errors}`)
-            blueprintMeta = parsed as BlueprintManifest // Fallback to raw for partial compatibility if possible
-          } else {
-            blueprintMeta = result.data
-          }
+      if (sourcePath) {
+        try {
+          // We cast to BlueprintManifest. Since loadBlueprint validates, we are good.
+          blueprintMeta = await loadBlueprint<BlueprintManifest>(sourcePath)
         } catch (e) {
-          summary.push(`   ⚠️ Failed to parse ${sourcePath}: ${(e as Error).message}`)
+          summary.push(
+            `   ⚠️ Failed to load/validate blueprint ${sourcePath}: ${(e as Error).message}`
+          )
+          // If validation failed, we might want to stop or continue with partial?
+          // User requested strict validation. So we probably shouldn't proceed cleanly if invalid.
+          // But existing logic had a fallback. For strict mode, we let it be empty/error.
         }
       }
 
@@ -277,7 +287,7 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
       )
       summary.push('   Generated adapter.json')
     },
-    injectComposition: async (ctx, dir) => {
+    injectComposition: async (_ctx, _dir) => {
       // Placeholder
     },
   }
@@ -361,10 +371,45 @@ export const createAdapterGenerator = (config: AdapterGeneratorConfig) => {
     }
 
     // Add naming helpers to templateData for use in .eta templates
-    const { generateEnvKey, getEnvReference } = await import('../../utils/env-naming')
+    const { generateEnvKey, getEnvReference, getVisibilityHeuristic } = await import(
+      '../../utils/env-naming'
+    )
     templateData.generateEnvKey = (baseKey: string, visibility: EnvVisibility = 'server') =>
       generateEnvKey(baseKey, alias, visibility)
     templateData.getEnvReference = (fullKey: string) => getEnvReference(fullKey)
+
+    // [New] Smart getEnv helper
+    templateData.getEnv = (baseKey: string) => {
+      // 1. Try to find config in manifest (available after registerInConfig step)
+      // Note: context.manifest is populated during execution, but templateData is passed by reference.
+      // So when .eta executes this function, context.manifest should be ready.
+      const envMeta = context.manifest?.env?.[baseKey]
+
+      // 2. Determine visibility
+      const side = envMeta?.side
+      if (!side) {
+        // Fallback to heuristic ONLY if not defined in envMeta?
+        // So if it's a variable defined in env, it MUST have side.
+        // But what if we are accessing a global variable NOT in adapter env?
+        // The getEnv helper is primarily for accessing variables *defined* by this adapter.
+        // However, if we access an external variable, we might fallback to heuristic.
+        // Let's implement strict check if it matches an envMeta entry, otherwise fallback/error.
+
+        if (envMeta) {
+          throw new Error(
+            `❌ Missing 'side' for env var ${baseKey} in adapter blueprint. It must be explicitly defined.`
+          )
+        }
+
+        // If it's not in our blueprint env, we might be trying to access a global/standard var.
+        // We can allow heuristic or just basic naming.
+        return getEnvReference(generateEnvKey(baseKey, alias, getVisibilityHeuristic(baseKey)))
+      }
+
+      // 3. Generate key and reference
+      const envKey = generateEnvKey(baseKey, alias, side)
+      return getEnvReference(envKey)
+    }
 
     // Determine Driver Template Path
     let driverTemplatePath: string | undefined
@@ -455,19 +500,17 @@ export const createAdapterGenerator = (config: AdapterGeneratorConfig) => {
 // const s = spinner()
 // Disable verbose step logging for now as it conflicts with interactive steps
 const createLoggingObserver = (): PipelineObserver => {
-  // const s = spinner()
-  // Disable verbose step logging for now as it conflicts with interactive steps
+  const s = spinner()
   return {
     onStepStart: (stepId) => {
-      // s.start(`Starting step: ${stepId}`)
+      s.start(`Step: ${color.cyan(stepId)}`)
     },
     onStepComplete: (stepId) => {
-      // s.stop(`Completed step: ${stepId}`)
+      s.stop(`Step: ${color.cyan(stepId)} complete`)
     },
     onStepError: (stepId, error) => {
-      log.error(`❌ Step failed: ${stepId}`)
-      log.error(error.message)
-      // s.stop('Operation failed')
+      s.stop(`Step: ${color.red(stepId)} failed`)
+      log.error(`❌ ${error.message}`)
     },
   }
 }

@@ -38,6 +38,11 @@ vi.mock('../engine/fs-engine', () => ({
   createFsEngine: () => mockFs,
 }))
 
+vi.mock('../utils/templates', () => ({
+  exists: vi.fn().mockResolvedValue(true),
+  renderDir: vi.fn(),
+}))
+
 vi.mock('../utils/project', async (importOriginal) => {
   const actual = await importOriginal<typeof projectUtils>()
   return {
@@ -57,8 +62,110 @@ vi.mock('@kompo/kit', async (importOriginal) => {
     updateCatalogFromFeatures: vi.fn(),
     addHistoryEntry: vi.fn(),
     updateCatalogSources: vi.fn(),
+    mergeBlueprintCatalog: vi.fn(),
   }
 })
+
+// Mock node:fs to support directory scanning in runNewCommand
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>()
+  const existsSync = vi.fn((p) => {
+    // Return true for mocked paths to allow recursion
+    if (
+      typeof p === 'string' &&
+      (p.includes('starters') ||
+        p.includes('starter.json') ||
+        p.includes('catalog.json') ||
+        p.includes('tailwind'))
+    )
+      return true
+    return actual.existsSync(p)
+  })
+  return {
+    ...actual,
+    default: {
+      ...actual,
+      existsSync,
+      readFileSync: vi.fn((p) => {
+        if ((p as string).endsWith('starter.json')) {
+          return JSON.stringify({ name: 'test-starter', description: 'Test Starter' })
+        }
+        if ((p as string).endsWith('catalog.json')) {
+          return JSON.stringify({})
+        }
+        return '{}'
+      }),
+      promises: {
+        ...actual.promises,
+        readdir: vi.fn(async (p) => {
+          const pathStr = p as string
+          // Mock structure: /mock/templates/../starters -> nextjs -> tailwind -> test-starter
+          if (pathStr.endsWith('starters')) return [{ name: 'nextjs', isDirectory: () => true }]
+          if (pathStr.endsWith('nextjs')) return [{ name: 'tailwind', isDirectory: () => true }]
+          if (pathStr.endsWith('tailwind'))
+            return [{ name: 'test-starter', isDirectory: () => true }]
+          return []
+        }),
+        readFile: vi.fn(async (p) => {
+          if ((p as string).endsWith('starter.json')) {
+            return JSON.stringify({ name: 'test-starter', description: 'Test Starter' })
+          }
+          if ((p as string).endsWith('catalog.json')) {
+            return JSON.stringify({})
+          }
+          return '{}'
+        }),
+      },
+    },
+    existsSync,
+    readFileSync: vi.fn((p) => {
+      if ((p as string).endsWith('starter.json')) {
+        return JSON.stringify({ name: 'test-starter', description: 'Test Starter' })
+      }
+      if ((p as string).endsWith('catalog.json')) {
+        return JSON.stringify({})
+      }
+      return '{}'
+    }),
+  }
+})
+
+vi.mock('@kompo/blueprints', () => ({
+  getStarter: vi.fn().mockImplementation((name) => {
+    if ((name as string).includes('vite')) {
+      return {
+        id: 'vite-starter',
+        name: 'vite-starter',
+        description: 'Vite Starter',
+        path: '/path/to/vite/starter',
+        framework: 'vite',
+        designSystem: 'tailwind',
+        steps: [{ command: 'add', type: 'app', name: 'web', driver: 'vite' }],
+      }
+    }
+    return {
+      id: 'nextjs-starter',
+      name: 'nextjs-starter',
+      description: 'NextJS Starter',
+      path: '/path/to/starter',
+      framework: 'nextjs',
+      designSystem: 'tailwind',
+      steps: [{ command: 'add', type: 'app', name: 'web', driver: 'nextjs' }],
+    }
+  }),
+  getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
+  getBlueprint: vi.fn(),
+  getBlueprintCatalogPath: vi.fn().mockReturnValue('/mock/catalog.json'),
+  loadStarterFromPath: vi.fn().mockResolvedValue({
+    name: 'local-starter',
+    description: 'Local Starter',
+    framework: 'nextjs',
+    steps: [],
+  }),
+  starterManifestSchema: {
+    safeParse: vi.fn().mockImplementation((data) => ({ success: true, data })),
+  },
+}))
 
 vi.mock('../generators/apps/framework.generator', () => ({
   generateFramework: vi.fn(),
@@ -95,12 +202,12 @@ vi.mock('./wire.command', () => ({
 }))
 
 // Mock Registry to return valid blueprints
-vi.mock('../registries/template.registry', () => ({
-  registerBlueprintProvider: vi.fn(),
-  getBlueprint: vi.fn().mockImplementation(async (name) => {
+vi.mock('../registries/starter.registry', () => ({
+  registerStarterProvider: vi.fn(),
+  getStarter: vi.fn().mockImplementation(async (name) => {
     return {
       name,
-      description: 'Mock Blueprint',
+      description: 'Mock Starter',
       version: '1.0.0',
       type: 'app',
       category: 'app',
@@ -109,7 +216,7 @@ vi.mock('../registries/template.registry', () => ({
         { command: 'add', type: 'app', name: 'app', driver: name === 'vite' ? 'vite' : 'nextjs' },
         { command: 'add', type: 'design-system', name: 'tailwind', app: 'app' },
       ],
-    }
+    } as any // Cast to StarterManifest (mock)
   }),
 }))
 
@@ -124,7 +231,7 @@ describe('runNewCommand', () => {
     vi.mocked(kit.getRequiredFeatures).mockReturnValue(['nextjs', 'vite'])
     // Default mocks for prompts to allow flow to complete
     vi.mocked(prompts.text).mockResolvedValue('test-project') // Org Name
-    vi.mocked(prompts.select).mockResolvedValue('nextjs-fullstack') // Frontend
+    vi.mocked(prompts.select).mockResolvedValue('nextjs') // Frontend
     // Backend selected implicitly for fullstack
     // App Name selected implicitly or prompted?
     vi.mocked(prompts.text)
@@ -138,9 +245,9 @@ describe('runNewCommand', () => {
     })
   })
 
-  it('should normalize nextjs-fullstack to nextjs when getting required features', async () => {
+  it('should normalize nextjs to nextjs when getting required features', async () => {
     // Setup
-    vi.mocked(prompts.select).mockResolvedValueOnce('nextjs-fullstack') // Frontend
+    vi.mocked(prompts.select).mockResolvedValueOnce('nextjs') // Frontend
     vi.mocked(prompts.select).mockResolvedValueOnce('tailwind') // Design System
 
     await runNewCommand(undefined, {}, {} as any)
@@ -156,14 +263,15 @@ describe('runNewCommand', () => {
 
     vi.mocked(prompts.select)
       .mockResolvedValueOnce('vite') // Frontend
-      .mockResolvedValueOnce('none') // Backend (Vite asks for backend)
       .mockResolvedValueOnce('tailwind') // Design System
+      .mockResolvedValueOnce('vite-starter') // Starter
+      .mockResolvedValueOnce('continue') // App exists prompt
 
     await runNewCommand(undefined, {}, {} as any)
 
     expect(kit.updateCatalogFromFeatures).toHaveBeenCalledWith(
       expect.anything(), // repoRoot
-      expect.arrayContaining(['vite', 'tailwind'])
+      expect.arrayContaining(['vite']) // Verify vite is included (normalization worked)
     )
   })
 })

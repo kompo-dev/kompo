@@ -30,6 +30,10 @@
     {
       "fileMatch": ["packages/blueprints/**/starter.json"],
       "url": "./packages/blueprints/starter.schema.json"
+    },
+    {
+      "fileMatch": ["packages/blueprints/**/feature.json"],
+      "url": "./packages/blueprints/feature.schema.json"
     }
   ],
   "[jsonc]": {
@@ -37,6 +41,5 @@
   },
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "postman.settings.dotenv-detection-notification-visibility": false
+  }
 }

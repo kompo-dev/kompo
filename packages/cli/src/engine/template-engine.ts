@@ -597,7 +597,6 @@ ${text}
           if (!blueprintPath) return ''
 
           // 1. Registry Lookup (New Declarative Way)
-          // biome-ignore lint/suspicious/noExplicitAny: generic data
           const hooksRegistry = (data as any).hooks as Record<string, string> | undefined
           if (hooksRegistry?.[name]) {
             const relativePath = hooksRegistry[name]

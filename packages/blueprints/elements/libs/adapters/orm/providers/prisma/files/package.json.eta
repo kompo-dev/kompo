@@ -1,19 +1,14 @@
 {
-  "name": "@<%= it.scope %>/<%= it.packetName %>",
-  "version": "0.1.0",
-  "private": true,
-  "main": "src/<%= it.packetName %>.adapter.ts",
-  "types": "src/<%= it.packetName %>.adapter.ts",
-  "scripts": {
-    "test": "vitest run"
-  },
+  "name": "@<%= it.scope %>/<%= it.name %>",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "dependencies": {
     "<%= it.infraPackageName %>": "workspace:*",
-    "@prisma/client": "catalog:"
+    "@<%= it.scope %>/config": "workspace:*",
+    "@<%= it.scope %>/domains": "workspace:*"
   },
   "devDependencies": {
-    "prisma": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }

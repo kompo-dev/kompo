@@ -13,8 +13,9 @@ export interface BoxNodeData extends Record<string, unknown> {
 export type BoxNode = Node<BoxNodeData>
 
 export function BoxNode({ data }: NodeProps<BoxNode>) {
-  // @ts-expect-error - Dynamic icon access
-  const Icon = data.icon && Icons[data.icon] ? Icons[data.icon] : null
+  const Icon = data.icon
+    ? (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[data.icon]
+    : null
 
   return (
     <div

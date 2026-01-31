@@ -1,0 +1,16 @@
+{
+  "id": "privy",
+  "name": "Privy",
+  "version": "1.0.0",
+  "type": "adapter",
+  "family": "account",
+  "description": "Account adapter using Privy",
+  "capability": "account",
+  "env": {
+    "PRIVY_APP_ID": {
+      "description": "The Privy App ID from the dashboard",
+      "validation": "z.string()",
+      "required": true
+    }
+  }
+}

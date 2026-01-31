@@ -305,106 +305,63 @@ export function createListCommand(_registry: KompoPluginRegistry): Command {
     .alias('s')
     .description('List available starter templates')
     .action(async () => {
-      const { getTemplatesDir } = await import('@kompo/blueprints')
-      const fs = await import('node:fs')
+      const { listStarters, getTemplatesDir } = await import('@kompo/blueprints')
       const path = await import('node:path')
 
       intro(color.bgMagenta('🚀 Available Starters'))
 
-      const templatesDir = getTemplatesDir()
-      const startersDir = path.join(templatesDir, '../starters')
+      // 1. Get all starters using unified loader
+      const starters = listStarters()
 
-      if (!fs.existsSync(startersDir)) {
-        outro(color.dim('No starters directory found.'))
-        return
-      }
-
-      // Get frameworks
-      const frameworks = fs
-        .readdirSync(startersDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory() && !d.name.startsWith('.'))
-        .map((d) => d.name)
-
-      if (frameworks.length === 0) {
+      if (starters.length === 0) {
         outro(color.dim('No starters found.'))
         return
       }
 
-      type StarterInfo = {
-        id: string
-        name: string
-        description: string
-        framework: string
-        designSystem: string
-        template: string
-      }
+      // 2. Enrich for display (Framework / Design System derivation)
+      const templatesDir = getTemplatesDir()
+      const startersRoot = path.join(templatesDir, '../starters')
 
-      const starters: StarterInfo[] = []
+      // Helper to infer hierarchy from path
+      const getStarterInfo = (s: (typeof starters)[0]) => {
+        let framework = 'Unknown'
+        let designSystem = 'Unknown'
+        const template = s.name
 
-      // Load starter metadata helper
-      const loadStarterMeta = (
-        starterPath: string
-      ): { name?: string; description?: string; id?: string } | null => {
-        const metaPath = path.join(starterPath, 'starter.json')
-        if (fs.existsSync(metaPath)) {
-          try {
-            return JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
-          } catch {
-            return null
-          }
+        if (s.path) {
+          // Compute relative path from starters root
+          // Expected: framework/design-system/template-name/starter.json
+          // s.path is the directory containing starter.json
+          const rel = path.relative(startersRoot, s.path)
+          const parts = rel.split(path.sep)
+
+          if (parts.length >= 1) framework = parts[0]
+          if (parts.length >= 2) designSystem = parts[1]
         }
-        return null
-      }
 
-      // Traverse framework -> design system -> templates
-      for (const framework of frameworks) {
-        const frameworkDir = path.join(startersDir, framework)
-        const frameworkMeta = loadStarterMeta(frameworkDir)
+        // Capitalize info
+        const cap = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
-        const designSystems = fs
-          .readdirSync(frameworkDir, { withFileTypes: true })
-          .filter((d) => d.isDirectory() && !d.name.startsWith('.'))
-          .map((d) => d.name)
-
-        for (const ds of designSystems) {
-          const dsDir = path.join(frameworkDir, ds)
-          const dsMeta = loadStarterMeta(dsDir)
-
-          const templates = fs
-            .readdirSync(dsDir, { withFileTypes: true })
-            .filter((d) => d.isDirectory() && !d.name.startsWith('.'))
-            .map((d) => d.name)
-
-          for (const template of templates) {
-            const templateDir = path.join(dsDir, template)
-            const templateMeta = loadStarterMeta(templateDir)
-
-            if (templateMeta) {
-              starters.push({
-                id: templateMeta.id || `${framework}.${ds}.${template}`,
-                name: templateMeta.name || template,
-                description: templateMeta.description || '',
-                framework: frameworkMeta?.name || framework,
-                designSystem: dsMeta?.name || ds,
-                template,
-              })
-            }
-          }
+        return {
+          ...s,
+          framework: cap(framework),
+          designSystem: cap(designSystem),
+          template,
         }
       }
 
-      // Group by framework
-      const grouped = starters.reduce(
-        (acc, s) => {
-          if (!acc[s.framework]) acc[s.framework] = {}
-          if (!acc[s.framework][s.designSystem]) acc[s.framework][s.designSystem] = []
-          acc[s.framework][s.designSystem].push(s)
-          return acc
-        },
-        {} as Record<string, Record<string, StarterInfo[]>>
-      )
+      const enrichedStarters = starters.map(getStarterInfo)
 
-      // Display
+      // 3. Group by Framework -> Design System
+      const grouped: Record<string, Record<string, typeof enrichedStarters>> = {}
+
+      for (const s of enrichedStarters) {
+        if (!grouped[s.framework]) grouped[s.framework] = {}
+        if (!grouped[s.framework][s.designSystem]) grouped[s.framework][s.designSystem] = []
+        grouped[s.framework][s.designSystem].push(s)
+      }
+
+      // 4. Display
       for (const [framework, designSystems] of Object.entries(grouped)) {
         log.message(color.bold(`\n  ${color.cyan(framework)}`))
         for (const [ds, templates] of Object.entries(designSystems)) {
@@ -419,7 +376,7 @@ export function createListCommand(_registry: KompoPluginRegistry): Command {
       }
 
       outro(
-        `${starters.length} starters found. Use: ${color.blue('kompo new -b [framework.design-system.template]')}`
+        `${starters.length} starters found. Use: ${color.blue('kompo new -t [framework.design-system.template]')}`
       )
     })
 

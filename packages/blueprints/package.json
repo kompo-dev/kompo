@@ -10,6 +10,10 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
+    "./types": {
+      "types": "./src/types.ts",
+      "import": "./src/types.ts"
+    },
     "./kompo.config.schema.json": "./kompo.config.schema.json",
     "./blueprint.schema.json": "./blueprint.schema.json",
     "./kompo.catalog.schema.json": "./kompo.catalog.schema.json"
@@ -22,11 +26,17 @@
   ],
   "scripts": {
     "clean": "rimraf .turbo node_modules tsconfig.tsbuildinfo",
+    "dev:blueprint": "tsx watch scripts/generate-schemas.ts",
+    "generate-schemas": "tsx scripts/generate-schemas.ts",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.3.0",
+    "zod-to-json-schema": "^3.25.1"
   }
 }

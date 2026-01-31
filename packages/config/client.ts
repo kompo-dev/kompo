@@ -2,13 +2,6 @@ import { createEnv } from '@t3-oss/env-core'
 import { type ZodTypeAny, z } from 'zod'
 import type { InferEnvSchema } from './index'
 
-import { loadEnvSync } from './loader'
-
-// Auto-load .env from monorepo root if in Node.js (for SSR/Build validation)
-if (typeof process !== 'undefined' && process.versions?.node) {
-  loadEnvSync()
-}
-
 export { z }
 
 export interface ClientEnvOptions<TClient extends Record<string, ZodTypeAny>> {

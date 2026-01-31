@@ -58,7 +58,7 @@ export async function detectFramework(ctx: KompoContext): Promise<'nextjs' | 'vi
   // Find the app config for current targetDir
   for (const [appPath, appConfig] of Object.entries(config.apps)) {
     if (ctx.targetDir.includes(appPath)) {
-      return appConfig.frontend as 'nextjs' | 'vite'
+      return appConfig.framework as 'nextjs' | 'vite'
     }
   }
 

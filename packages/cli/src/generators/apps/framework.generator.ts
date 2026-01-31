@@ -1,8 +1,6 @@
 import path from 'node:path'
 import { intro, outro, spinner } from '@clack/prompts'
 import {
-  BACKEND_TYPES,
-  type BackendTypeId,
   FRAMEWORKS,
   type FrameworkId,
   getRequiredFeatures,
@@ -20,7 +18,6 @@ import { getTemplateEngine } from '../../utils/project'
 export interface FrameworkGeneratorContext {
   targetDir: string
   framework: FrameworkId
-  backendType?: BackendTypeId
   scope: string
   packageName: string
   projectName: string
@@ -37,7 +34,6 @@ export interface FrameworkGeneratorContext {
 export async function generateFramework(ctx: FrameworkGeneratorContext) {
   const {
     framework,
-    backendType,
     targetDir,
     scope,
     packageName,
@@ -51,7 +47,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   const fs = createFsEngine()
   const templates = await getTemplateEngine(ctx.blueprintPath)
 
-  intro(`Setting up framework: ${framework}`)
+  s.start(`Setting up ${color.cyan(framework)} framework...`)
 
   const repoRoot = cwd // Assume cwd is repo root
   const libsDir = LIBS_DIR
@@ -59,9 +55,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
 
   // 1. Create Shared Config
   if (!(await fs.fileExists(path.join(configDir, 'package.json')))) {
-    s.start('Setting up shared configuration')
-    // Use universal shared config template
-    // libs/config extends tsconfig.base.json at repo root
+    s.message('Scaffolding shared configuration...')
     const configTsconfigPath = path.relative(configDir, path.join(repoRoot, 'tsconfig.base.json'))
     await templates.renderDir(
       'libs/config/files',
@@ -69,14 +63,11 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
       { scope, framework, tsconfigPath: configTsconfigPath },
       { merge: false }
     )
-    s.stop('Setting up shared configuration')
   }
 
   // 2. Shared Domains are created on-demand via domain.generator.ts
 
   // 3. Shared Utils are created on-demand via specialized generators
-
-  s.stop('Setting up shared configuration')
 
   // 4. Create App Files
   const { injectEnvSnippet } = await import('../../utils/env')
@@ -119,14 +110,20 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
 
   if (hasBlueprint) {
     // Render the blueprint (in case values depend on template vars), then parse
-    const renderedJson = await templates.render(blueprintJsonPath, partialData)
     try {
-      blueprintConfig = JSON.parse(renderedJson)
+      const { loadBlueprint } = await import('../../utils/blueprints.utils')
+      const { getTemplatesDir } = await import('@kompo/blueprints')
+
+      const absoluteBlueprintPath = path.join(getTemplatesDir(), blueprintJsonPath)
+      blueprintConfig = await loadBlueprint(absoluteBlueprintPath)
+
       if (blueprintConfig.hooks) {
         hooks = blueprintConfig.hooks
       }
     } catch (e) {
-      console.warn(`⚠️  Failed to parse or process blueprint.json for ${framework}:`, e)
+      // Re-throw if it's our validation error (starts with ❌), otherwise warn
+      if (e instanceof Error && e.message.startsWith('❌')) throw e
+      console.warn(`⚠️  Failed to process blueprint.json for ${framework}:`, e)
     }
   }
 
@@ -142,7 +139,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
         if (bp.env && blueprintConfig) {
           blueprintConfig.env = { ...blueprintConfig.env, ...bp.env }
         }
-      } catch (e) {
+      } catch (_e) {
         // ignore error
       }
     }
@@ -224,11 +221,11 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
 
         for (const [key, config] of envEntries as [
           string,
-          { validation?: string; default?: string; side?: string; scoped?: boolean },
+          { validation: string; default?: string; side: string; scoped?: boolean },
         ][]) {
-          const validation = config.validation || 'z.string()'
+          const validation = config.validation
           const defaultValue = config.default || ''
-          const side = config.side || 'server'
+          const side = config.side
           const isScoped = config.scoped !== false
 
           // orgthe key (e.g. NEXT_PUBLIC_APP_NAME -> NEXT_PUBLIC_PROJECT_APP_NAME)
@@ -314,22 +311,6 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
     }
   }
 
-  // Render fullstack specific files if valid
-  if (framework === FRAMEWORKS.NEXTJS && backendType === BACKEND_TYPES.NEXTJS) {
-    const fullstackIds = 'apps/nextjs/fullstack'
-    if (await templates.exists(`${fullstackIds}/files`)) {
-      await templates.renderDir(`${fullstackIds}/files`, targetDir, templateData, {
-        merge: false,
-        exclude: envFiles,
-      })
-    } else if (await templates.exists(fullstackIds)) {
-      await templates.renderDir(fullstackIds, targetDir, templateData, {
-        merge: false,
-        exclude: envFiles,
-      })
-    }
-  }
-
   const designSystemTemplateDir = `apps/${framework}/design-systems/${designSystem}`
 
   if (await templates.exists(`${designSystemTemplateDir}/files`)) {
@@ -352,10 +333,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   // Catalog
   const features = getRequiredFeatures(
     framework === FRAMEWORKS.VITE ? FRAMEWORKS.VITE : FRAMEWORKS.NEXTJS,
-    designSystem,
-    backendType !== BACKEND_TYPES.NONE && backendType !== BACKEND_TYPES.NEXTJS
-      ? backendType
-      : undefined
+    designSystem
   )
 
   // [KOMPO] Manual Catalog Sync for App Design System
@@ -403,5 +381,5 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   // from apps/<framework>/catalog.json
   await regenerateCatalog(repoRoot, { silent: true })
 
-  outro(color.green(`Framework ${framework} setup complete!`))
+  s.stop(color.green(`Framework ${framework} setup complete!`))
 }

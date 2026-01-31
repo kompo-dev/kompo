@@ -300,30 +300,12 @@ export function updateCatalogFromFeatures(rootDir: string, features: string[]): 
 /**
  * Get the list of features needed for a frontend + design system combination
  */
-export function getRequiredFeatures(
-  frontend: 'vite' | 'nextjs',
-  designSystem?: string,
-  backend?: string
-): string[] {
-  const features: string[] = ['core']
-
-  // Frontend
-  if (frontend === 'vite') {
-    features.push('vite')
-  } else if (frontend === 'nextjs') {
-    features.push('nextjs')
-  }
+export function getRequiredFeatures(framework: string, designSystem?: string): string[] {
+  const features: string[] = ['core', framework]
 
   // Design system
   if (designSystem) {
     features.push(designSystem)
-  }
-
-  // Backend
-  if (backend === 'nestjs') {
-    features.push('nestjs')
-  } else if (backend === 'express') {
-    features.push('express')
   }
 
   return features

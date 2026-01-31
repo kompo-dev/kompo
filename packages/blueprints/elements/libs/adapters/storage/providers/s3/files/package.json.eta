@@ -2,12 +2,19 @@
   "name": "@<%= it.scope %>/<%= it.packetName %>",
   "version": "0.1.0",
   "private": true,
-  "main": "src/<%= it.packetName %>.adapter.ts",
-  "types": "src/<%= it.packetName %>.adapter.ts",
+  "service": "<%= it.provider %>",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "test": "vitest run"
   },
-  "dependencies": {},
+  "dependencies": {
+    "<%= it.infraPackageName %>": "workspace:*",
+    "@aws-sdk/s3-request-presigner": "catalog:"
+  },
   "devDependencies": {
     "typescript": "catalog:",
     "vitest": "catalog:"

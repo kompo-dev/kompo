@@ -32,12 +32,12 @@ export function createAddDomainCommand(): Command {
 export async function runAddDomain(
   domainName: string,
   options: { skipEntity?: boolean; app?: string; nonInteractive?: boolean },
-  command: Command
+  command?: Command
 ) {
   const error = validateKebabCase(domainName, 'Domain name')
   if (error) {
     log.error(color.red(`✗ ${error}`))
-    command.help()
+    command?.help()
   }
 
   const cwd = process.cwd()

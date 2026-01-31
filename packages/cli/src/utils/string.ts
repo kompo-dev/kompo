@@ -3,19 +3,15 @@
  */
 
 export function toPascalCase(s: string): string {
-  return s
-    .split(/[^a-zA-Z0-9]+/)
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+  return toKebabCase(s)
+    .split('-')
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
     .join('')
 }
 
 export function toCamelCase(s: string): string {
-  return s
-    .split(/[^a-zA-Z0-9]+/)
-    .map((s, i) =>
-      i === 0 ? s.toLowerCase() : s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
-    )
-    .join('')
+  const pascal = toPascalCase(s)
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1)
 }
 
 export function toKebabCase(s: string): string {

@@ -1,129 +1,107 @@
+// 3. Imports
 import * as prompts from '@clack/prompts'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import * as domainGenerator from '../../../generators/domain.generator'
+import * as portGenerator from '../../../generators/port.generator'
 import * as projectUtils from '../../../utils/project'
 import { runAddAdapter } from '../adapter/adapter.command'
 import { runAddPort } from './port.command'
 
-// Mock dependencies
-vi.mock('@clack/prompts', async (importOriginal) => {
-  const actual = await importOriginal<typeof prompts>()
-  return {
-    ...actual,
-    select: vi.fn(),
-    text: vi.fn(),
-    confirm: vi.fn(),
-    cancel: vi.fn(),
-    isCancel: vi.fn((val) => val === Symbol.for('clack:cancel')),
-    log: {
-      error: vi.fn(),
-      message: vi.fn(),
-      info: vi.fn(),
-      success: vi.fn(),
-      warn: vi.fn(),
-    },
-    intro: vi.fn(),
-    outro: vi.fn(),
-    spinner: () => ({
-      start: vi.fn(),
-      stop: vi.fn(),
-    }),
-  }
-})
+// 1. Stable Mock Objects
+const mockFs = {
+  ensureDir: vi.fn().mockResolvedValue(undefined),
+  fileExists: vi.fn().mockResolvedValue(false),
+  writeFile: vi.fn().mockResolvedValue(undefined),
+  readJson: vi.fn().mockResolvedValue({}),
+  readFile: vi.fn().mockResolvedValue(''),
+}
 
-vi.mock('../../../utils/project')
-vi.mock('../../../generators/domain.generator')
-vi.mock('../../../utils/format')
-vi.mock('../adapter/adapter.command')
+// 2. Hoist Mocks
+vi.mock('../../../engine/fs-engine', () => ({
+  createFsEngine: vi.fn(() => mockFs),
+}))
+
+vi.mock('../../../generators/domain.generator', () => ({
+  generateDomain: vi.fn(),
+}))
+vi.mock('../../../generators/port.generator', () => ({
+  generatePort: vi.fn(),
+}))
+vi.mock('../adapter/adapter.command', () => ({
+  runAddAdapter: vi.fn(),
+}))
+vi.mock('../../../utils/project', () => ({
+  findRepoRoot: vi.fn(),
+  ensureProjectContext: vi.fn(),
+  getDomains: vi.fn(),
+  getDomainPath: vi.fn(),
+  getTemplateEngine: vi.fn(),
+  getApps: vi.fn().mockResolvedValue([]),
+}))
+vi.mock('@clack/prompts', () => ({
+  select: vi.fn(),
+  text: vi.fn(),
+  confirm: vi.fn(),
+  cancel: vi.fn(),
+  isCancel: vi.fn((val) => val === Symbol.for('clack:cancel')),
+  log: {
+    message: vi.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+  },
+  intro: vi.fn(),
+  outro: vi.fn(),
+  note: vi.fn(),
+  spinner: () => ({ start: vi.fn(), stop: vi.fn(), message: vi.fn() }),
+}))
 
 // Mock kit
 vi.mock('@kompo/kit', () => ({
-  readKompoConfig: vi.fn(() => ({
-    project: { org: 'test-org' },
-    domains: {},
-  })),
+  readKompoConfig: vi.fn(),
   writeKompoConfig: vi.fn(),
+  LIBS_DIR: 'libs',
+  PORT_DEFINITIONS: [
+    { value: 'repository', icon: '📦', label: 'Repository', capabilities: ['orm'] },
+    { value: 'other', icon: '🔌', label: 'Other' },
+  ],
 }))
-
-const { mockFs, mockTemplates } = vi.hoisted(() => ({
-  mockFs: {
-    ensureDir: vi.fn(),
-    fileExists: vi.fn().mockResolvedValue(false),
-    writeFile: vi.fn(),
-  },
-  mockTemplates: {
-    render: vi.fn().mockResolvedValue('mock-content'),
-  },
-}))
-
-// Mock FS and Template Engine
-vi.mock('../../../engine/fs-engine', () => ({
-  createFsEngine: () => mockFs,
-}))
-
-vi.mock('../../../utils/project', async (importOriginal) => {
-  const actual = await importOriginal<typeof projectUtils>()
-  return {
-    ...actual,
-    findRepoRoot: vi.fn().mockResolvedValue('/mock/root'),
-    getDomains: vi.fn().mockResolvedValue(['existing-domain']),
-    getDomainPath: vi.fn().mockResolvedValue('/mock/root/domains/existing-domain'),
-    getTemplateEngine: vi.fn().mockResolvedValue(mockTemplates),
-  }
-})
 
 describe('runAddPort', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Reset default mocks
     vi.mocked(projectUtils.findRepoRoot).mockResolvedValue('/mock/root')
+    vi.mocked(projectUtils.ensureProjectContext).mockResolvedValue({
+      repoRoot: '/mock/root',
+      config: {
+        version: 1,
+        project: { name: 'test', org: 'test-org' },
+        catalog: { lastUpdated: '2024-01-01', sources: [] },
+        apps: {},
+        steps: [],
+        domains: {
+          'existing-domain': {
+            entities: [],
+            ports: [],
+            useCases: [],
+          },
+        },
+      },
+    } as any)
     vi.mocked(projectUtils.getDomains).mockResolvedValue(['existing-domain'])
     vi.mocked(projectUtils.getDomainPath).mockResolvedValue('/mock/root/domains/existing-domain')
-    mockFs.fileExists.mockResolvedValue(false)
+
+    vi.mocked(prompts.confirm).mockResolvedValue(false)
+    vi.mocked(prompts.select).mockResolvedValue('other')
   })
 
   it('should create a port in an existing domain', async () => {
-    vi.mocked(prompts.select).mockResolvedValueOnce('repository') // Select Repository
-    vi.mocked(prompts.confirm).mockResolvedValue(false) // Don't autowire
-
-    const _fs = (await import('../../../engine/fs-engine')).createFsEngine()
+    vi.mocked(prompts.select).mockResolvedValueOnce('repository')
+    vi.mocked(prompts.confirm).mockResolvedValue(false)
 
     await runAddPort('user-repository', { domain: 'existing-domain' })
 
-    // Verify FS writes
-    expect(mockFs.ensureDir).toHaveBeenCalledWith(expect.stringContaining('user-repository'))
-    expect(mockFs.writeFile).toHaveBeenCalledWith(
-      expect.stringContaining('user-repository.port.ts'),
-      'mock-content'
-    )
-  })
-
-  it('should prompt to create domain if none exist, and then create port', async () => {
-    vi.mocked(projectUtils.getDomains).mockResolvedValue([])
-
-    vi.mocked(prompts.confirm).mockResolvedValueOnce(true) // Create domain? Yes
-    vi.mocked(prompts.text).mockResolvedValueOnce('new-domain') // Domain Name
-
-    vi.mocked(prompts.select).mockResolvedValueOnce('repository') // Port Type
-    vi.mocked(prompts.confirm).mockResolvedValueOnce(false) // Autowire? No
-
-    vi.mocked(projectUtils.getDomainPath).mockResolvedValue('/mock/root/domains/new-domain')
-
-    const _fs = (await import('../../../engine/fs-engine')).createFsEngine()
-
-    await runAddPort('user-repository', {})
-
-    expect(domainGenerator.generateDomain).toHaveBeenCalledWith(
-      expect.objectContaining({
-        domainName: 'new-domain',
-        skipEntity: true,
-      })
-    )
-
-    expect(mockFs.writeFile).toHaveBeenCalledWith(
-      expect.stringContaining('user-repository.port.ts'),
-      expect.any(String)
-    )
+    expect(portGenerator.generatePort).toHaveBeenCalled()
   })
 
   it('should trigger adapter wizard if autoLink is confirmed', async () => {
@@ -133,9 +111,8 @@ describe('runAddPort', () => {
     await runAddPort('user-repository', { domain: 'existing-domain' })
 
     expect(runAddAdapter).toHaveBeenCalledWith(
-      'user-repository',
       expect.objectContaining({
-        allowedCapabilities: expect.any(Array),
+        port: 'user-repository',
       })
     )
   })

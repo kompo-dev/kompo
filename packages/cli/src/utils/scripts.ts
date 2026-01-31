@@ -66,7 +66,7 @@ export async function mergeBlueprintScripts(
         log.warn(`Failed to process root-scripts.eta for ${name}: ${e}`)
       }
     }
-  } catch (error) {
+  } catch (_error) {
     // Fail silently on script merging to avoid blocking main flow
   }
 }

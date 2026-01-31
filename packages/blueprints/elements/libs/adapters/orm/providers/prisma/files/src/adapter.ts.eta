@@ -1,7 +1,7 @@
-import type { <%= it.portName %> } from '<%= it.portImportPath %>'
+import type { Ports } from '<%= it.portImportPath %>'
 import { prisma } from '<%= it.infraPackageName %>'
 
-export function <%~ it.camelName %>(): <%= it.portName %> {
+export function create<%= it.pascalName %>Adapter(): Ports.<%= it.portPascalName %> {
   return {
     // TODO: Implement port methods using Prisma
     // Example:
@@ -11,5 +11,6 @@ export function <%~ it.camelName %>(): <%= it.portName %> {
     // async save(entity) {
     //   return prisma.user.create({ data: entity })
     // },
-  } as <%= it.portName %>
+    // Assuming generic methods wrapper if possible, or leave granular
+  } as Ports.<%= it.portPascalName %>
 }

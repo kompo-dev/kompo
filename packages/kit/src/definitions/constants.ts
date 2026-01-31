@@ -4,6 +4,7 @@
 export const FRAMEWORKS = {
   NEXTJS: 'nextjs',
   VITE: 'vite',
+  EXPRESS: 'express',
 } as const
 
 export type FrameworkId = (typeof FRAMEWORKS)[keyof typeof FRAMEWORKS]
@@ -22,14 +23,3 @@ export const DESIGN_SYSTEMS = {
 } as const
 
 export type DesignSystemId = (typeof DESIGN_SYSTEMS)[keyof typeof DESIGN_SYSTEMS]
-
-/**
- * Backend Type Constants
- */
-export const BACKEND_TYPES = {
-  NEXTJS: 'nextjs',
-  EXPRESS: 'express',
-  NONE: 'none',
-} as const
-
-export type BackendTypeId = (typeof BACKEND_TYPES)[keyof typeof BACKEND_TYPES]

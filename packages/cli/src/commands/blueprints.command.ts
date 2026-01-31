@@ -4,20 +4,19 @@
  */
 
 import { log } from '@clack/prompts'
-import { listBlueprints } from '@kompo/blueprints'
+import { listBlueprints, listFeatures } from '@kompo/blueprints'
 import { Command } from 'commander'
 import color from 'picocolors'
-import type { KompoPluginRegistry } from '../registries/plugin.registry'
 
-export function createBlueprintsCommand(_registry: KompoPluginRegistry): Command {
+export function createBlueprintsCommand(): Command {
   const cmd = new Command('blueprints')
     .description('List available project blueprints')
     .showHelpAfterError(true)
     .action(() => {
       const blueprints = listBlueprints()
+      const features = listFeatures()
 
       const appBlueprints = blueprints.filter((b) => !b.type || b.type === 'app')
-      const featureBlueprints = blueprints.filter((b) => b.type === 'feature')
 
       if (appBlueprints.length > 0) {
         log.info(color.bgBlue('📦 Project Blueprints (kompo new):'))
@@ -30,9 +29,9 @@ export function createBlueprintsCommand(_registry: KompoPluginRegistry): Command
         }
       }
 
-      if (featureBlueprints.length > 0) {
+      if (features.length > 0) {
         log.info(color.bgBlue('🧩 Feature Blueprints (kompo add feature):'))
-        for (const b of featureBlueprints) {
+        for (const b of features) {
           log.message(`  ${color.cyan(b.name.padEnd(20))} ${b.description}`)
           const tags = b.tags || []
           log.message(

@@ -20,7 +20,7 @@ if (typeof process !== 'undefined' && process.versions?.node) {
  */
 export function createEnv<
   TServer extends Record<string, z.ZodTypeAny>,
-  TClient extends Record<string, z.ZodTypeAny> = {},
+  TClient extends Record<string, z.ZodTypeAny> = Record<string, never>,
 >(options: {
   server: TServer
   client?: TClient

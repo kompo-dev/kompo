@@ -1,0 +1,78 @@
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export interface FetchInfraConfig {
+  baseUrl?: string;
+  headers?: Record<string, string>;
+  apiKey?: string;
+}
+
+export interface FetchRequestConfig extends RequestInit {
+  params?: Record<string, string | number | boolean | undefined>;
+}
+
+export interface FetchInstance {
+  get<T>(url: string, config?: FetchRequestConfig): Promise<T>;
+  post<T>(url: string, body?: unknown, config?: FetchRequestConfig): Promise<T>;
+  put<T>(url: string, body?: unknown, config?: FetchRequestConfig): Promise<T>;
+  patch<T>(url: string, body?: unknown, config?: FetchRequestConfig): Promise<T>;
+  delete<T>(url: string, config?: FetchRequestConfig): Promise<T>;
+}
+
+export const createFetchClient = (config?: FetchInfraConfig): FetchInstance => {
+  const baseUrl = config?.baseUrl ?? serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_URL ?? '';
+  const apiKey = config?.apiKey ?? serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_API_KEY;
+
+  const getHeaders = (options?: RequestInit) => {
+    const headers = new Headers(config?.headers);
+    if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
+    if (options?.headers) {
+        new Headers(options.headers).forEach((value, key) => headers.set(key, value));
+    }
+    return headers;
+  };
+
+  const request = async <T>(method: string, path: string, body?: unknown, options?: FetchRequestConfig): Promise<T> => {
+    // Handle Query Params
+    let queryString = '';
+    if (options?.params) {
+        const params = new URLSearchParams();
+        Object.entries(options.params).forEach(([key, value]) => {
+            if (value !== undefined) params.append(key, String(value));
+        });
+        queryString = '?' + params.toString();
+    }
+
+    const url = (path.startsWith('http') ? path : `${baseUrl}${path}`) + queryString;
+    
+    // Prepare headers
+    const headers = getHeaders(options);
+    if (body && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
+
+    const response = await fetch(url, {
+      ...options,
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+    }
+
+    // Assume JSON unless otherwise specified
+    // TODO: Handle other content types if needed, but for now JSON is standard
+    return response.json() as Promise<T>;
+  };
+
+  return {
+    get: <T>(url: string, config?: FetchRequestConfig) => request<T>('GET', url, undefined, config),
+    post: <T>(url: string, body?: unknown, config?: FetchRequestConfig) => request<T>('POST', url, body, config),
+    put: <T>(url: string, body?: unknown, config?: FetchRequestConfig) => request<T>('PUT', url, body, config),
+    patch: <T>(url: string, body?: unknown, config?: FetchRequestConfig) => request<T>('PATCH', url, body, config),
+    delete: <T>(url: string, config?: FetchRequestConfig) => request<T>('DELETE', url, undefined, config),
+  };
+};
+
+export const client: FetchInstance = createFetchClient();

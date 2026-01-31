@@ -60,3 +60,49 @@ function loadBlueprintManifest(
 
   return null
 }
+
+/**
+ * Loads and validates a static blueprint file.
+ *
+ * @param blueprintPath - Absolute path to the blueprint.json
+ */
+export async function loadBlueprint<T = any>(blueprintPath: string): Promise<T> {
+  // 1. Read file
+  let content = ''
+  try {
+    // We use dynamic import for fs to avoid top-level node deps issues in some contexts, though here strict ESM is fine.
+    // But we can just use readdir/readFileSync from the top import or import 'node:fs/promises'
+    const { readFile } = await import('node:fs/promises')
+    content = await readFile(blueprintPath, 'utf-8')
+  } catch (e) {
+    throw new Error(`Failed to read blueprint at ${blueprintPath}: ${(e as Error).message}`)
+  }
+
+  if (!content) {
+    throw new Error(`Blueprint is empty: ${blueprintPath}`)
+  }
+
+  // 2. Parse JSON
+  let config: any
+  try {
+    config = JSON.parse(content)
+  } catch (e) {
+    throw new Error(`Failed to parse blueprint JSON at ${blueprintPath}: ${(e as Error).message}`)
+  }
+
+  // 3. Validate Schema
+  const { blueprintSchema } = await import('@kompo/blueprints')
+
+  try {
+    const validated = blueprintSchema.parse(config)
+    return validated as unknown as T
+  } catch (error: any) {
+    if (error.errors) {
+      const issues = error.errors
+        .map((e: any) => `  - ${e.path.join('.')}: ${e.message}`)
+        .join('\n')
+      throw new Error(`❌ Invalid blueprint at ${blueprintPath}:\n${issues}`)
+    }
+    throw error
+  }
+}

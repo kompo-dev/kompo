@@ -1,0 +1,24 @@
+{
+  "id": "ethers",
+  "name": "Ethers.js",
+  "version": "1.0.0",
+  "type": "adapter",
+  "category": "infrastructure",
+  "family": "rpc",
+  "capability": "rpc",
+  "env": {
+    "RPC_URL": {
+      "description": "RPC URL for Ethers",
+      "required": true,
+      "validation": "z.string().url()",
+      "side": "server"
+    }
+  },
+  "drivers": [
+    {
+      "id": "jsonrpc",
+      "name": "JsonRpcProvider",
+      "runtime": false
+    }
+  ]
+}

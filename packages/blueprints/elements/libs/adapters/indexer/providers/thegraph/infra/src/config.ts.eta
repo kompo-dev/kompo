@@ -1,0 +1,5 @@
+import { serverEnv } from '@<%= it.scope %>/config/server';
+
+export const config = {
+  url: serverEnv.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_SUBGRAPH_URL,
+};

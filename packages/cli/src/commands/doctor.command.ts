@@ -10,7 +10,7 @@ import './doctor/checks/forbidden-imports.check'
 import './doctor/checks/ports-adapters.check'
 import './doctor/checks/config-sync.check'
 import { confirm, isCancel } from '@clack/prompts'
-import { readKompoConfig, writeKompoConfig } from '@kompo/kit'
+import { FRAMEWORKS, readKompoConfig, writeKompoConfig } from '@kompo/kit'
 import { getApps, getDomains } from '../utils/project'
 
 // Helper to flatten results
@@ -81,9 +81,7 @@ export function createDoctorCommand(_registry: KompoPluginRegistry): Command {
 
       // --- Fix / Sync Logic ---
       const syncIssues = issues.filter(
-        (i) =>
-          (i as any).fix &&
-          ['add-domain', 'remove-domain', 'add-app', 'remove-app'].includes((i as any).fix)
+        (i) => i.fix && ['add-domain', 'remove-domain', 'add-app', 'remove-app'].includes(i.fix)
       )
 
       if (syncIssues.length > 0) {
@@ -136,8 +134,7 @@ export function createDoctorCommand(_registry: KompoPluginRegistry): Command {
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
                   // infer basics?
-                  frontend: name.includes('web') ? 'vite' : undefined,
-                  backend: name.includes('api') ? 'express' : undefined,
+                  framework: name.includes('api') ? FRAMEWORKS.EXPRESS : FRAMEWORKS.VITE,
                 }
               }
             })

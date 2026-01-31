@@ -1,13 +1,13 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import fs from 'fs'
-import path from 'path'
 import { defineConfig } from 'vite'
 
 // Virtual Module Plugin for Config Loading
 function kompoConfigLoader() {
   const virtualModuleId = 'virtual:kompo-config'
-  const resolvedVirtualModuleId = '\0' + virtualModuleId
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
   return {
     name: 'kompo-config-loader',

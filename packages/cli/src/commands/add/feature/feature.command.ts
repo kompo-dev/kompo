@@ -1,16 +1,15 @@
 import path from 'node:path'
 import { log } from '@clack/prompts'
-import { getBlueprint } from '@kompo/blueprints'
 
-import { Command } from 'commander'
+import type { FeatureManifest } from '@kompo/blueprints/types'
 import color from 'picocolors'
 import { createFsEngine } from '../../../engine/fs-engine'
 import {
-  type FeatureBlueprint,
   getFeature as getFeatureFromRegistry,
   registerFeatureProvider,
 } from '../../../registries/feature.registry'
 import { ensureProjectContext } from '../../../utils/project'
+import { runWire } from '../../wire.command'
 import { runAddAdapter } from '../adapter/adapter.command'
 import { runAddDomain } from '../domain/domain.command'
 import { runAddEntity } from '../entity/entity.command'
@@ -21,22 +20,22 @@ import { runAddUseCase } from '../use-case/use-case.command'
 registerFeatureProvider({
   name: 'OSS Features',
   getFeature: async (name) => {
-    const bp = getBlueprint(name)
-    if (bp && (bp.type === 'feature' || !bp.type)) {
-      // Allow conversion or usage of blueprint as feature manifest
-      // Requires blueprint.json to match FeatureBlueprint schema OR be adapted
-      return bp as unknown as FeatureBlueprint
-    }
+    const { getFeature } = await import('@kompo/blueprints')
+    const feature = getFeature(name)
+    if (feature) return feature
     return null
   },
 })
 
-export async function runAddFeature(manifestOrPath: string | FeatureBlueprint) {
+export async function runAddFeature(
+  manifestOrPath: string | FeatureManifest,
+  options: { app?: string } = {}
+) {
   const cwd = process.cwd()
   await ensureProjectContext(cwd)
 
   const fs = createFsEngine()
-  let manifest: FeatureBlueprint
+  let manifest: FeatureManifest
   let featureName = 'feature'
 
   // 1. Resolve manifest
@@ -53,9 +52,14 @@ export async function runAddFeature(manifestOrPath: string | FeatureBlueprint) {
     } else if (await fs.fileExists(`${resolvedPath}.json`)) {
       isFile = true
       resolvedPath = `${resolvedPath}.json`
+    } else if (await fs.fileExists(path.join(resolvedPath, 'features.json'))) {
+      isFile = true
+      resolvedPath = path.join(resolvedPath, 'features.json')
+    } else if (await fs.fileExists(path.join(resolvedPath, 'blueprint.json'))) {
+      isFile = true
+      resolvedPath = path.join(resolvedPath, 'blueprint.json')
     } else if (resolvedPath.endsWith('.json')) {
       // Explicit json but not found
-      // Maybe error, or maybe fell through
     }
 
     // If not a local file, try registry
@@ -74,7 +78,7 @@ export async function runAddFeature(manifestOrPath: string | FeatureBlueprint) {
     }
 
     if (isFile) {
-      manifest = await fs.readJson<FeatureBlueprint>(resolvedPath)
+      manifest = await fs.readJson<FeatureManifest>(resolvedPath)
     } else {
       // Not a file, check registry
       const feature = await getFeatureFromRegistry(featureName)
@@ -92,82 +96,46 @@ export async function runAddFeature(manifestOrPath: string | FeatureBlueprint) {
 
   console.log(color.blue(`🚀 Installing feature...`))
 
-  // 2. Add Domains
-  for (const domain of manifest.domains) {
-    console.log(color.dim(`\n--- Domain: ${domain.name} ---`))
-    await runAddDomain(domain.name, { skipEntity: true }, new Command())
-
-    // Add Entities
-    if (domain.entities) {
-      for (const entity of domain.entities) {
-        await runAddEntity(
-          entity,
-          {
-            domain: domain.name,
-            skipTests: false,
-          },
-          new Command()
-        )
-      }
-    }
-
-    // Add Ports
-    if (domain.ports) {
-      for (const port of domain.ports) {
-        await runAddPort(port, {
-          domain: domain.name,
-          skipTests: false,
+  // 2. Process Blueprint Steps
+  if (manifest.steps) {
+    for (const step of manifest.steps) {
+      if (step.command === 'add' && step.type === 'domain') {
+        await runAddDomain(step.name, { app: options.app, skipEntity: true, nonInteractive: true })
+      } else if (step.command === 'add' && step.type === 'port') {
+        await runAddPort(step.name, {
+          domain: step.domain,
+          type: step.portType,
+          nonInteractive: true,
         })
-      }
-    }
-
-    // Add Use Cases
-    const useCases = domain['use-cases']
-    if (useCases) {
-      for (const uc of useCases) {
-        await runAddUseCase(uc, {
-          domain: domain.name,
+      } else if (step.command === 'add' && step.type === 'case') {
+        await runAddUseCase(step.name, { domain: step.domain, nonInteractive: true })
+      } else if (step.command === 'add' && step.type === 'entity') {
+        await runAddEntity(step.name, { domain: step.domain, nonInteractive: true })
+      } else if (step.command === 'add' && step.type === 'adapter') {
+        await runAddAdapter({
+          port: step.port,
+          provider: step.name,
+          name: step.alias,
+          domain: step.domain,
+          app: options.app,
+          capability: step.capability,
+          nonInteractive: true,
+          skipInstall: true,
         })
+      } else if (step.command === 'wire') {
+        await runWire(step.name, { app: options.app, nonInteractive: true })
       }
     }
   }
 
-  // 3. Add Adapters
-  if (manifest.adapters) {
-    console.log(color.dim(`\n--- Adapters ---`))
-    for (const adapter of manifest.adapters) {
-      // Start creation.
-      // Note: Adapter creation currently prompts for App if not provided.
-      // The manifest in example doesn't have "app".
-      // We should probably require "app" in manifest OR accept it as CLI arg for the whole feature?
-      // But feature might span apps?
-      // Let's assume strict manifest for now or fail if missing.
-
-      // Example manifest has "orm-backend" name. "port": "UserRepository".
-      // If "app" is missing, we can try to guess or prompt ONCE?
-      // But `runAddAdapter` prompts. So valid.
-
-      // Actually `runAddAdapter` now accepts options.
-      // We need to pass app if known.
-
-      await runAddAdapter({
-        port: adapter.port,
-        driver: adapter.driver,
-        app: adapter.app,
-        name: adapter.name,
-        skipTests: false,
-        nonInteractive: true,
-        skipInstall: true,
-      })
+  // 3. Recursive Feature Installation via 'features' list or steps
+  // Note: features list is for composition (other features), steps can also add features.
+  // We handle 'features' property for composition.
+  if (manifest.features) {
+    for (const subFeature of manifest.features) {
+      await runAddFeature(subFeature, options)
     }
   }
-
-  // 4. Wire
-  // Should we wire?
-  // "Optionnel kompo wire"
-  // Let's try to wire each domain mentioned?
-  // But usage of wire depends on target app.
-  // If adapter defines app, we can wire.
 
   log.message(color.green(`✅ Feature added successfully!`))
 }

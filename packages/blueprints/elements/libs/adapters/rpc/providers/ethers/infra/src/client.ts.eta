@@ -1,0 +1,7 @@
+import { JsonRpcProvider } from 'ethers';
+
+export const createClient = (): JsonRpcProvider => {
+  return new JsonRpcProvider(process.env.<%= it.alias.toUpperCase().replace(/-/g, '_') %>_RPC_URL);
+};
+
+export const client = createClient();

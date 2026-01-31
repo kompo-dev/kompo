@@ -60,32 +60,32 @@ export function createUpgradeCommand() {
         log.success(`✅ Created ${enterpriseDir}`)
       }
 
-      // 4. Create enterprise backend plugin
+      // 4. Create enterprise framework plugin
       const backendDir = path.join(enterpriseDir, 'backend')
       if (!fs.existsSync(backendDir)) {
         fs.mkdirSync(backendDir, { recursive: true })
 
-        // Create enterprise backend plugin
+        // Create enterprise framework plugin
         const pluginContent = `
 import { registerCapability } from '@kompo/kit'
 
-// Enterprise backend capabilities
-registerCapability('backend', {
+// Enterprise framework capabilities
+registerCapability('framework', {
   id: 'nestjs',
   name: 'NestJS',
   description: 'Enterprise Node.js framework',
-  category: 'backend',
+  category: 'framework',
   framework: true,
   plan: 'enterprise',
   status: 'available',
   runtime: false,
 })
 
-registerCapability('backend', {
+registerCapability('framework', {
   id: 'tRPC',
   name: 'tRPC',
   description: 'End-to-end typesafe APIs',
-  category: 'backend',
+  category: 'framework',
   framework: true,
   plan: 'enterprise',
   status: 'available',
@@ -94,7 +94,7 @@ registerCapability('backend', {
 `.trim()
 
         fs.writeFileSync(path.join(backendDir, 'index.ts'), pluginContent)
-        log.success(`✅ Created enterprise backend plugin`)
+        log.success(`✅ Created enterprise framework plugin`)
       }
 
       // 5. Save license file
@@ -124,7 +124,7 @@ registerCapability('backend', {
       log.success(`\n🎉 Successfully upgraded to Kompo Enterprise!`)
       log.info(`\nNext steps:`)
       log.info(`  • Run 'pnpm kompo new my-app' to see Enterprise options`)
-      log.info(`  • NestJS and tRPC are now available as backends`)
+      log.info(`  • NestJS and tRPC are now available as frameworks`)
       log.info(`  • More Enterprise features will be unlocked soon\n`)
     })
 }

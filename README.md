@@ -8,7 +8,7 @@
     <a href="https://www.npmjs.com/package/@kompo-dev/create-kompo"><img src="https://img.shields.io/npm/v/@kompo-dev/create-kompo?style=flat-square&color=blue" alt="Version" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License" /></a>
     <a href="https://twitter.com/kompodev"><img src="https://img.shields.io/badge/twitter-@kompodev-1DA1F2?style=flat-square" alt="Twitter" /></a>
-    <a href="https://discord.gg/kompo"><img src="https://img.shields.io/badge/discord-join-7289DA?style=flat-square" alt="Discord" /></a>
+    <a href="https://discord.gg/RcXGwnyEgZ"><img src="https://img.shields.io/badge/discord-join-7289DA?style=flat-square" alt="Discord" /></a>
   </p>
 </div>
 
@@ -396,7 +396,7 @@ Check out [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ### Community Channels
 
-- 💬 [Discord Community](https://discord.gg/kompo) - Real-time chat and support
+- 💬 [Discord Community](https://discord.gg/RcXGwnyEgZ) - Real-time chat and support
 - 🐦 [Twitter](https://twitter.com/kompodev) - Latest updates and announcements
 - 💌 [Email Updates](mailto:support@kompo.dev) - Subscribe for major releases
 
@@ -412,5 +412,5 @@ Check out [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
   <p><strong>Kompo is built by SmarttDev and an amazing community of web3 developers.</strong></p>
   <p>Ready to stop rebuilding boilerplate?</p>
   <br />
-  <a href="https://kompo.dev">Get Started →</a> | <a href="https://kompo.dev/docs">Docs →</a> | <a href="https://discord.gg/kompo">Discord →</a>
+  <a href="https://kompo.dev">Get Started →</a> | <a href="https://kompo.dev/docs">Docs →</a> | <a href="https://discord.gg/RcXGwnyEgZ">Discord →</a>
 </div>

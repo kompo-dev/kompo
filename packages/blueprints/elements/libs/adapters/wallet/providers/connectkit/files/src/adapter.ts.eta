@@ -1,1 +1,34 @@
-export * from './<%= it.name %>.adapter'
+import {
+  connect,
+  disconnect,
+  getAccount,
+  getChainId,
+  injected,
+  config as defaultConfig
+} from '<%= it.infraPackageName %>'
+import { Ports } from '<%= it.portImportPath %>'
+
+export type <%= it.className %>Config = {
+  projectId: string
+  appName: string
+}
+
+export const <%= it.adapterCamelName %> = (configStr: <%= it.className %>Config): Ports.<%= it.portPascalName %> => {
+  return {
+    get address() {
+      return getAccount(defaultConfig).address
+    },
+    get isConnected() {
+      return getAccount(defaultConfig).isConnected
+    },
+    get chainId() {
+      return getChainId(defaultConfig)
+    },
+    connect: async () => {
+      await connect(defaultConfig, { connector: injected() })
+    },
+    disconnect: async () => {
+      await disconnect(defaultConfig)
+    },
+  }
+}
