@@ -1,15 +1,24 @@
-# create-kompo
+# Create Kompo (Legacy)
 
-This package is an alias for `@kompo-dev/create-kompo`.
+> [!IMPORTANT]
+> This package name is kept for security and legacy purposes.
+>
+> **For the best experience, please use the new official command:**
+>
+> ```bash
+> pnpm create kompo-dev
+> ```
 
-Execute it with:
+---
 
-```bash
-npm create kompo
-```
+## Documentation & Updates
 
-or
+All active development and documentation for the Kompo framework have moved to the **`create-kompo-dev`** package.
 
-```bash
-npx create-kompo
-```
+- **Main Package**: [create-kompo-dev](https://www.npmjs.com/package/create-kompo-dev)
+- **Website**: [kompo.dev](https://kompo.dev)
+- **Documentation**: [kompo.dev/docs](https://kompo.dev/docs)
+
+---
+
+[Report an Issue](https://github.com/kompo-dev/kompo/issues)
