@@ -39,7 +39,6 @@ jobs:
           version: pnpm release:version
           # This expects you to have a script called "release:publish"
           publish: pnpm release:publish
-          branch: "chore/changeset-release"
           commit: "chore: version packages"
           createGithubReleases: true
         env:
