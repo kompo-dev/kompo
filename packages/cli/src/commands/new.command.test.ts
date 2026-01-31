@@ -62,6 +62,7 @@ vi.mock('@kompo/kit', async (importOriginal) => {
     updateCatalogFromFeatures: vi.fn(),
     addHistoryEntry: vi.fn(),
     updateCatalogSources: vi.fn(),
+    mergeBlueprintCatalog: vi.fn(),
   }
 })
 
@@ -133,24 +134,37 @@ vi.mock('@kompo/blueprints', () => ({
   getStarter: vi.fn().mockImplementation((name) => {
     if ((name as string).includes('vite')) {
       return {
+        id: 'vite-starter',
         name: 'vite-starter',
         description: 'Vite Starter',
         path: '/path/to/vite/starter',
         framework: 'vite',
+        designSystem: 'tailwind',
         steps: [{ command: 'add', type: 'app', name: 'web', driver: 'vite' }],
       }
     }
     return {
-      name: 'test-starter',
-      description: 'Test Starter',
+      id: 'nextjs-starter',
+      name: 'nextjs-starter',
+      description: 'NextJS Starter',
       path: '/path/to/starter',
       framework: 'nextjs',
+      designSystem: 'tailwind',
       steps: [{ command: 'add', type: 'app', name: 'web', driver: 'nextjs' }],
     }
   }),
   getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
   getBlueprint: vi.fn(),
   getBlueprintCatalogPath: vi.fn().mockReturnValue('/mock/catalog.json'),
+  loadStarterFromPath: vi.fn().mockResolvedValue({
+    name: 'local-starter',
+    description: 'Local Starter',
+    framework: 'nextjs',
+    steps: [],
+  }),
+  starterManifestSchema: {
+    safeParse: vi.fn().mockImplementation((data) => ({ success: true, data })),
+  },
 }))
 
 vi.mock('../generators/apps/framework.generator', () => ({
@@ -249,7 +263,9 @@ describe('runNewCommand', () => {
 
     vi.mocked(prompts.select)
       .mockResolvedValueOnce('vite') // Frontend
-      .mockResolvedValueOnce('tailwind') // Design System (Backend is not prompted in new command interactive logic here)
+      .mockResolvedValueOnce('tailwind') // Design System
+      .mockResolvedValueOnce('vite-starter') // Starter
+      .mockResolvedValueOnce('continue') // App exists prompt
 
     await runNewCommand(undefined, {}, {} as any)
 
