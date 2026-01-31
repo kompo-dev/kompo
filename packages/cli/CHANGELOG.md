@@ -1,5 +1,13 @@
 # @kompo/cli
 
+## 0.1.1
+
+### Patch Changes
+
+- a1aff31: test changeset workflow
+  - @kompo/blueprints@0.1.1
+  - @kompo/kit@0.1.1
+
 ## 0.1.0
 
 ### Patch Changes
