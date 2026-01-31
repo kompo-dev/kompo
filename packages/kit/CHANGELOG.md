@@ -1,0 +1,15 @@
+# @kompo/kit
+
+## 0.1.0
+
+### Patch Changes
+
+- 2704cd6: - Update create kompo command
+  - Setup all release flow for publishing on npm
+
+## 0.1.0-beta.2
+
+### Patch Changes
+
+- - Update create kompo command
+  - Setup all release flow for publishing on npm
