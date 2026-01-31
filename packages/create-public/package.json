@@ -1,6 +1,7 @@
 {
   "name": "create-kompo",
-  "version": "0.1.0-beta.1",
+  "version": "0.0.2",
+  "private": true,
   "description": "Create Kompo App",
   "main": "index.js",
   "bin": {

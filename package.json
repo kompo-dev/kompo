@@ -37,7 +37,7 @@
     "type-check:kompo": "turbo run type-check --filter='./packages/*'",
     "changeset": "changeset",
     "release:version": "changeset version",
-    "release:publish": "turbo run build && changeset publish",
+    "release:publish": "turbo run build:kompo && changeset publish",
     "release:beta-enter": "changeset pre enter beta",
     "release:beta-exit": "changeset pre exit"
   },
