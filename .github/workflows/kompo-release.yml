@@ -24,8 +24,11 @@ jobs:
       - name: Check branch source
         if: github.head_ref != 'staging'
         run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "❌ **Error**: Only PRs from 'staging' branch are allowed to be merged into 'main'. Please close this PR and open one targeting 'staging' instead."
           echo "::error::Only PRs from 'staging' branch are allowed to be merged into 'main'."
           exit 1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout Repo
         uses: actions/checkout@v6
