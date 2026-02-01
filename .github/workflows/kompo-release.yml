@@ -51,11 +51,14 @@ jobs:
       - name: Generate Release Summary
         run: node .github/scripts/generate-release-summary.mjs
 
-      - name: Update PR Body
+      - name: Update PR Title and Body
         run: |
           if [ -f RELEASE_SUMMARY.md ]; then
+            VERSION=$(node -p "require('./packages/cli/package.json').version")
             SUMMARY_CONTENT=$(cat RELEASE_SUMMARY.md)
-            gh pr edit ${{ github.event.pull_request.number }} --body "$SUMMARY_CONTENT"
+            gh pr edit ${{ github.event.pull_request.number }} \
+              --title "🚀 Release v$VERSION" \
+              --body "$SUMMARY_CONTENT"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -134,3 +137,30 @@ jobs:
             --latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sync-staging:
+    name: Sync Staging from Main
+    needs: release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Safe Sync branches
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 1. Get latest staging
+          git checkout staging
+          git pull origin staging
+          
+          # 2. Merge main (contains the squash commit and version bump)
+          git merge origin/main --no-edit
+          
+          # 3. Push back to staging
+          git push origin staging
