@@ -1,7 +1,7 @@
 {
   "name": "create-kompo-dev",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Create Kompo App",
   "repository": {
     "type": "git",
