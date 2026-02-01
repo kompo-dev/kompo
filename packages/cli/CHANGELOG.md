@@ -1,5 +1,13 @@
 # @kompo/cli
 
+## 0.1.2
+
+### Patch Changes
+
+- 04da6c3: v0.1.1 test
+  - @kompo/blueprints@0.1.2
+  - @kompo/kit@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
