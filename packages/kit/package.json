@@ -1,6 +1,6 @@
 {
   "name": "@kompo/kit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Shared interfaces and utilities for Kompo CLI plugins",
   "type": "module",

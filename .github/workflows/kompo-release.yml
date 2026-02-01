@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - staging
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -17,30 +18,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
-          cache: 'pnpm'
+          node-version: 24.12.0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316
 
       - name: Install Dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Build Kompo
+        run: pnpm turbo run build
+
+      - name: Create Release Pull Request (Staging) or Publish (Main)
         id: changesets
         uses: changesets/action@v1
         with:
-          # This expects you to have a script called "release:version" that runs "changeset version"
           version: pnpm release:version
-          # This expects you to have a script called "release:publish"
-          publish: pnpm release:publish
+          # Only publish when pushed to main
+          publish: ${{ github.ref == 'refs/heads/main' && 'pnpm release:publish' || '' }}
           commit: "chore: version packages"
-          createGithubReleases: true
+          title: "Version Packages (Staging)"
+          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
