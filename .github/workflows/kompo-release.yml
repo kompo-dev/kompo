@@ -2,8 +2,9 @@ name: Release
 on:
   push:
     branches:
-      - main
       - staging
+  release:
+    types: [published]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -19,6 +20,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Nécessaire pour le merge et changeset
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v6
@@ -36,16 +39,33 @@ jobs:
       - name: Build Kompo
         run: pnpm turbo run build
 
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
+      - name: Create Version Pull Request (Staging)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
         uses: changesets/action@v1
         with:
           version: pnpm release:version
-          # Only publish on main
-          publish: ${{ github.ref == 'refs/heads/main' && 'pnpm release:publish' || '' }}
           commit: "chore: version packages"
           title: "Version Packages (Staging)"
-          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge Staging to Main and Publish (Release)
+        if: github.event_name == 'release'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # On s'assure d'avoir les deux branches
+          git fetch origin main:main staging:staging
+          
+          # Merge staging dans main
+          git checkout main
+          git merge staging --ff-only
+          git push origin main
+          
+          # Publication
+          pnpm release:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
