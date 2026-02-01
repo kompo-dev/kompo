@@ -51,11 +51,14 @@ jobs:
       - name: Generate Release Summary
         run: node .github/scripts/generate-release-summary.mjs
 
-      - name: Update PR Body
+      - name: Update PR Title and Body
         run: |
           if [ -f RELEASE_SUMMARY.md ]; then
+            VERSION=$(node -p "require('./packages/cli/package.json').version")
             SUMMARY_CONTENT=$(cat RELEASE_SUMMARY.md)
-            gh pr edit ${{ github.event.pull_request.number }} --body "$SUMMARY_CONTENT"
+            gh pr edit ${{ github.event.pull_request.number }} \
+              --title "🚀 Release v$VERSION" \
+              --body "$SUMMARY_CONTENT"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
