@@ -9,12 +9,15 @@
       "@kompo/config",
       "@kompo/kit",
       "@kompo/tsconfig",
-      "@kompo/studio"
+      "@kompo/studio",
+      "@kompo-dev/create-kompo",
+      "create-kompo",
+      "create-kompo-dev"
     ]
   ],
   "linked": [],
   "access": "public",
-  "baseBranch": "main",
+  "baseBranch": "staging",
   "updateInternalDependencies": "patch",
   "ignore": []
 }
