@@ -7,31 +7,31 @@ function getNewEntries(filePath) {
   if (!fs.existsSync(filePath)) return null;
   const content = fs.readFileSync(filePath, 'utf-8');
   // Match everything between the first ## header and the second one (or end of file)
-  const matches = content.match(/## [0-9.]+(?:-[a-z0-9.]+)?[\s\S]*?(?=## [0-9.]+(?:-[a-z0-9.]+)?|$)/);
+  const matches = content.match(/## ([0-9.]+(?:-[a-z0-9.]+)?)([\s\S]*?)(?=## [0-9.]+(?:-[a-z0-9.]+)?|$)/);
   if (!matches) return null;
   
-  return matches[0].trim();
+  return {
+    version: matches[1],
+    content: matches[2].trim()
+  };
 }
 
 const packagesDir = path.join(process.cwd(), 'packages');
 const packages = fs.readdirSync(packagesDir);
-let summary = '## 📦 Packages in this release\n\n';
+let summary = '';
 let hasChanges = false;
 
-// Group by common version if possible, but for now just list them
 for (const pkg of packages) {
   const changelogPath = path.join(packagesDir, pkg, CHANGELOG_NAME);
-  const entries = getNewEntries(changelogPath);
-  if (entries) {
-    summary += `### 📦 \`${pkg}\`\n\n${entries}\n\n`;
+  const result = getNewEntries(changelogPath);
+  if (result) {
+    summary += `## 📦 ${pkg} \`${result.version}\`\n\n${result.content}\n\n`;
     hasChanges = true;
   }
 }
 
 if (!hasChanges) {
-  summary = 'Initial release or internal updates.';
-} else {
-  summary = '## � Package Changes\n\n' + summary;
+  summary = '*no update*';
 }
 
 fs.writeFileSync('RELEASE_SUMMARY.md', summary);
