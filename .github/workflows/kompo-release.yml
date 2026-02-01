@@ -1,4 +1,5 @@
 name: kompo-release
+
 on:
   push:
     branches:
