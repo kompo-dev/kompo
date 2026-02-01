@@ -2,6 +2,14 @@ name: Kompo Framework Validation (Maintainers)
 
 on:
   workflow_call:
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
 
 jobs:
   validate:

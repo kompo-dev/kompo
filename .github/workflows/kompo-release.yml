@@ -21,6 +21,12 @@ jobs:
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
     steps:
+      - name: Check branch source
+        if: github.head_ref != 'staging'
+        run: |
+          echo "::error::Only PRs from 'staging' branch are allowed to be merged into 'main'."
+          exit 1
+
       - name: Checkout Repo
         uses: actions/checkout@v6
         with:
