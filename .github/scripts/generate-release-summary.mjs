@@ -25,7 +25,8 @@ for (const pkg of packages) {
   const changelogPath = path.join(packagesDir, pkg, CHANGELOG_NAME);
   const result = getNewEntries(changelogPath);
   if (result) {
-    summary += `## 📦 ${pkg} \`${result.version}\`\n\n${result.content}\n\n`;
+    const pkgContent = result.content || '*no update*';
+    summary += `## 📦 ${pkg} \`${result.version}\`\n\n${pkgContent}\n\n`;
     hasChanges = true;
   }
 }
