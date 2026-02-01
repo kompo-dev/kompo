@@ -134,3 +134,30 @@ jobs:
             --latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sync-staging:
+    name: Sync Staging from Main
+    needs: release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Safe Sync branches
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 1. Get latest staging
+          git checkout staging
+          git pull origin staging
+          
+          # 2. Merge main (contains the squash commit and version bump)
+          git merge origin/main --no-edit
+          
+          # 3. Push back to staging
+          git push origin staging
