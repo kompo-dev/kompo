@@ -4,6 +4,9 @@ on:
     branches:
       - main
       - staging
+  pull_request:
+    branches:
+      - main
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -13,12 +16,55 @@ permissions:
   pull-requests: write
 
 jobs:
+  validate-pr:
+    name: Validate Release PR
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch source
+        if: github.head_ref != 'staging'
+        run: |
+          echo "::error::Only PRs from 'staging' branch are allowed to be merged into 'main'."
+          exit 1
+
+      - name: Checkout Repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for pending changesets
+        run: |
+          if [ -n "$(find .changeset -name "*.md" -not -name "README.md")" ]; then
+            echo "::error::Pending changesets found! Please run 'pnpm changeset version' on staging before merging to main."
+            exit 1
+          fi
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.12.0
+
+      - name: Generate Release Summary
+        run: node .github/scripts/generate-release-summary.mjs
+
+      - name: Update PR Body
+        run: |
+          if [ -f RELEASE_SUMMARY.md ]; then
+            SUMMARY_CONTENT=$(cat RELEASE_SUMMARY.md)
+            gh pr edit ${{ github.event.pull_request.number }} --body "$SUMMARY_CONTENT"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   release:
     name: Release
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v6
@@ -46,10 +92,41 @@ jobs:
         uses: changesets/action@v1
         with:
           version: pnpm release:version
-          # Only publish when pushed to main
           publish: ${{ github.ref == 'refs/heads/main' && 'pnpm release:publish' || '' }}
           commit: "chore: version packages"
           title: "Version Packages (Staging)"
-          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
+          createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Unified GitHub Release
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
+        run: |
+          VERSION=$(node -p "require('./packages/cli/package.json').version")
+          TAG="v$VERSION"
+          
+          # Git setup
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Push the tag
+          git tag -f $TAG
+          git push origin $TAG --force
+          
+          # 1. Generate our package-specific human notes
+          node .github/scripts/generate-release-summary.mjs
+          
+          # 2. Generate GitHub's automatic notes (for Contributors/PR links)
+          gh release notes $TAG --generate > GITHUB_NOTES.md
+          
+          # 3. Combine both: Package Summary + Contributors
+          echo -e "$(cat RELEASE_SUMMARY.md)\n\n---\n\n$(cat GITHUB_NOTES.md)" > FINAL_RELEASE_NOTES.md
+          
+          # 4. Create release
+          gh release delete $TAG --yes || true
+          gh release create $TAG \
+            --title "$TAG" \
+            --notes-file FINAL_RELEASE_NOTES.md \
+            --latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
