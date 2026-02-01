@@ -24,6 +24,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24.12.0
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -35,6 +36,10 @@ jobs:
 
       - name: Build Kompo
         run: pnpm turbo run build
+
+      - name: Remove local .npmrc for OIDC
+        if: github.ref == 'refs/heads/main'
+        run: rm -f .npmrc
 
       - name: Create Release Pull Request (Staging) or Publish (Main)
         id: changesets
@@ -48,4 +53,3 @@ jobs:
           createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
