@@ -44,9 +44,9 @@ program
     const s = spinner()
 
     // 1. Clone Template
-    s.start('Downloading template...')
+    s.start(`Downloading template (v${packageJson.version})...`)
     try {
-      await downloadTemplate('github:kompo-dev/kompo', {
+      await downloadTemplate(`github:kompo-dev/kompo#v${packageJson.version}`, {
         dir: targetDir,
         force: true, // since we checked it's empty or doesn't exist (mostly)
       })
