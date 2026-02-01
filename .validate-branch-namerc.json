@@ -1,4 +1,4 @@
 {
-  "pattern": "^(feature|bugfix|hotfix|release|support|chore|docs|refactor|changeset-release)\\/[a-z0-9-\\/]+$",
-  "errorMsg": "Branch name invalid. Must match: ^(feature|bugfix|hotfix|release|support|chore|docs|refactor|changeset-release)/[a-z0-9-/]+$"
+  "pattern": "^(main|staging)$|^(feature|bugfix|hotfix|release|support|chore|docs|refactor|changeset-release)\\/[a-z0-9-\\/]+$",
+  "errorMsg": "Branch name invalid. Must match: main, staging OR ^(feature|bugfix|hotfix|release|support|chore|docs|refactor|changeset-release)/[a-z0-9-/]+$"
 }
