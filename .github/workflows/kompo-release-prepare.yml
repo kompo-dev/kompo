@@ -1,0 +1,77 @@
+name: Kompo Release Prepare
+
+on:
+  push:
+    branches:
+      - staging
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare-release:
+    if: "contains(github.event.head_commit.message, 'chore: version packages') || contains(github.event.head_commit.message, 'ci: release')"
+    name: Prepare Release (Tag & PR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+
+      - name: Extract Version & Tag
+        id: version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 1. Get Version from package.json
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          echo "Detected version: $VERSION"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          
+          # 2. Check if tag exists
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping tagging."
+          else
+            echo "Creating tag $TAG..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "Release $TAG"
+            git push origin "$TAG"
+          fi
+
+      - name: Generate Release Notes
+        run: |
+          node .github/scripts/generate-release-summary.mjs
+          if [ ! -f RELEASE_SUMMARY.md ]; then
+            echo "Error: RELEASE_SUMMARY.md failed to generate."
+            exit 1
+          fi
+
+      - name: Create Pull Request to Main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ env.VERSION }}" # Use extracted version
+          # Start freshly extraction if env issue
+          VERSION=$(node -p "require('./package.json').version")
+          
+          PR_TITLE="🚀 Release v$VERSION"
+          
+          # Create PR staging -> main
+          # User must manually review and approve this PR.
+          # The 'Publish' workflow will try to merge it.
+          gh pr create \
+            --base main \
+            --head staging \
+            --title "$PR_TITLE" \
+            --body-file RELEASE_SUMMARY.md \
+            || echo "PR likely exists. Please check open PRs."
