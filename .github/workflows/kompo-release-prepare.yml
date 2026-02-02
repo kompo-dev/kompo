@@ -32,7 +32,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # 1. Get Version from package.json
-          VERSION=$(node -p "require('./package.json').version")
+          # In a monorepo, we use the CLI package as the source of truth for the release version
+          VERSION=$(node -p "require('./packages/cli/package.json').version")
           TAG="v$VERSION"
           echo "Detected version: $VERSION"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
