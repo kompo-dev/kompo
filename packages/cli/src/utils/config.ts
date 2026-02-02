@@ -1,5 +1,3 @@
-// Config
-
 import { cancel } from '@clack/prompts'
 import {
   type FrameworkId,

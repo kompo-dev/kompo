@@ -1,5 +1,13 @@
 # @kompo/cli
 
+## 0.1.3-beta.1
+
+### Patch Changes
+
+- chore: force beta.1 release for workflow fix
+  - @kompo/blueprints@0.1.3-beta.1
+  - @kompo/kit@0.1.3-beta.1
+
 ## 0.1.3-beta.0
 
 ### Patch Changes
