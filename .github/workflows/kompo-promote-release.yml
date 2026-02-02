@@ -1,0 +1,58 @@
+name: Kompo Promote Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag (e.g. v0.1.3-beta.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  promote-to-main:
+    name: Promote Staging to Main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+
+      - name: Generate Release Notes
+        id: notes
+        run: |
+          # Generate the summary based on CHANGELOGs
+          node .github/scripts/generate-release-summary.mjs
+          
+          # Verify file exists
+          if [ ! -f RELEASE_SUMMARY.md ]; then
+            echo "Error: RELEASE_SUMMARY.md not found."
+            exit 1
+          fi
+
+      - name: Create Pull Request (to Main)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          PR_TITLE="🚀 Release $TAG"
+          
+          # Create PR staging -> main
+          # Since we are on staging checkout, we point head to staging
+          
+          gh pr create \
+            --base main \
+            --head staging \
+            --title "$PR_TITLE" \
+            --body-file RELEASE_SUMMARY.md \
+            || echo "PR might already exist, check your Pull Requests."

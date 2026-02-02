@@ -9,8 +9,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  prepare-release:
-    name: Prepare & Queue Release
+  prepare-version-bump:
+    name: Prepare Version Bump
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Staging
@@ -33,52 +33,61 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Apply Versioning (Changesets)
+      - name: Config Git User
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Apply version bumps
+
+      - name: Apply Versioning (Changesets)
+        run: |
+          # Apply version bumps (updates package.json and consumes changesets)
           pnpm release:version
           
-          # Commit and push to staging
+          # Check if we have changes
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "::warning::No changes detected (no changesets?). Exiting."
+            exit 0
+          fi
+          
+          # Extract version for branch name
+          VERSION=$(node -p "require('./packages/cli/package.json').version")
+          BRANCH_NAME="chore/release-v$VERSION"
+          
+          echo "Preparing branch: $BRANCH_NAME"
+          
+          # Create temporary branch
+          git checkout -b "$BRANCH_NAME"
+          
+          # Commit changes
           git add .
-          git commit -m "chore: version packages [skip ci]" || echo "No changes to commit"
-          git push origin staging
+          git commit -m "chore: version packages v$VERSION"
+          
+          # Push branch (new branch, so allowed even if protected usually)
+          git push origin "$BRANCH_NAME" --force
+          
+          # Set Output for next steps
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Create & Queue Pull Request
+      - name: Create & Merge PR (to Staging)
+        if: env.BRANCH_NAME != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=$(node -p "require('./packages/cli/package.json').version")
-          PR_TITLE="🚀 Release v$VERSION"
+          PR_TITLE="chore: version packages v$VERSION"
+          PR_BODY="Automated version bump triggered by Draft Release publish."
           
-          # 1. Generate the Package-by-Package Summary (based on fresh CHANGELOGs)
-          node .github/scripts/generate-release-summary.mjs
+          echo "Creating PR from $BRANCH_NAME to staging..."
           
-          # 2. Read content (safe way for multiline into variable in bash)
-          PR_BODY=$(cat RELEASE_SUMMARY.md)
-          
-          # Create PR staging -> main
-          # If a PR already exists, this might fail or just return the URL, so we handle that.
-          # We use "|| true" to avoid failing if PR exists, then we find it.
-          
-          gh pr create \
-            --base main \
-            --head staging \
+          # Create PR
+          PR_URL=$(gh pr create \
+            --base staging \
+            --head "$BRANCH_NAME" \
             --title "$PR_TITLE" \
-            --body "$PR_BODY" \
-            || echo "PR might already exist"
-
-          # Get the PR number (either just created or existing)
-          PR_URL=$(gh pr list --head staging --base main --json url --jq '.[0].url')
+            --body "$PR_BODY")
+            
+          echo "PR Created: $PR_URL"
           
-          if [ -z "$PR_URL" ]; then
-            echo "::error::Could not find or create a PR from staging to main."
-            exit 1
-          fi
-
-          echo "Processing PR: $PR_URL"
-          
-          # Auto-Merge is DISABLED for releases.
-          # The user must manually approve and merge the PR to trigger production deployment.
+          # Enable Auto-Merge
+          # This will invoke the Merge Queue if configured on staging
+          gh pr merge "$PR_URL" --merge --auto
