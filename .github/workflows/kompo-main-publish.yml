@@ -73,6 +73,7 @@ jobs:
           node .github/scripts/generate-release-summary.mjs
           
           # Update Release
+          # We overwrite the notes with our standardized Package-by-Package summary
           gh release edit $TAG \
             --title "$TAG" \
             --tag $TAG \
