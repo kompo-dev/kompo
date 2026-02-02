@@ -12,5 +12,7 @@
     "@kompo/studio": "0.1.2",
     "@kompo/tsconfig": "0.1.2"
   },
-  "changesets": []
+  "changesets": [
+    "cuddly-rats-tan"
+  ]
 }
