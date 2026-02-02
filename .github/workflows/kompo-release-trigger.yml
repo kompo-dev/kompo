@@ -77,8 +77,6 @@ jobs:
           PR_TITLE="chore: version packages v$VERSION"
           PR_BODY="Automated version bump triggered by Draft Release publish."
           
-          echo "Creating PR from $BRANCH_NAME to staging..."
-          
           # Create PR
           PR_URL=$(gh pr create \
             --base staging \
@@ -87,6 +85,12 @@ jobs:
             --body "$PR_BODY")
             
           echo "PR Created: $PR_URL"
+          
+          # MANUALLY Trigger Validation Gate (CI)
+          # Because this workflow is run by GITHUB_TOKEN, it won't auto-trigger the CI on the PR.
+          # We force it here so the check runs and allows auto-merge.
+          echo "Triggering CI Gate for branch $BRANCH_NAME..."
+          gh workflow run kompo-ci-gate.yml --ref "$BRANCH_NAME"
           
           # Enable Auto-Merge
           # This will invoke the Merge Queue if configured on staging, or just squash merge
