@@ -1,5 +1,14 @@
 # @kompo/cli
 
+## 0.1.3-beta.0
+
+### Patch Changes
+
+- ddd721f: chore: verify release workflow for beta versioning
+- Updated dependencies [ddd721f]
+  - @kompo/blueprints@0.1.3-beta.0
+  - @kompo/kit@0.1.3-beta.0
+
 ## 0.1.2
 
 ### Patch Changes

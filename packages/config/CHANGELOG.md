@@ -1,5 +1,11 @@
 # @kompo/config
 
+## 0.1.3-beta.0
+
+### Patch Changes
+
+- @kompo/kit@0.1.3-beta.0
+
 ## 0.1.2
 
 ### Patch Changes
