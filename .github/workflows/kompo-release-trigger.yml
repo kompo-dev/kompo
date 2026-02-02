@@ -89,5 +89,5 @@ jobs:
           echo "PR Created: $PR_URL"
           
           # Enable Auto-Merge
-          # This will invoke the Merge Queue if configured on staging
-          gh pr merge "$PR_URL" --merge --auto
+          # This will invoke the Merge Queue if configured on staging, or just squash merge
+          gh pr merge "$PR_URL" --squash --auto
