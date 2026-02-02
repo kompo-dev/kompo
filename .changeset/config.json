@@ -3,17 +3,7 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [
-    [
-      "@kompo/blueprints",
-      "@kompo/cli",
-      "@kompo/config",
-      "@kompo/kit",
-      "@kompo/tsconfig",
-      "@kompo/studio",
-      "@kompo-dev/create-kompo",
-      "create-kompo",
-      "create-kompo-dev"
-    ]
+    ["@kompo/*", "@kompo-dev/create-kompo", "create-kompo", "create-kompo-dev"]
   ],
   "linked": [],
   "access": "public",
