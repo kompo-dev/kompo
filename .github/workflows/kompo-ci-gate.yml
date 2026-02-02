@@ -6,6 +6,7 @@ on:
     branches: [staging]
   pull_request:
     branches: [main, staging]
+  workflow_dispatch:
 
 jobs:
   validate:

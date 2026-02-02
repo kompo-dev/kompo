@@ -1,3 +1,4 @@
+// env
 import path from 'node:path'
 import type { FrameworkId } from '@kompo/kit'
 import { Project, SyntaxKind } from 'ts-morph'

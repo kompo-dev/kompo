@@ -1,0 +1,18 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@kompo/blueprints": "0.1.2",
+    "@kompo/cli": "0.1.2",
+    "@kompo/config": "0.1.2",
+    "@kompo-dev/create-kompo": "0.1.2",
+    "create-kompo": "0.1.2",
+    "create-kompo-dev": "0.1.2",
+    "@kompo/kit": "0.1.2",
+    "@kompo/studio": "0.1.2",
+    "@kompo/tsconfig": "0.1.2"
+  },
+  "changesets": [
+    "cuddly-rats-tan"
+  ]
+}
