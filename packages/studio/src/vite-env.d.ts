@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
 declare module 'virtual:kompo-config' {
-  const config: any
+  const config: unknown
   export default config
 }

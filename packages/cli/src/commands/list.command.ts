@@ -14,7 +14,9 @@ interface ListPortOptions {
 }
 
 export function createListCommand(_registry: KompoPluginRegistry): Command {
-  const cmd = new Command('list').alias('ls').description('List features in your Kompo application')
+  const cmd = new Command('list')
+    .alias('ls')
+    .description('List domains, ports, adapters and starters')
 
   cmd
     .command('domains')
@@ -386,7 +388,7 @@ export function createListCommand(_registry: KompoPluginRegistry): Command {
 
           // Build the full IDs for each framework
           const ids = Object.entries(frameworks)
-            .map(([fw, s]) => color.blue(s.id))
+            .map(([_, s]) => color.blue(s.id))
             .join(', ')
 
           log.message(`    └─ ${color.yellow(cap(ds))} → ${fwDisplay}`, { spacing: 0 })
