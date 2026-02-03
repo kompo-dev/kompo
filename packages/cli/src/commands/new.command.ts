@@ -1,6 +1,6 @@
 import nodeFs from 'node:fs'
 import path from 'node:path'
-import { cancel, intro, isCancel, log, note, outro, select, spinner, text } from '@clack/prompts'
+import { cancel, intro, isCancel, log, note, outro, select, text } from '@clack/prompts'
 import { starterManifestSchema as blueprintValidationSchema, type Step } from '@kompo/blueprints'
 import type { StarterManifest } from '@kompo/blueprints/types'
 import {

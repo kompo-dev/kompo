@@ -388,7 +388,7 @@ export function createListCommand(_registry: KompoPluginRegistry): Command {
 
           // Build the full IDs for each framework
           const ids = Object.entries(frameworks)
-            .map(([fw, s]) => color.blue(s.id))
+            .map(([_, s]) => color.blue(s.id))
             .join(', ')
 
           log.message(`    └─ ${color.yellow(cap(ds))} → ${fwDisplay}`, { spacing: 0 })

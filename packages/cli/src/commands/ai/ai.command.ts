@@ -49,11 +49,15 @@ async function ensureModel(openai: OpenAI, model: string): Promise<string> {
     await openai.models.retrieve(model)
     s.stop(`Model '${model}' is ready.`)
     return model
-  } catch (error: any) {
+  } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
 
     // Check if it's a 404 (Model not found)
-    if (msg.includes('404') || error.status === 404) {
+    const status =
+      error && typeof error === 'object' && 'status' in error
+        ? (error as { status: number }).status
+        : undefined
+    if (msg.includes('404') || status === 404) {
       s.stop(`Model '${model}' not found.`) // Consolidate spinner stop and log warning
 
       try {
@@ -130,7 +134,7 @@ async function runStream(openai: OpenAI, model: string, userContent: string) {
   const s = p.spinner()
   s.start('Thinking...')
 
-  let stream: any
+  let stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>
   try {
     stream = await openai.chat.completions.create({
       model,

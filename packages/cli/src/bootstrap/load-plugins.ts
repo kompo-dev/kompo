@@ -20,7 +20,8 @@ export async function loadEnterpriseExtensions(repoRoot: string) {
           await import(pathToFileURL(extensionEntry).href)
           log.message(color.dim(`🔌 Loaded Enterprise ${extension} extension`))
         } catch (e) {
-          log.warning(color.yellow(`Failed to load Enterprise ${extension} extension:`), e as any)
+          const errMsg = e instanceof Error ? e.message : String(e)
+          log.warning(color.yellow(`Failed to load Enterprise ${extension} extension: ${errMsg}`))
         }
       }
     }

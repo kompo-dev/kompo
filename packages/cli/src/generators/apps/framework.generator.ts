@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { intro, outro, spinner } from '@clack/prompts'
+import { spinner } from '@clack/prompts'
 import {
   FRAMEWORKS,
   type FrameworkId,
@@ -139,8 +139,8 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
         if (bp.env && blueprintConfig) {
           blueprintConfig.env = { ...blueprintConfig.env, ...bp.env }
         }
-      } catch (_e) {
-        // ignore error
+      } catch {
+        // Ignore error reading local blueprint
       }
     }
   }
@@ -354,8 +354,8 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
         // Add to features list so it gets added to pnpm-workspace.yaml
         features.push(dsGroup)
       }
-    } catch (_e) {
-      // Ignore if blueprint package cannot be loaded or file not found
+    } catch {
+      // Ignore if design system catalog cannot be loaded
     }
   }
 
@@ -370,8 +370,8 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
       mergeBlueprintCatalog(repoRoot, baseGroup, baseCatalogPath)
       features.push(baseGroup)
     }
-  } catch (_e) {
-    // Ignore
+  } catch {
+    // Ignore if base app catalog cannot be loaded
   }
 
   updateCatalogFromFeatures(repoRoot, features)
