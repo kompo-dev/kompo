@@ -8,14 +8,24 @@ function getNewEntries(filePath) {
   if (!fs.existsSync(filePath)) return null;
   const content = fs.readFileSync(filePath, 'utf-8');
   
-  // Match header and content until next header or EOF
-  const secureMatches = content.match(/^##\s+v?([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9a-zA-Z.]+)?)(?:.*?)\n([\s\S]*?)(?=^##\s+|$)/m);
+  // Split by "## " to separate entries
+  // The first element is usually the file title (# @kompo/...)
+  const parts = content.split(/^##\s+/m);
 
-  if (!secureMatches) return null;
+  if (parts.length < 2) return null;
+
+  // The newest entry is always the second part (index 1)
+  // Format of part: "0.1.2\n\n### Patch Changes..."
+  const latestEntry = parts[1];
+  
+  // Extract version (first line) and content (rest)
+  const match = latestEntry.match(/^v?([^\s]+)\s+([\s\S]*)$/);
+
+  if (!match) return null;
 
   return {
-    version: secureMatches[1],
-    content: secureMatches[2].trim()
+    version: match[1],
+    content: match[2].trim()
   };
 }
 

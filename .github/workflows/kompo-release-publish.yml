@@ -1,4 +1,5 @@
 name: Kompo Release Publish
+run-name: "Publish ${{ github.event.release.tag_name }}"
 
 on:
   release:
@@ -43,6 +44,8 @@ jobs:
         with:
           publish: pnpm release:publish
           version: pnpm release:version
+          commit: "ci: release packages"
+          title: "ci: release packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

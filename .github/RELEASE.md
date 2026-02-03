@@ -61,13 +61,13 @@ git commit -m "chore: version packages for vX.X.X"
 
 # Commit the version changes
 git add .
-git commit -m "chore: version packages for vX.X.X"
+git commit -m "ci: release vX.X.X"
 
 # Push to staging (Directly triggers release tag)
 git push origin staging
 ```
 
-> **Note:** The push to `staging` with commit message `chore: version packages` or `ci: release` triggers the **Release Prepare** workflow.
+> **Note:** The push to `staging` with commit message `ci: release` triggers the **Release Prepare** workflow.
 
 ### 3. Tag Creation (Automatic)
 
