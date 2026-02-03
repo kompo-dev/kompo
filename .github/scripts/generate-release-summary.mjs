@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -31,8 +31,17 @@ function getNewEntries(filePath) {
 
 function getCommitsForPackage(pkg, lastTag) {
   try {
-    const commits = execSync(
-      `git log ${lastTag}..HEAD --oneline --no-merges --format="- %s" -- packages/${pkg}`,
+    const commits = execFileSync(
+      'git',
+      [
+        'log',
+        `${lastTag}..HEAD`,
+        '--oneline',
+        '--no-merges',
+        '--format=- %s',
+        '--',
+        `packages/${pkg}`
+      ],
       { encoding: 'utf-8' }
     ).trim();
     if (!commits) return null;
@@ -46,8 +55,13 @@ function getCommitsForPackage(pkg, lastTag) {
 
 function getLastTag() {
   try {
-    // Get last release tag matching v* pattern (e.g., v0.1.3-beta.1)
-    return execSync('git describe --tags --abbrev=0 --match "v*"', { encoding: 'utf-8' }).trim();
+    // Get last release tag matching v* pattern
+    const tag = execFileSync(
+      'git',
+      ['describe', '--tags', '--abbrev=0', '--match', 'v*'],
+      { encoding: 'utf-8' }
+    ).trim();
+    return tag;
   } catch {
     return null;
   }
@@ -71,6 +85,9 @@ for (const pkg of packages) {
   }
 }
 
+// Check for arguments
+const isPreview = process.argv.includes('--preview');
+
 if (hasChangelogContent) {
   // RELEASE MODE: Use changelogs (existing behavior)
   for (const pkg of packages) {
@@ -78,7 +95,8 @@ if (hasChangelogContent) {
     const result = getNewEntries(changelogPath);
     if (result) {
       const pkgContent = result.content || '*no update*';
-      summary += `## 📦 ${pkg} \`${result.version}\`\n\n${pkgContent}\n\n`;
+      const versionDisplay = isPreview ? '(next)' : `\`${result.version}\``;
+      summary += `## 📦 ${pkg} ${versionDisplay}\n\n${pkgContent}\n\n`;
     }
   }
 } else {

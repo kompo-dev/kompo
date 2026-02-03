@@ -46,7 +46,7 @@ jobs:
           pnpm release:version
           
           # 2. Generate Summary from updated ChangeLogs
-          node .github/scripts/generate-release-summary.mjs
+          node .github/scripts/generate-release-summary.mjs --preview
           
           # 3. Read Summary content
           # We use a multi-line output variable or write to a temp file
