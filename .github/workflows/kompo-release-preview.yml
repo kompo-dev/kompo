@@ -78,7 +78,8 @@ jobs:
               --base main \
               --head staging \
               --title "👀 Release Preview (next)" \
-              --body-file PREVIEW_BODY.md
+              --body-file PREVIEW_BODY.md \
+              --draft
           else
             echo "Updating existing Preview PR: $PR_URL"
             gh pr edit "$PR_URL" \
