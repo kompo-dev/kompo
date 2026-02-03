@@ -742,7 +742,9 @@ function summarizeStarter(starter: StarterManifest): {
     domains: Array.from(new Set([...(flat.domains || []), ...(extracted.domains || [])])),
     features: Array.from(
       new Set([
-        ...(flat.features || []).map((f: any) => (typeof f === 'string' ? f : f.name)),
+        ...(flat.features || []).map((f: string | { name: string }) =>
+          typeof f === 'string' ? f : f.name
+        ),
         ...(extracted.features || []),
       ])
     ),

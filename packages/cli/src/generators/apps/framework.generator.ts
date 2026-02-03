@@ -76,6 +76,8 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   // Load hooks and env from blueprint.json if available
   // We parse this EARLY so we can use it in templateData
   let hooks: Record<string, string> = {}
+  // TODO: AppBlueprint schema should be extended to include hooks property
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let blueprintConfig: any = null
   const appConfigDir = `apps/${framework}`
 
