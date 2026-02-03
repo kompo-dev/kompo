@@ -1,5 +1,7 @@
 # @kompo/studio
 
+## 0.1.3-beta.3
+
 ## 0.1.3-beta.2
 
 ## 0.1.3-beta.1
