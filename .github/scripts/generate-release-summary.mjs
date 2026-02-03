@@ -71,6 +71,9 @@ for (const pkg of packages) {
   }
 }
 
+// Check for arguments
+const isPreview = process.argv.includes('--preview');
+
 if (hasChangelogContent) {
   // RELEASE MODE: Use changelogs (existing behavior)
   for (const pkg of packages) {
@@ -78,7 +81,8 @@ if (hasChangelogContent) {
     const result = getNewEntries(changelogPath);
     if (result) {
       const pkgContent = result.content || '*no update*';
-      summary += `## 📦 ${pkg} \`${result.version}\`\n\n${pkgContent}\n\n`;
+      const versionDisplay = isPreview ? '(next)' : `\`${result.version}\``;
+      summary += `## 📦 ${pkg} ${versionDisplay}\n\n${pkgContent}\n\n`;
     }
   }
 } else {
