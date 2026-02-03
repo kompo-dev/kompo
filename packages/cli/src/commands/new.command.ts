@@ -172,7 +172,26 @@ export async function runNewCommand(
 
       if (!starter) {
         log.error(`Starter "${options.template}" not found.`)
-        log.message('Run "kompo new" to see available starters interactively.')
+
+        // Show available starters to help the user
+        const { listStarters } = await import('@kompo/blueprints')
+        const starters = listStarters()
+
+        if (starters.length > 0) {
+          log.message('')
+          log.message('Available starters:')
+          for (const s of starters.slice(0, 8)) {
+            const desc = s.description ? color.dim(` - ${s.description}`) : ''
+            log.message(`  ${color.green(s.id)}${desc}`)
+          }
+          if (starters.length > 8) {
+            log.message(color.dim(`  ... and ${starters.length - 8} more`))
+          }
+        }
+
+        log.message('')
+        log.message(`Run ${color.cyan('kompo list starters')} for the full list`)
+        log.message(`Or run ${color.cyan('kompo new')} for interactive mode`)
         process.exit(1)
       }
 

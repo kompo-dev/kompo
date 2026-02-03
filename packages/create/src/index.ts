@@ -49,6 +49,8 @@ program
       await downloadTemplate(`github:kompo-dev/kompo#v${packageJson.version}`, {
         dir: targetDir,
         force: true, // since we checked it's empty or doesn't exist (mostly)
+        offline: false, // Always fetch from GitHub, never use cache
+        forceClean: true, // Ensure fresh download
       })
       s.stop('Template downloaded!')
     } catch (e) {
@@ -91,7 +93,7 @@ program
     } catch (e) {
       console.error(color.red('Failed to initialize project.'))
       console.error(e)
-      // Don't exit 1, let the user see the error and maybe try manually
+      process.exit(1)
     }
 
     const nextSteps = [`cd ${relativeDir}`, 'pnpm dev']
