@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { getTemplatesDir } from '@kompo/blueprints'
+import { type Blueprint, getTemplatesDir } from '@kompo/blueprints'
 import color from 'picocolors'
 import type { ProviderManifest } from '../registries/capability.registry'
 
@@ -66,7 +66,9 @@ function loadBlueprintManifest(
  *
  * @param blueprintPath - Absolute path to the blueprint.json
  */
-export async function loadBlueprint<T = any>(blueprintPath: string): Promise<T> {
+export async function loadBlueprint<T extends Blueprint = Blueprint>(
+  blueprintPath: string
+): Promise<T> {
   // 1. Read file
   let content = ''
   try {
@@ -83,7 +85,7 @@ export async function loadBlueprint<T = any>(blueprintPath: string): Promise<T> 
   }
 
   // 2. Parse JSON
-  let config: any
+  let config: unknown
   try {
     config = JSON.parse(content)
   } catch (e) {
@@ -96,11 +98,10 @@ export async function loadBlueprint<T = any>(blueprintPath: string): Promise<T> 
   try {
     const validated = blueprintSchema.parse(config)
     return validated as unknown as T
-  } catch (error: any) {
-    if (error.errors) {
-      const issues = error.errors
-        .map((e: any) => `  - ${e.path.join('.')}: ${e.message}`)
-        .join('\n')
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'errors' in error) {
+      const zodError = error as { errors: Array<{ path: string[]; message: string }> }
+      const issues = zodError.errors.map((e) => `  - ${e.path.join('.')}: ${e.message}`).join('\n')
       throw new Error(`❌ Invalid blueprint at ${blueprintPath}:\n${issues}`)
     }
     throw error

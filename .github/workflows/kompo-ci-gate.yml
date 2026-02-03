@@ -1,9 +1,13 @@
 name: Kompo CI Gate
 
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   merge_group:
   push:
-    branches: [staging]
+    branches: [main]  # Removed staging - PRs to staging trigger CI, push to staging doesn't need separate run
   pull_request:
     branches: [main, staging]
   workflow_dispatch:

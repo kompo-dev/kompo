@@ -1,5 +1,8 @@
 name: Kompo Release Prepare
 
+# Triggers when a release commit is pushed to staging
+# Creates the tag immediately on the pushed commit and prepares the staging->main PR
+
 on:
   push:
     branches:
@@ -11,14 +14,16 @@ permissions:
 
 jobs:
   prepare-release:
-    if: "contains(github.event.head_commit.message, 'chore: version packages') || contains(github.event.head_commit.message, 'ci: release')"
+    # Only run for release commits with specific message AND from the internal repo
+    if: "contains(github.event.head_commit.message, 'ci: release')"
     name: Prepare Release (Tag & PR)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Staging
         uses: actions/checkout@v4
         with:
-          ref: staging
+          # Check out the commit that triggered the workflow
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js 24
@@ -26,27 +31,37 @@ jobs:
         with:
           node-version: 24.12.0
 
-      - name: Extract Version & Tag
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Extract Version & Create Tag
         id: version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Get Version from package.json
-          # In a monorepo, we use the CLI package as the source of truth for the release version
+          # Get Version from package.json
           VERSION=$(node -p "require('./packages/cli/package.json').version")
           TAG="v$VERSION"
+          
           echo "Detected version: $VERSION"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           
-          # 2. Check if tag exists
+          # Check if tag exists
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists. Skipping tagging."
           else
-            echo "Creating tag $TAG..."
+            echo "Creating tag $TAG on commit ${{ github.sha }}..."
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git tag -a "$TAG" -m "Release $TAG"
-            git push origin "$TAG"
+            git push --no-verify origin "$TAG"
+            echo "✅ Tag $TAG created!"
           fi
 
       - name: Generate Release Notes
@@ -57,22 +72,31 @@ jobs:
             exit 1
           fi
 
-      - name: Create Pull Request to Main
+      - name: Create or Update Release PR (staging -> main)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ env.VERSION }}" # Use extracted version
-          # Start freshly extraction if env issue
-          VERSION=$(node -p "require('./package.json').version")
-          
+          VERSION="${{ steps.version.outputs.version }}"
           PR_TITLE="🚀 Release v$VERSION"
           
-          # Create PR staging -> main
-          # User must manually review and approve this PR.
-          # The 'Publish' workflow will try to merge it.
-          gh pr create \
-            --base main \
-            --head staging \
-            --title "$PR_TITLE" \
-            --body-file RELEASE_SUMMARY.md \
-            || echo "PR likely exists. Please check open PRs."
+          # Find existing PR (from Preview)
+          PR_URL=$(gh pr list --base main --head staging --state open --json url --jq '.[0].url')
+          
+          if [ -z "$PR_URL" ]; then
+            echo "No existing PR found. Creating new one..."
+            gh pr create \
+              --base main \
+              --head staging \
+              --title "$PR_TITLE" \
+              --body-file RELEASE_SUMMARY.md
+          else
+            echo "Converting Preview PR to Official Release PR: $PR_URL"
+            gh pr edit "$PR_URL" \
+              --title "$PR_TITLE" \
+              --body-file RELEASE_SUMMARY.md
+            
+            # Ensure PR is not a draft (promoted from Preview)
+            gh pr ready "$PR_URL"
+          fi
+          
+          echo "✅ Release v$VERSION is ready for review!"

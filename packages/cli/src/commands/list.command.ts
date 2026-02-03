@@ -14,7 +14,9 @@ interface ListPortOptions {
 }
 
 export function createListCommand(_registry: KompoPluginRegistry): Command {
-  const cmd = new Command('list').alias('ls').description('List features in your Kompo application')
+  const cmd = new Command('list')
+    .alias('ls')
+    .description('List domains, ports, adapters and starters')
 
   cmd
     .command('domains')
@@ -352,32 +354,49 @@ export function createListCommand(_registry: KompoPluginRegistry): Command {
 
       const enrichedStarters = starters.map(getStarterInfo)
 
-      // 3. Group by Framework -> Design System
-      const grouped: Record<string, Record<string, typeof enrichedStarters>> = {}
+      // 3. Group by Template Name -> Design System -> Framework
+      // Structure: { templateName: { designSystem: { framework: starter } } }
+      const grouped: Record<
+        string,
+        Record<string, Record<string, (typeof enrichedStarters)[0]>>
+      > = {}
 
       for (const s of enrichedStarters) {
-        if (!grouped[s.framework]) grouped[s.framework] = {}
-        if (!grouped[s.framework][s.designSystem]) grouped[s.framework][s.designSystem] = []
-        grouped[s.framework][s.designSystem].push(s)
+        // Extract template name from path (last directory before starter.json)
+        const templateName = s.template.toLowerCase()
+        const ds = s.designSystem.toLowerCase()
+        const fw = s.framework.toLowerCase()
+
+        if (!grouped[templateName]) grouped[templateName] = {}
+        if (!grouped[templateName][ds]) grouped[templateName][ds] = {}
+        grouped[templateName][ds][fw] = s
       }
 
-      // 4. Display
-      for (const [framework, designSystems] of Object.entries(grouped)) {
-        log.message(color.bold(`\n  ${color.cyan(framework)}`))
-        for (const [ds, templates] of Object.entries(designSystems)) {
-          log.message(`    ${color.yellow(ds)}`)
-          for (const t of templates) {
-            const desc = t.description ? color.dim(` - ${t.description}`) : ''
-            log.message(`      └─ ${color.green(t.name)} ${color.blue(`[${t.id}]`)}${desc}`, {
-              spacing: 0,
-            })
-          }
+      // 4. Display - Template first, then design systems, then frameworks
+      const cap = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+
+      for (const [templateName, designSystems] of Object.entries(grouped)) {
+        // Get any starter for description (they should be similar across variants)
+        const anyStarter = Object.values(Object.values(designSystems)[0])[0]
+        const desc = anyStarter.description ? color.dim(` - ${anyStarter.description}`) : ''
+
+        log.message(color.bold(`\n  ${color.green(cap(templateName))}${desc}`))
+
+        for (const [ds, frameworks] of Object.entries(designSystems)) {
+          const fwList = Object.keys(frameworks).map((fw) => cap(fw))
+          const fwDisplay = fwList.map((fw) => color.cyan(fw)).join(' │ ')
+
+          // Build the full IDs for each framework
+          const ids = Object.entries(frameworks)
+            .map(([_, s]) => color.blue(s.id))
+            .join(', ')
+
+          log.message(`    └─ ${color.yellow(cap(ds))} → ${fwDisplay}`, { spacing: 0 })
+          log.message(`       ${color.dim(`IDs: ${ids}`)}`, { spacing: 0 })
         }
       }
 
-      outro(
-        `${starters.length} starters found. Use: ${color.blue('kompo new -t [framework.design-system.template]')}`
-      )
+      outro(`${starters.length} starters found. Use: ${color.blue('kompo new -t <id>')}`)
     })
 
   return cmd

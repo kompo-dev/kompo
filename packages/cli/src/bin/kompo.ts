@@ -6,7 +6,6 @@ import color from 'picocolors'
 import { loadEnterpriseExtensions } from '../bootstrap/load-plugins'
 import { createAddCommand } from '../commands/add.command'
 import { aiCommand } from '../commands/ai/ai.command'
-import { createBlueprintsCommand } from '../commands/blueprints.command'
 import { createCatalogCommand } from '../commands/catalog.command'
 import { createDoctorCommand } from '../commands/doctor.command'
 import { createListCommand } from '../commands/list.command'
@@ -34,7 +33,7 @@ async function main() {
   // Setup commands
   program
     .name('kompo')
-    .description('Web3 Code as a Service CLI')
+    .description('Modular fullstack project scaffolding CLI')
     .version(getVersion())
     .option('-D, --debug', 'Show debug output')
     .showHelpAfterError(true)
@@ -47,7 +46,6 @@ async function main() {
   program.addCommand(createDoctorCommand(registry))
   program.addCommand(createUpgradeCommand())
   program.addCommand(createWireCommand(registry))
-  program.addCommand(createBlueprintsCommand())
   program.addCommand(createCatalogCommand())
   program.addCommand(aiCommand)
 

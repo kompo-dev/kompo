@@ -1,6 +1,6 @@
 import nodeFs from 'node:fs'
 import path from 'node:path'
-import { cancel, intro, isCancel, log, note, outro, select, spinner, text } from '@clack/prompts'
+import { cancel, intro, isCancel, log, note, outro, select, text } from '@clack/prompts'
 import { starterManifestSchema as blueprintValidationSchema, type Step } from '@kompo/blueprints'
 import type { StarterManifest } from '@kompo/blueprints/types'
 import {
@@ -172,7 +172,26 @@ export async function runNewCommand(
 
       if (!starter) {
         log.error(`Starter "${options.template}" not found.`)
-        log.message('Run "kompo new" to see available starters interactively.')
+
+        // Show available starters to help the user
+        const { listStarters } = await import('@kompo/blueprints')
+        const starters = listStarters()
+
+        if (starters.length > 0) {
+          log.message('')
+          log.message('Available starters:')
+          for (const s of starters.slice(0, 8)) {
+            const desc = s.description ? color.dim(` - ${s.description}`) : ''
+            log.message(`  ${color.green(s.id)}${desc}`)
+          }
+          if (starters.length > 8) {
+            log.message(color.dim(`  ... and ${starters.length - 8} more`))
+          }
+        }
+
+        log.message('')
+        log.message(`Run ${color.cyan('kompo list starters')} for the full list`)
+        log.message(`Or run ${color.cyan('kompo new')} for interactive mode`)
         process.exit(1)
       }
 
@@ -723,7 +742,9 @@ function summarizeStarter(starter: StarterManifest): {
     domains: Array.from(new Set([...(flat.domains || []), ...(extracted.domains || [])])),
     features: Array.from(
       new Set([
-        ...(flat.features || []).map((f: any) => (typeof f === 'string' ? f : f.name)),
+        ...(flat.features || []).map((f: string | { name: string }) =>
+          typeof f === 'string' ? f : f.name
+        ),
         ...(extracted.features || []),
       ])
     ),

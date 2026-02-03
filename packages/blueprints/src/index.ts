@@ -147,15 +147,16 @@ export function listStarters(): StarterManifest[] {
   const plan = detectPlan()
   const starters: StarterManifest[] = []
 
-  starters.push(...loadStartersFrom(COMMUNITY_APPS))
+  starters.push(...loadStartersFrom(COMMUNITY_APPS, 4))
 
   if (plan === 'enterprise') {
     if (existsSync(ENTERPRISE_APPS)) {
-      starters.push(...loadStartersFrom(ENTERPRISE_APPS))
+      starters.push(...loadStartersFrom(ENTERPRISE_APPS, 4))
     }
   }
 
-  return starters
+  // Filter to only return real starters (those with steps), not intermediate metadata
+  return starters.filter((s) => s.steps && s.steps.length > 0)
 }
 
 export function getFeature(name: string): FeatureManifest | null {

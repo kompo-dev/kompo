@@ -1,4 +1,5 @@
 name: Kompo Release Publish
+run-name: "Publish ${{ github.event.release.tag_name }}"
 
 on:
   release:
@@ -14,41 +15,11 @@ jobs:
     name: Merge & Publish to NPM
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Main
+      - name: Checkout Staging
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: staging
           fetch-depth: 0
-
-      - name: Validate & Merge Staging PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Merging Staging -> Main PR..."
-          
-          # 1. Find the PR from staging to main
-          # We assume there is only one open PR from staging to main for the release
-          PR_URL=$(gh pr list --base main --head staging --state open --json url --jq '.[0].url')
-          
-          if [ -z "$PR_URL" ]; then
-            echo "Error: No open PR found from staging to main."
-            echo "Please ensure the Prepare workflow ran and the PR is open."
-            exit 1
-          fi
-          
-          echo "Found PR: $PR_URL"
-          
-          # 2. Merge the PR
-          # We try --merge (merge commit) first to preserve history/tags
-          # If main requires linear history, this might fail (adapt to --squash if needed)
-          gh pr merge "$PR_URL" --merge --delete-branch=false || gh pr merge "$PR_URL" --squash --delete-branch=false
-          
-          echo "Merge command issued. Waiting for main to update..."
-          
-          # 3. Update local main
-          git fetch origin main
-          git checkout main
-          git pull origin main
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
@@ -73,6 +44,33 @@ jobs:
         with:
           publish: pnpm release:publish
           version: pnpm release:version
+          commit: "ci: release packages"
+          title: "ci: release packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Merge Staging -> Main
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Publish successful! Merging Staging -> Main..."
+          
+          # Find the PR from staging to main
+          PR_URL=$(gh pr list --base main --head staging --state open --json url --jq '.[0].url')
+          
+          if [ -z "$PR_URL" ]; then
+            echo "Error: No open PR found. Cannot merge."
+            exit 1
+          fi
+          
+          echo "Merging PR: $PR_URL"
+          
+          # Merge
+          gh pr merge "$PR_URL" --merge --delete-branch=false || gh pr merge "$PR_URL" --squash --delete-branch=false
+          
+          # Sync local main (optional for the runner, but good practice)
+          git fetch origin main
+          git checkout main
+          git pull origin main

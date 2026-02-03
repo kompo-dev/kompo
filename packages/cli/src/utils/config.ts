@@ -36,7 +36,7 @@ interface RegisterAdapterOptions {
   isInstance?: boolean
 }
 
-function resolveCanonicalPortName(config: any, portName: string): string {
+function resolveCanonicalPortName(config: KompoConfig, portName: string): string {
   const domains = config.domains || {}
 
   // Smart Resolution:
@@ -45,7 +45,7 @@ function resolveCanonicalPortName(config: any, portName: string): string {
   // by checking if the existing port starts with the requested name followed by a hyphen.
   for (const domainKey in domains) {
     const domain = domains[domainKey]
-    const canonicalPort = domain.ports.find((p: any) => {
+    const canonicalPort = domain.ports.find((p) => {
       const pName = typeof p === 'string' ? p : p.name
       // Match exact
       if (pName === portName) return true
@@ -160,7 +160,7 @@ export function registerPort(
     if (!config.domains) config.domains = {}
     if (!config.domains[domain]) config.domains[domain] = { ports: [], useCases: [], entities: [] }
 
-    const portExists = config.domains[domain].ports.some((p: any) => {
+    const portExists = config.domains[domain].ports.some((p) => {
       const name = typeof p === 'string' ? p : p.name
       return name === portName
     })
@@ -266,7 +266,7 @@ export function getFrameworksForTarget(repoRoot: string, targetApp?: string): Fr
     }
 
     // 2. Try matching by package name or directory name
-    const foundEntry = Object.entries(config.apps).find(([path, app]: [string, any]) => {
+    const foundEntry = Object.entries(config.apps).find(([path, app]) => {
       // Check package name
       if (app.packageName === targetApp) return true
 
@@ -306,14 +306,14 @@ export function getSimilarAdaptersForPort(
   const canonicalPort = resolveCanonicalPortName(config, portName)
 
   return Object.entries(config.adapters)
-    .filter(([_, adapter]: [string, any]) => {
+    .filter(([_, adapter]) => {
       return (
         adapter.port === canonicalPort &&
         adapter.capability === capabilityId &&
         (adapter.engine === providerId || adapter.driver?.startsWith(providerId))
       )
     })
-    .map(([key]: [string, any]) => {
+    .map(([key]) => {
       const { alias } = parseAdapterId(key)
 
       return {
