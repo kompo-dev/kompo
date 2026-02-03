@@ -35,34 +35,19 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Dry-Run Versioning (Generate Notes)
+      - name: Generate Notes (Commits since last tag)
         id: notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Simulating version bump..."
+          node .github/scripts/generate-preview-summary.mjs
           
-          # 1. Apply version bump (modifies ChangeLogs in place)
-          pnpm release:version
-          
-          # 2. Generate Summary from updated ChangeLogs
-          node .github/scripts/generate-release-summary.mjs --preview
-          
-          # 3. Read Summary content
-          # We use a multi-line output variable or write to a temp file
-          # Since the file exists, we can use it in the next step via gh pr create/edit --body-file
-          
-          if [ ! -f RELEASE_SUMMARY.md ]; then
+          if [ ! -f RELEASE_SUMMARY_PREVIEW.md ]; then
              echo "No changes detected or summary failed."
              echo "SUMMARY_EXISTS=false" >> $GITHUB_OUTPUT
           else
              echo "SUMMARY_EXISTS=true" >> $GITHUB_OUTPUT
-             # Prepend a header to the summary
-             echo -e "# 👀 Release Preview (next)\n\n> This PR is a **LIVE PREVIEW** of the next release.\n> It will be automatically renamed and finalized when a release is triggered.\n\n$(cat RELEASE_SUMMARY.md)" > PREVIEW_BODY.md
           fi
-          
-          # 4. Revert changes (It's a dry run!)
-          git reset --hard
 
       - name: Create or Update Preview PR
         if: steps.notes.outputs.SUMMARY_EXISTS == 'true'
@@ -78,11 +63,11 @@ jobs:
               --base main \
               --head staging \
               --title "👀 Release Preview (next)" \
-              --body-file PREVIEW_BODY.md \
+              --body-file RELEASE_SUMMARY_PREVIEW.md \
               --draft
           else
             echo "Updating existing Preview PR: $PR_URL"
             gh pr edit "$PR_URL" \
               --title "👀 Release Preview (next)" \
-              --body-file PREVIEW_BODY.md
+              --body-file RELEASE_SUMMARY_PREVIEW.md
           fi

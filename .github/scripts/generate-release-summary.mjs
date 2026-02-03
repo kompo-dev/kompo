@@ -85,9 +85,6 @@ for (const pkg of packages) {
   }
 }
 
-// Check for arguments
-const isPreview = process.argv.includes('--preview');
-
 if (hasChangelogContent) {
   // RELEASE MODE: Use changelogs (existing behavior)
   for (const pkg of packages) {
@@ -95,33 +92,15 @@ if (hasChangelogContent) {
     const result = getNewEntries(changelogPath);
     if (result) {
       const pkgContent = result.content || '*no update*';
-      const versionDisplay = isPreview ? '(next)' : `\`${result.version}\``;
-      summary += `## 📦 ${pkg} ${versionDisplay}\n\n${pkgContent}\n\n`;
-    }
-  }
-} else {
-  // PREVIEW MODE: Use git commits since last tag
-  const lastTag = getLastTag();
-  
-  if (!lastTag) {
-    summary = '*Could not determine last release tag*\n';
-  } else {
-    summary = `## 📦 Packages (next)\n\n`;
-    
-    let hasAnyCommits = false;
-    for (const pkg of packages) {
-      const commits = getCommitsForPackage(pkg, lastTag);
-      if (commits) {
-        hasAnyCommits = true;
-        summary += `### ${pkg} - Changes since ${lastTag}\n\n${commits}\n\n`;
-      }
-    }
-    
-    if (!hasAnyCommits) {
-      summary += `*No changes since ${lastTag}*\n`;
+      summary += `## 📦 ${pkg} \`${result.version}\`\n\n${pkgContent}\n\n`;
     }
   }
 }
 
-fs.writeFileSync('RELEASE_SUMMARY.md', summary);
-console.log('Release summary generated in RELEASE_SUMMARY.md');
+// Only write if we have content
+if (summary) {
+  fs.writeFileSync('RELEASE_SUMMARY.md', summary);
+  console.log('Release summary generated in RELEASE_SUMMARY.md');
+} else {
+  console.log('No changelog content found.');
+}
