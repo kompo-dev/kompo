@@ -3,6 +3,9 @@ name: App & Libs Validation (Project)
 # This workflow is a template for developers building on top of the Kompo socle.
 # It is designed to trigger only when files in 'apps/' or 'libs/' are modified.
 # Maintainers of the Kompo framework use a separate workflow (kompo-core.yml).
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
   push:
