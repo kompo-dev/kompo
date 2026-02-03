@@ -1,9 +1,12 @@
 name: Kompo Release Prepare
 
+# Triggers when a release PR is opened to staging
+# Creates the tag on the PR commit (before merge) and prepares the staging->main PR
+
 on:
-  push:
-    branches:
-      - staging
+  pull_request:
+    branches: [staging]
+    types: [opened, synchronize]
 
 permissions:
   contents: write
@@ -11,14 +14,15 @@ permissions:
 
 jobs:
   prepare-release:
-    if: "contains(github.event.head_commit.message, 'chore: version packages') || contains(github.event.head_commit.message, 'ci: release')"
+    # Only run for release PRs with specific title AND from the same repo (no forks)
+    if: "startsWith(github.event.pull_request.title, 'chore: release v') && github.event.pull_request.head.repo.full_name == github.repository"
     name: Prepare Release (Tag & PR)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Staging
+      - name: Checkout PR Branch
         uses: actions/checkout@v4
         with:
-          ref: staging
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js 24
@@ -26,27 +30,47 @@ jobs:
         with:
           node-version: 24.12.0
 
-      - name: Extract Version & Tag
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Extract Version & Create Tag
         id: version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Get Version from package.json
-          # In a monorepo, we use the CLI package as the source of truth for the release version
+          # Get Version from package.json (source of truth)
           VERSION=$(node -p "require('./packages/cli/package.json').version")
           TAG="v$VERSION"
+          COMMIT="${{ github.event.pull_request.head.sha }}"
+          
           echo "Detected version: $VERSION"
+          echo "Tag: $TAG"
+          echo "Commit: $COMMIT"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           
-          # 2. Check if tag exists
+          # Check if tag exists
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists. Skipping tagging."
+            EXISTING_COMMIT=$(git rev-parse "$TAG^{commit}")
+            if [ "$EXISTING_COMMIT" = "$COMMIT" ]; then
+              echo "Tag $TAG already exists on this commit. Skipping."
+            else
+              echo "⚠️ Tag $TAG exists on different commit ($EXISTING_COMMIT)!"
+              echo "Delete the old tag if you want to re-tag."
+              exit 1
+            fi
           else
-            echo "Creating tag $TAG..."
+            echo "Creating tag $TAG on commit $COMMIT..."
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "Release $TAG"
+            git tag -a "$TAG" -m "Release $TAG" "$COMMIT"
             git push origin "$TAG"
+            echo "✅ Tag $TAG created!"
           fi
 
       - name: Generate Release Notes
@@ -57,14 +81,11 @@ jobs:
             exit 1
           fi
 
-      - name: Update to Official Release PR
+      - name: Create or Update Release PR (staging -> main)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ env.VERSION }}" # Use extracted version
-          # Start freshly extraction if env issue
-          VERSION=$(node -p "require('./packages/cli/package.json').version")
-          
+          VERSION="${{ steps.version.outputs.version }}"
           PR_TITLE="🚀 Release v$VERSION"
           
           # Find existing PR (from Preview)
@@ -83,3 +104,5 @@ jobs:
               --title "$PR_TITLE" \
               --body-file RELEASE_SUMMARY.md
           fi
+          
+          echo "✅ Release v$VERSION is ready for review!"
