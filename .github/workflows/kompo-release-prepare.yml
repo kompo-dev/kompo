@@ -1,12 +1,12 @@
 name: Kompo Release Prepare
 
-# Triggers when a release PR is opened to staging
-# Creates the tag on the PR commit (before merge) and prepares the staging->main PR
+# Triggers when a release commit is pushed to staging
+# Creates the tag immediately on the pushed commit and prepares the staging->main PR
 
 on:
-  pull_request:
-    branches: [staging]
-    types: [opened, synchronize]
+  push:
+    branches:
+      - staging
 
 permissions:
   contents: write
@@ -14,15 +14,16 @@ permissions:
 
 jobs:
   prepare-release:
-    # Only run for release PRs with specific title AND from the same repo (no forks)
-    if: "startsWith(github.event.pull_request.title, 'chore: release v') && github.event.pull_request.head.repo.full_name == github.repository"
+    # Only run for release commits with specific message AND from the internal repo
+    if: "contains(github.event.head_commit.message, 'chore: version packages') || contains(github.event.head_commit.message, 'ci: release')"
     name: Prepare Release (Tag & PR)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR Branch
+      - name: Checkout Staging
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          # Check out the commit that triggered the workflow
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js 24
@@ -43,32 +44,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get Version from package.json (source of truth)
+          # Get Version from package.json
           VERSION=$(node -p "require('./packages/cli/package.json').version")
           TAG="v$VERSION"
-          COMMIT="${{ github.event.pull_request.head.sha }}"
           
           echo "Detected version: $VERSION"
-          echo "Tag: $TAG"
-          echo "Commit: $COMMIT"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           
           # Check if tag exists
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            EXISTING_COMMIT=$(git rev-parse "$TAG^{commit}")
-            if [ "$EXISTING_COMMIT" = "$COMMIT" ]; then
-              echo "Tag $TAG already exists on this commit. Skipping."
-            else
-              echo "⚠️ Tag $TAG exists on different commit ($EXISTING_COMMIT)!"
-              echo "Delete the old tag if you want to re-tag."
-              exit 1
-            fi
+            echo "Tag $TAG already exists. Skipping tagging."
           else
-            echo "Creating tag $TAG on commit $COMMIT..."
+            echo "Creating tag $TAG on commit ${{ github.sha }}..."
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "Release $TAG" "$COMMIT"
+            git tag -a "$TAG" -m "Release $TAG"
             git push origin "$TAG"
             echo "✅ Tag $TAG created!"
           fi

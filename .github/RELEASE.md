@@ -59,26 +59,25 @@ pnpm changeset version
 git add .
 git commit -m "chore: version packages for vX.X.X"
 
-# Push and create PR with specific title
-git push -u origin release/vX.X.X
-gh pr create --base staging --title "chore: release vX.X.X"
+# Commit the version changes
+git add .
+git commit -m "chore: version packages for vX.X.X"
+
+# Push to staging (Directly triggers release tag)
+git push origin staging
 ```
 
-**⚠️ CRITICAL:** When merging this PR, do **NOT** use "Squash and Merge".
-Use **"Rebase and Merge"** or **"Create a merge commit"**.
-_Why?_ The tag is created on the PR commit. If you squash, the commit hash changes, and the tag will point to an orphaned commit not present in `staging`/`main` history.
-
-**Important:** The PR title `chore: release vX.X.X` triggers the **Release Prepare** workflow, which creates the tag on your exact commit.
+> **Note:** The push to `staging` with commit message `chore: version packages` or `ci: release` triggers the **Release Prepare** workflow.
 
 ### 3. Tag Creation (Automatic)
 
-When you open the PR with title `chore: release vX.X.X`:
+When you push the release commit:
 
 1. **Release Prepare** workflow triggers immediately
-2. Creates git tag `vX.X.X` on your PR commit (not the merge commit!)
-3. This anchors the release to exactly what you reviewed
+2. Creates git tag `vX.X.X` on this commit
+3. Creates/Updates the PR `staging` -> `main` with release notes
 
-> **Note:** If you push more commits to the PR, the workflow runs again but will error if the tag already exists on a different commit. Delete the old tag first if needed.
+> **Why direct push?** This avoids the need for a separate release PR waiting for strict review, and prevents accidental Squash Merges that would orphan the version tag.
 
 ### 4. Publishing
 
