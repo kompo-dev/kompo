@@ -58,7 +58,7 @@ jobs:
           else
              echo "SUMMARY_EXISTS=true" >> $GITHUB_OUTPUT
              # Prepend a header to the summary
-             echo -e "# 👀 Release Preview (Next)\n\n> This PR is a **LIVE PREVIEW** of the next release.\n> It will be automatically renamed and finalized when a release is triggered.\n\n$(cat RELEASE_SUMMARY.md)" > PREVIEW_BODY.md
+             echo -e "# 👀 Release Preview (next)\n\n> This PR is a **LIVE PREVIEW** of the next release.\n> It will be automatically renamed and finalized when a release is triggered.\n\n$(cat RELEASE_SUMMARY.md)" > PREVIEW_BODY.md
           fi
           
           # 4. Revert changes (It's a dry run!)
@@ -77,11 +77,11 @@ jobs:
             gh pr create \
               --base main \
               --head staging \
-              --title "👀 Release Preview (Next)" \
+              --title "👀 Release Preview (next)" \
               --body-file PREVIEW_BODY.md
           else
             echo "Updating existing Preview PR: $PR_URL"
             gh pr edit "$PR_URL" \
-              --title "👀 Release Preview (Next)" \
+              --title "👀 Release Preview (next)" \
               --body-file PREVIEW_BODY.md
           fi
