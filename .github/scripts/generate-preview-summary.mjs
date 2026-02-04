@@ -25,7 +25,7 @@ function getCommits(lastTag) {
         `${lastTag}..HEAD`,
         '--oneline',
         '--no-merges',
-        '--format=- %h',
+        '--format=- %s (%h)',
       ],
       { encoding: 'utf-8' }
     ).trim();
