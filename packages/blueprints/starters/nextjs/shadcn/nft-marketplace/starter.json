@@ -10,15 +10,16 @@
     },
     {
       "command": "add",
+      "type": "domain",
+      "name": "nft",
+      "app": "web"
+    },
+    {
+      "command": "add",
       "type": "port",
       "name": "nft",
       "domain": "nft",
       "capability": "orm"
-    },
-    {
-      "command": "add",
-      "type": "domain",
-      "name": "nft"
     },
     {
       "command": "add",
