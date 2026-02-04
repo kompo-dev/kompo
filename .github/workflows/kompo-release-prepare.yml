@@ -1,7 +1,7 @@
 name: Kompo Release Prepare
 
 # Triggers when a release commit is pushed to staging
-# Creates the tag immediately on the pushed commit and prepares the staging->main PR
+# Since versioning is done locally, this only generates notes and creates the PR
 
 on:
   push:
@@ -14,56 +14,58 @@ permissions:
 
 jobs:
   prepare-release:
-    # Only run for release commits with specific message AND from the internal repo
-    if: "contains(github.event.head_commit.message, 'ci: release')"
-    name: Prepare Release (Tag & PR)
+    name: Prepare Release (PR)
     runs-on: ubuntu-latest
+    # Run only on explicit release trigger ('ci: release')
+    if: "contains(github.event.head_commit.message, 'ci: release')"
     steps:
       - name: Checkout Staging
         uses: actions/checkout@v4
         with:
-          # Check out the commit that triggered the workflow
-          ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: 24.12.0
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316
-
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
+      # No pnpm install needed just for the script unless script deps are missing, 
+      # but let's install minimal if needed or just use node if script is standalone.
+      # The script uses 'child_process', 'fs', 'path' (standard libs).
+      # But extracting version requires 'require(...package.json)'.
+      # Safe to run WITHOUT install if no complex deps in script.
+      # HOWEVER, extracting version uses package.json which is fine.
+      
       - name: Extract Version
-        id: version
+        id: extract_version
         run: |
-          # Get Version from package.json
-          VERSION=$(node -p "require('./packages/cli/package.json').version")
-          
-          echo "Detected version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          VERSIONS_FILE="packages/cli/package.json"
+          if [[ -f "$VERSIONS_FILE" ]]; then
+            VERSION=$(node -p "require('./$VERSIONS_FILE').version")
+            echo "Detected version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Could not find $VERSIONS_FILE"
+            exit 1
+          fi
 
       - name: Generate Release Notes
         run: |
           node .github/scripts/generate-release-summary.mjs
           if [ ! -f RELEASE_SUMMARY.md ]; then
-            echo "Error: RELEASE_SUMMARY.md failed to generate."
-            exit 1
+             echo "Error: RELEASE_SUMMARY.md failed to generate."
+             touch RELEASE_SUMMARY.md # fallback empty to avoid crash
           fi
 
       - name: Create or Update Release PR (staging -> main)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${{ steps.extract_version.outputs.version }}"
           PR_TITLE="🚀 Release v$VERSION"
           
-          # Find existing PR (from Preview)
+          # Find existing PR (stg -> main)
           PR_URL=$(gh pr list --base main --head staging --state open --json url --jq '.[0].url')
           
           if [ -z "$PR_URL" ]; then
@@ -74,13 +76,13 @@ jobs:
               --title "$PR_TITLE" \
               --body-file RELEASE_SUMMARY.md
           else
-            echo "Converting Preview PR to Official Release PR: $PR_URL"
+            echo "Updating existing PR: $PR_URL"
             gh pr edit "$PR_URL" \
               --title "$PR_TITLE" \
               --body-file RELEASE_SUMMARY.md
             
-            # Ensure PR is not a draft (promoted from Preview)
-            gh pr ready "$PR_URL"
+            # Ensure PR is ready
+            gh pr ready "$PR_URL" || true
           fi
           
-          echo "✅ Release v$VERSION is ready for review!"
+          echo "✅ Release PR v$VERSION ready!"

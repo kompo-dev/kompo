@@ -1,5 +1,13 @@
 # @kompo/cli
 
+## 0.1.3-beta.6
+
+### Patch Changes
+
+- Release v0.1.3-beta.5
+  - @kompo/blueprints@0.1.3-beta.6
+  - @kompo/kit@0.1.3-beta.6
+
 ## 0.1.3-beta.5
 
 ### Patch Changes
