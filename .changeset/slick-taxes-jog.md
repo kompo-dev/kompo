@@ -1,0 +1,5 @@
+---
+"@kompo/cli": patch
+---
+
+Release v0.1.3-beta.4

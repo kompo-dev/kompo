@@ -1,6 +1,6 @@
 {
   "name": "create-kompo-dev",
-  "version": "0.1.3-beta.3",
+  "version": "0.1.3-beta.4",
   "private": false,
   "description": "Create Kompo App",
   "repository": {
@@ -32,6 +32,6 @@
   "author": "SmarttDev",
   "license": "MIT",
   "dependencies": {
-    "@kompo-dev/create-kompo": "0.1.3-beta.3"
+    "@kompo-dev/create-kompo": "0.1.3-beta.4"
   }
 }
