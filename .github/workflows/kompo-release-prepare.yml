@@ -39,30 +39,14 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Extract Version & Create Tag
+      - name: Extract Version
         id: version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get Version from package.json
           VERSION=$(node -p "require('./packages/cli/package.json').version")
-          TAG="v$VERSION"
           
           echo "Detected version: $VERSION"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
-          # Check if tag exists
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists. Skipping tagging."
-          else
-            echo "Creating tag $TAG on commit ${{ github.sha }}..."
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "Release $TAG"
-            git push --no-verify origin "$TAG"
-            echo "✅ Tag $TAG created!"
-          fi
 
       - name: Generate Release Notes
         run: |
