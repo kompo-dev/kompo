@@ -1,5 +1,7 @@
 # @kompo/blueprints
 
+## 0.1.3-beta.4
+
 ## 0.1.3-beta.3
 
 ## 0.1.3-beta.2

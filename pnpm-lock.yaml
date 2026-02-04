@@ -195,14 +195,14 @@ importers:
   packages/create-kompo:
     dependencies:
       '@kompo-dev/create-kompo':
-        specifier: latest
-        version: 0.1.0
+        specifier: workspace:*
+        version: link:../create
 
   packages/create-kompo-dev:
     dependencies:
       '@kompo-dev/create-kompo':
-        specifier: latest
-        version: 0.1.0
+        specifier: workspace:*
+        version: link:../create
 
   packages/kit:
     dependencies:
@@ -1001,10 +1001,6 @@ packages:
     engines: {node: '>=10.0'}
     peerDependencies:
       tslib: '2'
-
-  '@kompo-dev/create-kompo@0.1.0':
-    resolution: {integrity: sha512-JAb+4BalYtjr0hLZOBop4WPY1BcK2v0el6NW8l9MO66mDtThhFwl1sw2bduJth9ZqpNUlJIt2u/dtphEMS40vw==}
-    hasBin: true
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -5176,14 +5172,6 @@ snapshots:
       '@jsonjoy.com/buffers': 17.65.0(tslib@2.8.1)
       '@jsonjoy.com/codegen': 17.65.0(tslib@2.8.1)
       tslib: 2.8.1
-
-  '@kompo-dev/create-kompo@0.1.0':
-    dependencies:
-      '@clack/prompts': 1.0.0-alpha.9
-      commander: 11.1.0
-      execa: 9.6.1
-      giget: 2.0.0
-      picocolors: 1.1.1
 
   '@manypkg/find-root@1.1.0':
     dependencies:

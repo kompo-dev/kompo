@@ -582,6 +582,8 @@ export async function runNewCommand(
         domain: step.domain,
         app: step.app,
         capability: step.capability,
+        driver: step.driver,
+        sharedDriver: step.sharedDriver,
         nonInteractive: true,
         skipInstall: true,
       })
