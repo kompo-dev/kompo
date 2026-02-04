@@ -1,5 +1,11 @@
 # @kompo-dev/create-kompo
 
+## 0.1.3-beta.5
+
+### Patch Changes
+
+- Force release to align versions and lockfile
+
 ## 0.1.3-beta.4
 
 ## 0.1.3-beta.3

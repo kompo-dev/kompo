@@ -36,7 +36,7 @@
     "type-check": "turbo run type-check",
     "type-check:kompo": "turbo run type-check --filter='./packages/*'",
     "changeset": "changeset",
-    "release:version": "changeset version",
+    "release:version": "changeset version && pnpm install --no-frozen-lockfile",
     "release:publish": "turbo run build:kompo && changeset publish",
     "release:beta-enter": "changeset pre enter beta",
     "release:beta-exit": "changeset pre exit"
