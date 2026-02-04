@@ -2,8 +2,9 @@ name: Kompo Release Publish
 run-name: "Publish ${{ github.event.release.tag_name }}"
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -50,27 +51,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Merge Staging -> Main
-        if: success()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Publish successful! Merging Staging -> Main..."
-          
-          # Find the PR from staging to main
-          PR_URL=$(gh pr list --base main --head staging --state open --json url --jq '.[0].url')
-          
-          if [ -z "$PR_URL" ]; then
-            echo "Error: No open PR found. Cannot merge."
-            exit 1
-          fi
-          
-          echo "Merging PR: $PR_URL"
-          
-          # Merge
-          gh pr merge "$PR_URL" --merge --delete-branch=false || gh pr merge "$PR_URL" --squash --delete-branch=false
-          
-          # Sync local main (optional for the runner, but good practice)
-          git fetch origin main
-          git checkout main
-          git pull origin main
+
