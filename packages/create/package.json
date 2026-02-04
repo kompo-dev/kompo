@@ -1,6 +1,6 @@
 {
   "name": "@kompo-dev/create-kompo",
-  "version": "0.1.3-beta.5",
+  "version": "0.1.3-beta.6",
   "private": false,
   "description": "Kompo - Modern Web3 Framework for TypeScript",
   "repository": {

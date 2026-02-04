@@ -1,5 +1,7 @@
 # @kompo-dev/create-kompo
 
+## 0.1.3-beta.6
+
 ## 0.1.3-beta.5
 
 ### Patch Changes
