@@ -18,17 +18,26 @@ function getLastTag() {
 function getCommits(lastTag) {
   try {
     // Get all commits since last tag
-    const commits = execFileSync(
+    const commitMessages = execFileSync(
       'git',
       [
         'log',
         `${lastTag}..HEAD`,
         '--oneline',
         '--no-merges',
-        '--format=- %h',
+        '--format=%s',
       ],
       { encoding: 'utf-8' }
     ).trim();
+
+    const commits = commitMessages
+      .split('\n')
+      .map((msg) => {
+        const match = msg.match(/\(#(\d+)\)$/);
+        return match ? `- #${match[1]}` : `- ${msg}`;
+      })
+      .join('\n');
+
     return commits;
   } catch {
     return null;
