@@ -1,5 +1,5 @@
 name: Kompo Release Publish
-run-name: "Publish ${{ github.event.release.tag_name }}"
+run-name: "Publish Flow: ${{ github.ref_name }}"
 
 on:
   push:
@@ -12,14 +12,15 @@ permissions:
   pull-requests: write
 
 jobs:
-  publish-release:
-    name: Merge & Publish to NPM
+  release-publish:
+    name: Publish to NPM
+    # Trigger if commit message implies a release (either manual 'ci: release' merged or 'Release v...')
+    if: "contains(github.event.head_commit.message, 'ci: release') || contains(github.event.head_commit.message, 'Release v')"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Staging
+      - name: Checkout Main
         uses: actions/checkout@v4
         with:
-          ref: staging
           fetch-depth: 0
 
       - name: Setup Node.js 24
@@ -44,11 +45,8 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm release:publish
-          version: pnpm release:version
           commit: "ci: release packages"
           title: "ci: release packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-
