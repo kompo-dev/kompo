@@ -27,7 +27,7 @@ export const ClientComposition = ({ children }: { children: React.ReactNode }) =
  */
 const Providers = ({ children }: { children: React.ReactNode }) => {
   <%~ await it.hook('client-providers-logic') %>
-  return (
+  return (<>
 <% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'client-providers-wrap-start')) { %>
     <%~ include(`${it.designSystem.path}/snippets/client-providers-wrap-start.eta`, it) %>
 <% } %>
@@ -45,5 +45,5 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 <% if (it.designSystem && it.hasSnippet(it.designSystem.path, 'client-providers-wrap-end')) { %>
     <%~ include(`${it.designSystem.path}/snippets/client-providers-wrap-end.eta`, it) %>
 <% } %>
-  );
+  </>);
 };

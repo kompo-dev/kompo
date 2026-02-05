@@ -37,6 +37,7 @@ export async function runAddAdapter(
     alias?: string
     driver?: string
     sharedDriver?: string
+    verbose?: boolean
   } = {}
 ) {
   const cwd = process.cwd()
@@ -722,6 +723,7 @@ export async function runAddAdapter(
     isNewAlias,
     isSpecializedClient,
     templateData: additionalTemplateData, // Pass captured template data
+    verbose: options.verbose,
   })
 
   // Smart Port Injection

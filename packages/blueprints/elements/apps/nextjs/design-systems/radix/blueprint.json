@@ -1,7 +1,7 @@
 {
   "id": "radix",
   "name": "Radix UI",
-  "type": "feature",
-  "description": "Radix UI design system for Vite",
-  "framework": "vite"
+  "type": "app",
+  "description": "Radix UI design system for Next.js",
+  "framework": "nextjs"
 }

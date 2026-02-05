@@ -6,7 +6,7 @@ export default defineConfig({
     environment: 'node',
     // Match tests in src/ folders of packages
     include: ['src/**/*.test.ts', '**/src/**/*.test.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**', 'apps/**', 'libs/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', 'apps/**', 'libs/**', '.archived/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

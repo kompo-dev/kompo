@@ -42,6 +42,9 @@ export interface BaseAdapterGeneratorContext {
   /** True when creating a specialized client for an existing adapter */
   isSpecializedClient?: boolean
   templateData?: Record<string, unknown>
+  verbose?: boolean
+  /** Force overwrite existing files */
+  overwrite?: boolean
 }
 
 export interface AdapterGeneratorContext extends BaseAdapterGeneratorContext {

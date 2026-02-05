@@ -17,38 +17,41 @@
     {
       "command": "add",
       "type": "port",
-      "name": "nft",
+      "name": "chain",
       "domain": "nft",
-      "capability": "orm"
+      "portType": "gateway"
+    },
+    {
+      "command": "add",
+      "type": "port",
+      "name": "database",
+      "domain": "nft",
+      "portType": "repository"
     },
     {
       "command": "add",
       "type": "adapter",
       "name": "viem",
-      "port": "nft"
+      "capability": "rpc",
+      "port": "chain-gateway",
+      "driver": "http"
     },
     {
       "command": "add",
       "type": "adapter",
       "name": "drizzle",
-      "port": "database",
+      "alias": "main",
+      "capability": "orm",
+      "port": "database-repository",
       "driver": "pglite"
     },
     {
       "command": "wire",
-      "type": "adapter",
-      "name": "viem",
-      "port": "nft",
-      "app": "web"
-    },
-    {
-      "command": "wire",
-      "type": "adapter",
-      "name": "drizzle",
-      "port": "database",
+      "type": "domain",
+      "name": "nft",
       "app": "web"
     }
   ],
   "name": "Nft Marketplace",
-  "id": "nextjs.shadcn.nft-marketplace"
+  "id": "vite.shadcn.nft-marketplace"
 }

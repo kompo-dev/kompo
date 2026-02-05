@@ -3,7 +3,7 @@
  * Supports both Community and Enterprise blueprints
  */
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { type Dirent, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Blueprint, FeatureManifest, StarterManifest } from './types'
@@ -299,13 +299,13 @@ export function listDesignSystems(): string[] {
   if (!existsSync(uiDir)) return []
 
   return readdirSync(uiDir, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory() && !dirent.name.startsWith('.'))
-    .map((dirent) => dirent.name)
+    .filter((dirent: Dirent) => dirent.isDirectory() && !dirent.name.startsWith('.'))
+    .map((dirent: Dirent) => dirent.name)
 }
 
 export function getBlueprintCatalogPath(
   name: string,
-  type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver',
+  type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver' | 'ui',
   filename = 'catalog.json'
 ): string | null {
   const templatesDir = getTemplatesDir()
@@ -318,8 +318,8 @@ export function getBlueprintCatalogPath(
     }
   } else if (type === 'feature') {
     candidatePath = join(templatesDir, 'features', name, filename)
-  } else if (type === 'lib' || type === 'design-system') {
-    if (type === 'design-system') {
+  } else if (type === 'lib' || type === 'design-system' || type === 'ui') {
+    if (type === 'design-system' || type === 'ui') {
       candidatePath = join(templatesDir, 'libs', 'ui', name, filename)
     } else {
       candidatePath = join(templatesDir, 'libs', name, filename)

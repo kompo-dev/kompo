@@ -10,10 +10,6 @@
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
-    },
-    "./constants": {
-      "types": "./src/definitions/constants.ts",
-      "import": "./src/definitions/constants.ts"
     }
   },
   "files": [
@@ -21,9 +17,12 @@
   ],
   "scripts": {
     "type-check": "tsc --noEmit",
+    "test": "vitest run -c ../vitest.config.ts --passWithNoTests",
+    "test:coverage": "vitest run -c ../vitest.config.ts --coverage --passWithNoTests",
     "clean": "rimraf .turbo node_modules dist build .next coverage tsconfig.tsbuildinfo"
   },
   "dependencies": {
+    "@kompo/config": "workspace:*",
     "eta": "^3.2.0",
     "yaml": "^2.7.0"
   },

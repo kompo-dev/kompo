@@ -1,10 +1,8 @@
 import path from 'node:path'
 import { cancel, isCancel, log, select, text } from '@clack/prompts'
+import { type DesignSystemId, FRAMEWORKS, type FrameworkId } from '@kompo/config/constants'
 import {
   addStep,
-  type DesignSystemId,
-  FRAMEWORKS,
-  type FrameworkId,
   getRequiredFeatures,
   mergeBlueprintCatalog,
   updateCatalogFromFeatures,
@@ -34,6 +32,7 @@ export function createAddAppCommand(): Command {
     .option('--design <name>', 'Design system (tailwind, shadcn, vanilla)')
     .option('--org <name>', 'Organization name')
     .option('-y, --yes', 'Skip prompts')
+    .option('--verbose', 'Verbose output')
     .action(async (name, options) => {
       await runAddApp(name, options)
     })
@@ -46,6 +45,7 @@ export interface AddAppOptions {
   yes?: boolean
   blueprintPath?: string
   skipInstall?: boolean
+  verbose?: boolean
 }
 
 export async function runAddApp(

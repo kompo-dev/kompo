@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { log, spinner } from '@clack/prompts'
+import { CLIENT_FRAMEWORKS, type ClientFrameworkId } from '@kompo/config/constants'
 import { LIBS_DIR } from '@kompo/kit'
 import color from 'picocolors'
 import { createFsEngine } from '../../engine/fs-engine'
@@ -73,7 +74,13 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
         // We always proceed to injectEnvSnippet to ensure .env sync,
         // as injectEnvSnippet itself handles duplicate property avoidance in schema.ts.
         const serverLines: string[] = []
-        const clientLines: string[] = []
+        const clientLines: Record<ClientFrameworkId, string[]> = CLIENT_FRAMEWORKS.reduce(
+          (acc, fw) => {
+            acc[fw] = []
+            return acc
+          },
+          {} as Record<ClientFrameworkId, string[]>
+        )
         const envLines: string[] = []
 
         for (const [key, meta] of Object.entries(context.manifest.env)) {
@@ -83,8 +90,6 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
             description?: string
             default?: string
           }
-          const envKey = generateEnvKey(key, data.alias || data.name, m.side)
-
           const validation = m.validation
           if (!validation) {
             throw new Error(`❌ Missing validation for env var ${key} in manifest.`)
@@ -97,11 +102,17 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
           const description = m.description ? `.describe('${m.description}')` : ''
           const defaultValue = m.default ? `.default('${m.default}')` : ''
 
-          const schemaLine = `${envKey}: ${validation}${description}${defaultValue},`
-          envLines.push(`${envKey}=${m.default || ''}`) // Placeholder for .env with default value
-
-          if (side === 'client') clientLines.push(schemaLine)
-          else serverLines.push(schemaLine)
+          if (side === 'client') {
+            for (const fw of CLIENT_FRAMEWORKS) {
+              const keyName = generateEnvKey(key, data.alias || data.name, 'client', fw)
+              clientLines[fw].push(`${keyName}: ${validation}${description}${defaultValue},`)
+              envLines.push(`${keyName}=${m.default || ''}`)
+            }
+          } else {
+            const serverKey = generateEnvKey(key, data.alias || data.name, 'server')
+            serverLines.push(`${serverKey}: ${validation}${description}${defaultValue},`)
+            envLines.push(`${serverKey}=${m.default || ''}`)
+          }
         }
 
         const envBlock = envLines.join('\n')
@@ -110,11 +121,13 @@ const createGeneratorUtils = async (context: GeneratorContext): Promise<Generato
           await injectEnvSnippet(context.repoRoot, serverLines.join('\n'), 'server', envBlock)
           summary.push('   Dynamically injected server env schema')
         }
-        if (clientLines.length > 0) {
-          const clientBlock = clientLines.join('\n')
-          await injectEnvSnippet(context.repoRoot, clientBlock, 'vite', envBlock)
-          await injectEnvSnippet(context.repoRoot, clientBlock, 'nextjs', envBlock)
-          summary.push('   Dynamically injected client env schema')
+        for (const [fw, lines] of Object.entries(clientLines)) {
+          if (lines.length > 0) {
+            const block = lines.join('\n')
+            // Cast fw to any or FrameworkId because Object.entries keys are strings
+            await injectEnvSnippet(context.repoRoot, block, fw as ClientFrameworkId, envBlock)
+            summary.push(`   Dynamically injected ${fw} env schema`)
+          }
         }
       }
     },
@@ -490,15 +503,15 @@ export const createAdapterGenerator = (config: AdapterGeneratorConfig) => {
 
     // 3. Create & Execute Pipeline
     const pipeline = createPipeline(stepRegistry)
-    pipeline.addObserver(createLoggingObserver())
+    if (context.verbose) {
+      pipeline.addObserver(createLoggingObserver())
+    }
 
     await pipeline.execute(context, stepIds, createGeneratorUtils)
   }
 }
 
 // Observer pour le logging
-// const s = spinner()
-// Disable verbose step logging for now as it conflicts with interactive steps
 const createLoggingObserver = (): PipelineObserver => {
   const s = spinner()
   return {

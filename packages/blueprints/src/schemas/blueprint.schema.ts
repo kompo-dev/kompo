@@ -46,7 +46,7 @@ export const adapterBlueprintSchema = baseBlueprintSchema.extend({
       z.object({
         side: z.enum(['client', 'server']),
         description: z.string().optional(),
-        validation: z.string().refine((val) => val.startsWith('z.'), {
+        validation: z.string().refine((val: string) => val.startsWith('z.'), {
           message: 'Invalid Zod validation string (must start with "z.")',
         }),
         default: z.string().optional(),
@@ -55,19 +55,27 @@ export const adapterBlueprintSchema = baseBlueprintSchema.extend({
       })
     )
     .optional(),
+  params: z.record(z.string(), z.any()).optional(),
   hooks: z.record(z.string(), z.string()).optional(),
 })
 
 export const driverBlueprintSchema = baseBlueprintSchema.extend({
   type: z.literal('driver'),
-  sharedDriver: z.string(),
+  sharedDriver: z.string().optional(),
+  params: z.record(z.string(), z.any()).optional(),
   env: z.record(z.string(), z.any()).optional(),
+})
+
+export const uiBlueprintSchema = baseBlueprintSchema.extend({
+  type: z.literal('ui'),
+  framework: z.string().optional(),
 })
 
 export const blueprintSchema = z.discriminatedUnion('type', [
   appBlueprintSchema,
   adapterBlueprintSchema,
   driverBlueprintSchema,
+  uiBlueprintSchema,
 ])
 
 export type Blueprint = z.infer<typeof blueprintSchema>

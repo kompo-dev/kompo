@@ -1,8 +1,24 @@
 import { drizzle } from 'drizzle-orm/pglite'
 import { createPgliteClient } from '@<%= it.scope %>/driver-<%= it.driver %>'
-import { clientEnv } from '@<%= it.scope %>/config'
+import { clientEnv } from '@<%= it.scope %>/config/client'
 import * as schema from './schema'
 
-const client = createPgliteClient(clientEnv.<%= it.generateEnvKey('DATABASE_URL') %>)
+// Use logical key (unprefixed) - clientEnv proxy handles the resolution
+const getDb = () => {
+  if (typeof window === 'undefined') {
+    return null as any // Return a dummy or null for SSR
+  }
+  const connectionString = clientEnv.<%= it.generateEnvKey('DATABASE_URL').replace(/^VITE_|^NEXT_PUBLIC_/, '') %>
+  const client = createPgliteClient(connectionString)
+  return drizzle(client, { schema })
+}
 
-export const db = drizzle(client, { schema })
+export const db = new Proxy({} as ReturnType<typeof getDb>, {
+  get(_target, prop) {
+    const instance = getDb()
+    if (!instance) {
+      throw new Error(`Database accessed on server-side. PGlite is client-only. Property: ${String(prop)}`)
+    }
+    return (instance as any)[prop]
+  },
+})

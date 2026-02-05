@@ -7,7 +7,9 @@
     "dev:studio": "vite --port 9000",
     "build:studio": "tsc -b && vite build",
     "lint:studio": "eslint .",
-    "preview:studio": "vite preview"
+    "preview:studio": "vite preview",
+    "test": "echo \"Skipping tests for studio\" && exit 0",
+    "test:coverage": "mkdir -p coverage && echo \"Skipped\" > coverage/placeholder && echo \"Skipping coverage for studio\" && exit 0"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

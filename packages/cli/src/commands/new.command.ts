@@ -3,10 +3,9 @@ import path from 'node:path'
 import { cancel, intro, isCancel, log, note, outro, select, text } from '@clack/prompts'
 import { starterManifestSchema as blueprintValidationSchema, type Step } from '@kompo/blueprints'
 import type { StarterManifest } from '@kompo/blueprints/types'
+import { DESIGN_SYSTEMS, FRAMEWORKS } from '@kompo/config/constants'
 import {
-  DESIGN_SYSTEMS,
   extractPluginsFromSteps,
-  FRAMEWORKS,
   initKompoConfig,
   type KompoConfig,
   mergeBlueprintCatalog,

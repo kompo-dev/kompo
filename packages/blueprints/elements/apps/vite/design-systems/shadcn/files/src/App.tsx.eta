@@ -1,9 +1,14 @@
-import { HomeCards } from './components/HomeCards'
 import { viteEnv as clientEnv } from '@<%= it.scope %>/config/client'
+import { HomeCards } from './components/HomeCards'
+
+<%~ await it.hook('app-imports') %>
 
 function App() {
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-950 to-gray-900 text-white flex flex-col">
+      <%~ await it.hook('app-content') %>
+
+      <% if (!it.hooks?.['app-content']) { %>
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 py-16 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4"><%= it.texts.hero.title %><span className="text-emerald-500"><%= it.projectName %></span></h1>
@@ -43,6 +48,7 @@ function App() {
           </p>
         </div>
       </footer>
+       <% } %>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 /**
  * Core Framework Constants
+ * Copied from @kompo/kit to avoid dependency cycles
  */
 export const FRAMEWORKS = {
   NEXTJS: 'nextjs',
@@ -8,6 +9,9 @@ export const FRAMEWORKS = {
 } as const
 
 export type FrameworkId = (typeof FRAMEWORKS)[keyof typeof FRAMEWORKS]
+
+export const CLIENT_FRAMEWORKS = [FRAMEWORKS.VITE, FRAMEWORKS.NEXTJS] as const
+export type ClientFrameworkId = (typeof CLIENT_FRAMEWORKS)[number]
 
 /**
  * Design System Constants

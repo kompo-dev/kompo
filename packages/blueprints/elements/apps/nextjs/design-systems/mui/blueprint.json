@@ -1,7 +1,7 @@
 {
   "id": "mui",
   "name": "Material UI",
-  "type": "feature",
+  "type": "app",
   "description": "Material UI design system for Next.js",
   "framework": "nextjs"
 }

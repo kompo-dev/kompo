@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { FrameworkId } from '@kompo/kit'
+import type { FrameworkId } from '@kompo/config/constants'
 import { Project, SyntaxKind } from 'ts-morph'
 import { createFsEngine } from '../engine/fs-engine'
 

@@ -1,0 +1,7 @@
+import { drizzle } from 'drizzle-orm/pglite';
+import { createPgliteClient } from '<%= it.driverPackageName %>';
+
+const connectionString = (typeof window !== 'undefined' ? '' : process.env.<%= it.aliasEnvPrefix %>_DATABASE_URL) || 'idb://';
+
+// Create the Drizzle instance using the pglite client
+export const <%= it.aliasNameCamel %>Db = drizzle(createPgliteClient(connectionString));

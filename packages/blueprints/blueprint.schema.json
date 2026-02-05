@@ -78,6 +78,10 @@
             "sharedDriver": {
               "type": "string"
             },
+            "params": {
+              "type": "object",
+              "additionalProperties": {}
+            },
             "drivers": {
               "type": "array",
               "items": {
@@ -195,12 +199,48 @@
             "sharedDriver": {
               "type": "string"
             },
+            "params": {
+              "type": "object",
+              "additionalProperties": {}
+            },
             "env": {
               "type": "object",
               "additionalProperties": {}
             }
           },
-          "required": ["id", "name", "type", "sharedDriver"],
+          "required": ["id", "name", "type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/id"
+            },
+            "name": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/name"
+            },
+            "version": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/version"
+            },
+            "description": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/description"
+            },
+            "tags": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/tags"
+            },
+            "path": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/path"
+            },
+            "type": {
+              "type": "string",
+              "const": "ui"
+            },
+            "framework": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "name", "type"],
           "additionalProperties": false
         }
       ]

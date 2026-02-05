@@ -1,7 +1,7 @@
 {
   "id": "shadcn",
   "name": "Shadcn UI",
-  "type": "feature",
+  "type": "app",
   "description": "Shadcn UI design system for Next.js",
   "framework": "nextjs",
   "env": {

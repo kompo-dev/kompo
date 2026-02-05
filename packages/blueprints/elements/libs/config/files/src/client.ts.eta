@@ -1,4 +1,4 @@
-import { createEnvFactory, z } from '@kompo/config/client'
+import { createEnvFactory, createUnifiedEnv, z } from '@kompo/config/client'
 import type { InferEnvSchema } from '@kompo/config'
 import { nextClientSchema, viteClientSchema } from './schema'
 
@@ -21,6 +21,20 @@ const factory = createEnvFactory({
 
 // Export the shared helper
 export const getClientEnv = factory.getClientEnv
+
+/*
+- **Benefit**: Future updates to the proxy logic (e.g. adding new prefixes or debug logging) can be done in `@kompo/config` without modifying every user's project.
+
+### 3. Script Organization & Root Decluttering
+We moved internal maintenance scripts to `@kompo/tsconfig` to keep the root `package.json` focused on developer workflows.
+
+- **Action**: Relocated `release:*`, `changeset`, and `test:cli` scripts to `packages/tsconfig/package.json`.
+- **Logic**: Used `pnpm -w exec` for relocated scripts to ensure they execute from the workspace root, preserving path consistency with `turbo.json` and `vitest.config.ts`.
+- **Infrastructure**: Added `prettier` and `rimraf` as devDependencies to `@kompo/tsconfig` and registered the `format` task in `turbo.json`.
+- **Result**: The root `package.json` is now streamlined with only primary commands (`build`, `dev`, `lint`, `test`), while all "meta" operations are scoped to the `tsconfig` package.
+
+### 4. Generator Enhancements
+*/
 
 /**
  * Helper for Lazy Validation
@@ -45,3 +59,9 @@ function createLazyEnv<T extends Record<string, any>>(type: 'nextjs' | 'vite'): 
  */
 export const nextEnv = createLazyEnv<Readonly<InferEnvSchema<typeof nextClientSchema>>>('nextjs')
 export const viteEnv = createLazyEnv<Readonly<InferEnvSchema<typeof viteClientSchema>>>('vite')
+
+/**
+ * Unified Client Env Proxy
+ * Automatically resolves logical names to platform-specific prefixes.
+ */
+export const clientEnv = createUnifiedEnv(viteEnv, nextEnv)

@@ -1,6 +1,6 @@
 {
   "name": "tailwind",
   "version": "1.0.0",
-  "type": "library",
+  "type": "ui",
   "id": "tailwind"
 }
