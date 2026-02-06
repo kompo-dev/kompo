@@ -6,7 +6,7 @@
 import { type Dirent, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Blueprint, BlueprintType, FeatureManifest, StarterManifest } from './types'
+import type { Blueprint, FeatureManifest, StarterManifest } from './types'
 
 export * from './schemas/blueprint.schema'
 export * from './schemas/feature.schema'
