@@ -6,7 +6,7 @@
 import { type Dirent, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Blueprint, FeatureManifest, StarterManifest } from './types'
+import type { Blueprint, BlueprintType, FeatureManifest, StarterManifest } from './types'
 
 export * from './schemas/blueprint.schema'
 export * from './schemas/feature.schema'
@@ -303,37 +303,8 @@ export function listDesignSystems(): string[] {
     .map((dirent: Dirent) => dirent.name)
 }
 
-export function getBlueprintCatalogPath(
-  name: string,
-  type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver' | 'ui',
-  filename = 'catalog.json'
-): string | null {
+export function getBlueprintCatalogPath(blueprintPath: string): string | null {
   const templatesDir = getTemplatesDir()
-  let candidatePath = ''
-
-  if (type === 'app') {
-    candidatePath = join(templatesDir, 'apps', name, filename)
-    if (!existsSync(candidatePath)) {
-      candidatePath = join(templatesDir, 'apps', name, 'blank', filename)
-    }
-  } else if (type === 'feature') {
-    candidatePath = join(templatesDir, 'features', name, filename)
-  } else if (type === 'lib' || type === 'design-system' || type === 'ui') {
-    if (type === 'design-system' || type === 'ui') {
-      candidatePath = join(templatesDir, 'libs', 'ui', name, filename)
-    } else {
-      candidatePath = join(templatesDir, 'libs', name, filename)
-    }
-  } else if (type === 'adapter') {
-    const parts = name.split('/')
-    if (parts.length === 2) {
-      candidatePath = join(templatesDir, 'libs', 'adapters', parts[0], parts[1], filename)
-    } else {
-      candidatePath = join(templatesDir, 'libs', 'adapters', name, filename)
-    }
-  } else if (type === 'driver') {
-    candidatePath = join(templatesDir, 'libs', 'drivers', name, filename)
-  }
-
+  const candidatePath = join(templatesDir, blueprintPath, 'catalog.json')
   return existsSync(candidatePath) ? candidatePath : null
 }

@@ -1,4 +1,4 @@
-import type { Token } from '@<%= it.org%>/events/client'
+import type { Token } from '@<%= it.scope%>/events/client'
 import { create } from 'zustand'
 
 type TokenStore = {

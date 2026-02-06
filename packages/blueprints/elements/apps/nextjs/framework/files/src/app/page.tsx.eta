@@ -9,7 +9,7 @@ export default function Home() {
       {/* Hero */}
       <section className="hero max-w-6xl">
         <h1>
-          <%= it.texts.hero.title %>
+          <%= it.texts.hero.title %>{' '}
           <span className="text-emerald">{<%= it.getEnv('NEXT_PUBLIC_APP_NAME') %>}</span>
         </h1>
         <p><%= it.texts.hero.description %></p>
@@ -82,6 +82,9 @@ export default function Home() {
       {/* Footer */}
       <footer>
         <div className="max-w-6xl footer-content">
+          <p className="footer-text">
+            Built with <a href="https://kompo.dev" target="_blank" rel="noopener">Kompo</a> - {<%= it.getEnv('NEXT_PUBLIC_HELLO_WORLD') %>}
+          </p>
           <div className="social-links">
             <a href="<%= it.socialLinks.github %>" target="_blank" rel="noopener" className="social-link" title="GitHub">
               <svg fill="currentColor" viewBox="0 0 24 24" className="social-icon">
@@ -99,9 +102,7 @@ export default function Home() {
               </svg>
             </a>
           </div>
-          <p className="footer-text">
-            Built with <a href="https://kompo.dev" target="_blank" rel="noopener">Kompo</a> - {<%= it.getEnv('NEXT_PUBLIC_HELLO_WORLD') %>}
-          </p>
+          
         </div>
       </footer>
     </div>

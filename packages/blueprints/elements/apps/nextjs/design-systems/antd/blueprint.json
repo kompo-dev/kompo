@@ -1,7 +1,7 @@
 {
   "id": "antd",
   "name": "Ant Design",
-  "type": "app",
+  "type": "design-system",
   "description": "Ant Design system for Next.js",
   "framework": "nextjs",
   "env": {

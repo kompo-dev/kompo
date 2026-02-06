@@ -1,11 +1,11 @@
 {
-  "name": "@<%= it.org%>/event-blockchain",
+  "name": "@<%= it.scope%>/event-blockchain",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
-    "@<%= it.org%>/events": "workspace:*",
+    "@<%= it.scope%>/events": "workspace:*",
     "viem": "catalog:"
   },
   "devDependencies": {

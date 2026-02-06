@@ -1,5 +1,5 @@
 {
-  "name": "@<%= it.org%>/event-workers",
+  "name": "@<%= it.scope%>/event-workers",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
@@ -11,10 +11,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@<%= it.org%>/events": "workspace:*",
-    "@<%= it.org%>/event-db": "workspace:*",
-    "@<%= it.org%>/event-redis": "workspace:*",
-    "@<%= it.org%>/event-blockchain": "workspace:*",
+    "@<%= it.scope%>/events": "workspace:*",
+    "@<%= it.scope%>/event-db": "workspace:*",
+    "@<%= it.scope%>/event-redis": "workspace:*",
+    "@<%= it.scope%>/event-blockchain": "workspace:*",
     "bullmq": "^5.28.3",
     "pg": "^8.13.1",
     "viem": "catalog:",

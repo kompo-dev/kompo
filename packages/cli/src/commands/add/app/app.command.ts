@@ -222,13 +222,13 @@ export async function runAddApp(
 
   const mergeCatalogFor = async (
     name: string,
-    type: 'app' | 'design-system',
+    blueprintPath: string,
     context: Record<string, any> = {}
   ) => {
-    const catalogPath = getBlueprintCatalogPath(name, type)
+    const catalogPath = getBlueprintCatalogPath(blueprintPath)
     if (catalogPath) {
       mergeBlueprintCatalog(repoRoot, name, catalogPath)
-      await mergeBlueprintScripts(repoRoot, name, type, {
+      await mergeBlueprintScripts(repoRoot, blueprintPath, {
         scope: org,
         app: appName,
         ...context,
@@ -237,10 +237,10 @@ export async function runAddApp(
   }
 
   const frameworkId = framework as string
-  await mergeCatalogFor(frameworkId, 'app', { name: frameworkId })
+  await mergeCatalogFor(frameworkId, `apps/${frameworkId}/framework`, { name: frameworkId })
 
-  if (designSystem && designSystem !== 'vanilla') {
-    await mergeCatalogFor(designSystem, 'design-system', { name: designSystem })
+  if (designSystem) {
+    await mergeCatalogFor(designSystem, `libs/ui/${designSystem}`, { name: designSystem })
   }
   const features = getRequiredFeatures(framework as string, designSystem)
   updateCatalogFromFeatures(repoRoot, features)

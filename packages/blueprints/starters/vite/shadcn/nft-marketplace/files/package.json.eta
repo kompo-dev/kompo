@@ -1,5 +1,5 @@
 {
-  "name": "@<%= it.org%>/<%= it.name %>",
+  "name": "@<%= it.scope%>/<%= it.name %>",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,11 +12,8 @@
   "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
-    "@<%= it.org%>/utils": "workspace:*",
-    "@<%= it.org%>/domains": "workspace:*",
-    "@<%= it.org%>/driver-pglite-main": "workspace:*",
-    "@<%= it.org%>/infra-database-main": "workspace:*",
-    "@<%= it.org%>/database-drizzle-main": "workspace:*",
+    "@<%= it.scope%>/utils": "workspace:*",
+    "@<%= it.scope%>/domains": "workspace:*",
     "wagmi": "catalog:",
     "viem": "catalog:",
     "@wagmi/core": "catalog:",
@@ -30,9 +27,10 @@
     "clsx": "catalog:",
     "lucide-react": "catalog:",
     "tailwind-merge": "catalog:",
+    "@radix-ui/react-icons": "catalog:",
     "@radix-ui/react-slot": "catalog:",
-    "@<%= it.org%>/ui": "workspace:*",
-    "@<%= it.org%>/config": "workspace:*"
+    "@<%= it.scope%>/ui": "workspace:*",
+    "@<%= it.scope%>/config": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "catalog:",
@@ -40,7 +38,6 @@
     "@vitejs/plugin-react": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "@radix-ui/react-icons": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "tailwindcss": "catalog:"
   }

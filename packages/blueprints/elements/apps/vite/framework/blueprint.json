@@ -1,0 +1,17 @@
+{
+  "name": "vite",
+  "type": "app",
+  "env": {
+    "VITE_APP_NAME": {
+      "validation": "z.string()",
+      "default": "{{projectName}}",
+      "side": "client"
+    },
+    "VITE_HELLO_WORLD": {
+      "validation": "z.string()",
+      "default": "It Works!",
+      "side": "client"
+    }
+  },
+  "id": "vite"
+}

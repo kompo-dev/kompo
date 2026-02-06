@@ -32,7 +32,7 @@ export async function regenerateCatalog(rootDir: string, options: { silent?: boo
   if (config.apps) {
     for (const [_appName, appConfig] of Object.entries(config.apps)) {
       const fw = appConfig.framework
-      const p = getBlueprintCatalogPath(fw, 'app')
+      const p = getBlueprintCatalogPath(`apps/${fw}/framework`)
       if (p) catalogsToMerge.push({ name: fw, path: p })
     }
   }
@@ -41,8 +41,9 @@ export async function regenerateCatalog(rootDir: string, options: { silent?: boo
   if (config.adapters) {
     for (const adapterConfig of Object.values(config.adapters)) {
       const { port, engine } = adapterConfig
-      const lookup = `${port}/${engine}`
-      const p = getBlueprintCatalogPath(lookup, 'adapter')
+      const lookup = `${port}/providers/${engine}`
+      const adapterBlueprintPath = `libs/adapters/${lookup}`
+      const p = getBlueprintCatalogPath(adapterBlueprintPath)
       if (p) {
         catalogsToMerge.push({ name: `adapter-${port}-${engine}`, path: p })
       }

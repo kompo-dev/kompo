@@ -1,4 +1,4 @@
-import { db, eq, userFilters } from '@<%= it.org%>/event-db'
+import { db, eq, userFilters } from '@<%= it.scope%>/event-db'
 
 import type { Chain, UserFilter } from '@/domain/types/token.types'
 import type {

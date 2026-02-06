@@ -1,5 +1,5 @@
 {
-  "name": "@<%= it.org%>/event-indexer",
+  "name": "@<%= it.scope%>/event-indexer",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@ponder/core": "^0.7.17",
-    "@<%= it.org%>/events": "workspace:*",
-    "@<%= it.org%>/config": "workspace:*",
-    "@<%= it.org%>/event-redis": "workspace:*",
-    "@<%= it.org%>/event-workers": "workspace:*",
-    "@<%= it.org%>/event-blockchain": "workspace:*",
+    "@<%= it.scope%>/events": "workspace:*",
+    "@<%= it.scope%>/config": "workspace:*",
+    "@<%= it.scope%>/event-redis": "workspace:*",
+    "@<%= it.scope%>/event-workers": "workspace:*",
+    "@<%= it.scope%>/event-blockchain": "workspace:*",
     "hono": "^4.0.0",
     "viem": "catalog:"
   },

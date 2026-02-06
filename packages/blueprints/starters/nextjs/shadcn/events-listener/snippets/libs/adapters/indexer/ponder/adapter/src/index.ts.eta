@@ -1,6 +1,6 @@
-import { type Chain } from '@<%= it.org%>/events'
-import { createBullMQQueueService } from '@<%= it.org%>/event-queue-bullmq'
-import { getBullMQRedisConfig } from '@<%= it.org%>/event-cache-redis'
+import { type Chain } from '@<%= it.scope%>/events'
+import { createBullMQQueueService } from '@<%= it.scope%>/event-queue-bullmq'
+import { getBullMQRedisConfig } from '@<%= it.scope%>/event-cache-redis'
 
 import { ponder } from '@/generated'
 

@@ -1,7 +1,7 @@
 {
   "id": "shadcn",
   "name": "Shadcn UI",
-  "type": "app",
+  "type": "design-system",
   "description": "Shadcn UI design system for Vite",
   "framework": "vite",
   "env": {

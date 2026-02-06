@@ -1,4 +1,4 @@
-import { db, desc, eq, notifications } from '@<%= it.org%>/event-db'
+import { db, desc, eq, notifications } from '@<%= it.scope%>/event-db'
 
 import type { TokenCreatedEvent, TokenNotification } from '@/domain/types/token.types'
 import type {

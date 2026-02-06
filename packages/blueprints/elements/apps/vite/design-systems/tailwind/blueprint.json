@@ -1,7 +1,7 @@
 {
   "id": "tailwind",
   "name": "Tailwind CSS",
-  "type": "app",
+  "type": "design-system",
   "description": "Tailwind CSS design system for Vite",
   "framework": "vite"
 }

@@ -1,5 +1,5 @@
-import type { NotificationJob } from '@<%= it.org%>/events'
-import { getBullMQRedisConfig } from '@<%= it.org%>/event-redis'
+import type { NotificationJob } from '@<%= it.scope%>/events'
+import { getBullMQRedisConfig } from '@<%= it.scope%>/event-redis'
 import { type Job, Worker } from 'bullmq'
 
 import type { Dependencies } from '@/config/dependencies'

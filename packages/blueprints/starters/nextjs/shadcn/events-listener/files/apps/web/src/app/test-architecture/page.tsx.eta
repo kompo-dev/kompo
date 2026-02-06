@@ -1,8 +1,8 @@
 'use client'
 
-import { SUPPORTED_CHAINS } from '@<%= it.org%>/events/client'
-import { Card } from '@<%= it.org%>/ui/components/card'
-import { Navbar } from '@<%= it.org%>/ui/components/navbar'
+import { SUPPORTED_CHAINS } from '@<%= it.scope%>/events/client'
+import { Card } from '@<%= it.scope%>/ui/components/card'
+import { Navbar } from '@<%= it.scope%>/ui/components/navbar'
 
 import { useNewTokens } from '@/adapters/primary/web/hooks/useNewTokens'
 

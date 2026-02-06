@@ -71,14 +71,35 @@ export const uiBlueprintSchema = baseBlueprintSchema.extend({
   framework: z.string().optional(),
 })
 
+export const designSystemBlueprintSchema = baseBlueprintSchema.extend({
+  type: z.literal('design-system'),
+  framework: z.string().optional(),
+  env: z.record(z.string(), z.any()).optional(),
+})
+
+export const featureBlueprintSchema = baseBlueprintSchema.extend({
+  type: z.literal('feature'),
+})
+
+export const libBlueprintSchema = baseBlueprintSchema.extend({
+  type: z.literal('lib'),
+})
+
 export const blueprintSchema = z.discriminatedUnion('type', [
   appBlueprintSchema,
   adapterBlueprintSchema,
   driverBlueprintSchema,
   uiBlueprintSchema,
+  designSystemBlueprintSchema,
+  featureBlueprintSchema,
+  libBlueprintSchema,
 ])
 
 export type Blueprint = z.infer<typeof blueprintSchema>
 export type AppBlueprint = z.infer<typeof appBlueprintSchema>
 export type AdapterBlueprint = z.infer<typeof adapterBlueprintSchema>
 export type DriverBlueprint = z.infer<typeof driverBlueprintSchema>
+export type DesignSystemBlueprint = z.infer<typeof designSystemBlueprintSchema>
+export type FeatureBlueprint = z.infer<typeof featureBlueprintSchema>
+export type LibBlueprint = z.infer<typeof libBlueprintSchema>
+export type BlueprintType = Blueprint['type']

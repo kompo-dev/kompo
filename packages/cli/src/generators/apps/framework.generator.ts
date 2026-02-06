@@ -96,11 +96,8 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   let blueprintConfig: any = null
   const appConfigDir = `apps/${framework}`
 
-  // Determine base app configuration directory
-  let baseAppDir = `apps/${framework}/design-systems/vanilla`
-  if (!(await templates.exists(baseAppDir))) {
-    baseAppDir = `apps/${framework}`
-  }
+  // Determine base app configuration directory (framework core files)
+  const baseAppDir = `apps/${framework}/framework`
   const blueprintJsonPath = `${baseAppDir}/blueprint.json`
 
   // Preliminary check for availability to init templateData

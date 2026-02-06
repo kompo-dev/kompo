@@ -1,4 +1,4 @@
-import { env } from '@<%= it.org%>/config'
+import { env } from '@<%= it.scope%>/config'
 import { drizzle } from 'drizzle-orm/neon-http'
 import type { NeonHttpDatabase } from 'drizzle-orm/neon-http'
 

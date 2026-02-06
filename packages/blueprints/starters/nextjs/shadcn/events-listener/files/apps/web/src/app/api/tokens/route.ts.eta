@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-import type { Chain } from '@<%= it.org%>/events'
+import type { Chain } from '@<%= it.scope%>/events'
 
 import { tokenEventRepository } from '@/lib/dependencies'
 

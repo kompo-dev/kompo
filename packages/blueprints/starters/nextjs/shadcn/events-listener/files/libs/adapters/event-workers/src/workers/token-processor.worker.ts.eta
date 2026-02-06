@@ -1,5 +1,5 @@
-import type { ProcessTokenJob, TokenCreatedEvent } from '@<%= it.org%>/events'
-import { createRedisPublisher, getBullMQRedisConfig } from '@<%= it.org%>/event-redis'
+import type { ProcessTokenJob, TokenCreatedEvent } from '@<%= it.scope%>/events'
+import { createRedisPublisher, getBullMQRedisConfig } from '@<%= it.scope%>/event-redis'
 import { type Job, Worker } from 'bullmq'
 
 import type { Dependencies } from '@/config/dependencies'

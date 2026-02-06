@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 
-import { cn } from '@<%= it.org%>/ui/lib/utils'
+import { cn } from '@<%= it.scope%>/ui/lib/utils'
 import { ArrowUpRight, Copy, ExternalLink, RefreshCw, Search } from 'lucide-react'
 
 type Token = {

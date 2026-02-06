@@ -1,5 +1,5 @@
 {
-  "name": "@<%= it.org%>/domains",
+  "name": "@<%= it.scope%>/domains",
   "version": "0.1.0",
   "description": "Domain logic",
   "private": true,

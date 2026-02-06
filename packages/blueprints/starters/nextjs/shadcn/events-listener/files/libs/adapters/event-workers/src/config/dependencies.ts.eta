@@ -5,18 +5,18 @@ import {
   type TokenEventRepository,
   type UserFilterRepository,
   createProcessNewTokenUseCase,
-} from '@<%= it.org%>/events'
+} from '@<%= it.scope%>/events'
 
 import {
   createTokenEventRepository,
   createUserFilterRepository,
   createNotificationRepository,
   db
-} from '@<%= it.org%>/event-db'
+} from '@<%= it.scope%>/event-db'
 
-import { createViemBlockchainService } from '@<%= it.org%>/event-blockchain'
+import { createViemBlockchainService } from '@<%= it.scope%>/event-blockchain'
 import { createBullMQQueueService } from '../bullmq-queue.service'
-import { getBullMQRedisConfig } from '@<%= it.org%>/event-redis'
+import { getBullMQRedisConfig } from '@<%= it.scope%>/event-redis'
 
 // Initialize dependencies
 export const createDependencies = () => {

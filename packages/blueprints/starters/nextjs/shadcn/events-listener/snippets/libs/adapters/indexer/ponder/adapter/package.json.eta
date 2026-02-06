@@ -7,11 +7,11 @@
   },
   "dependencies": {
     "@ponder/core": "^0.7.17",
-    "@<%= it.org%>/events": "workspace:*",
-    "@<%= it.org%>/config": "workspace:*",
-    "@<%= it.org%>/event-cache-redis": "workspace:*",
-    "@<%= it.org%>/event-queue-bullmq": "workspace:*",
-    "@<%= it.org%>/event-rpc-viem": "workspace:*",
+    "@<%= it.scope%>/events": "workspace:*",
+    "@<%= it.scope%>/config": "workspace:*",
+    "@<%= it.scope%>/event-cache-redis": "workspace:*",
+    "@<%= it.scope%>/event-queue-bullmq": "workspace:*",
+    "@<%= it.scope%>/event-rpc-viem": "workspace:*",
     "hono": "^4.0.0",
     "viem": "catalog:"
   }

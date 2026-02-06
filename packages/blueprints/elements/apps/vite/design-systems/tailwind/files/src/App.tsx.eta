@@ -18,6 +18,9 @@ function App() {
       {/* Footer */}
       <footer className="mt-auto border-t border-gray-800">
         <div className="mx-auto max-w-7xl px-6 py-6 md:flex md:items-center md:justify-between lg:px-8">
+          <p className="mt-8 text-center text-sm text-gray-400 md:mt-0">
+            Built with <a href="https://kompo.dev" target="_blank" rel="noopener" className="text-emerald-500 hover:text-emerald-400">Kompo</a> - {<%= it.getEnv('VITE_APP_NAME') %>}
+          </p>
           <div className="flex justify-center gap-x-6 md:order-2">
             <a href="<%= it.socialLinks.github %>" target="_blank" rel="noopener" className="text-gray-400 hover:text-white">
               <span className="sr-only">GitHub</span>
@@ -38,9 +41,6 @@ function App() {
               </svg>
             </a>
           </div>
-          <p className="mt-8 text-center text-sm text-gray-400 md:order-1 md:mt-0">
-            Built with <a href="https://kompo.dev" target="_blank" rel="noopener" className="text-emerald-500 hover:text-emerald-400">Kompo</a> - {<%= it.getEnv('VITE_APP_NAME') %>}
-          </p>
         </div>
       </footer>
     </div>

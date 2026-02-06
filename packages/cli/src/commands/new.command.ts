@@ -60,12 +60,11 @@ function parseOrgArg(arg?: string): {
 
 async function mergeScriptsFor(
   repoRoot: string,
-  name: string,
-  type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver',
+  blueprintPath: string,
   context: Record<string, any> = {}
 ) {
   const { mergeBlueprintScripts } = await import('../utils/scripts')
-  await mergeBlueprintScripts(repoRoot, name, type, context)
+  await mergeBlueprintScripts(repoRoot, blueprintPath, context)
 }
 
 export function createNewCommand(registry: KompoPluginRegistry): Command {
@@ -216,8 +215,6 @@ export async function runNewCommand(
     }
   } else {
     // Interactive Hierarchical Selection
-    const { getTemplatesDir } = await import('@kompo/blueprints')
-    const templatesDir = getTemplatesDir()
     const startersDir = path.join(templatesDir, '../starters')
 
     console.clear()
@@ -538,6 +535,16 @@ export async function runNewCommand(
     }
   }
 
+  // Pre-merge starter catalog so that `catalog:` refs in scaffolded package.json files resolve
+  if (selectedStarter?.path) {
+    const starterCatalogPath = path.join(selectedStarter.path, 'catalog.json')
+    if (nodeFs.existsSync(starterCatalogPath)) {
+      const starterGroup = selectedStarter.id
+      mergeBlueprintCatalog(repoRoot, starterGroup, starterCatalogPath)
+      updateCatalogFromFeatures(repoRoot, [starterGroup])
+    }
+  }
+
   // Sequencer Execution
   const { runAddApp } = await import('./add/app/app.command')
   const { runAddAdapter } = await import('./add/adapter/adapter.command')
@@ -557,9 +564,7 @@ export async function runNewCommand(
         org,
         yes: true,
         skipInstall: true,
-        blueprintPath: selectedStarter?.name
-          ? path.join(templatesDir, '../starters', selectedStarter.name)
-          : undefined,
+        blueprintPath: selectedStarter?.path,
       })
     } else if (step.command === 'add' && step.type === 'domain') {
       await runAddDomain(step.name, { app: step.app, skipEntity: true, nonInteractive: true })
@@ -603,20 +608,17 @@ export async function runNewCommand(
   // Helper to merge a catalog if it exists
   const mergeCatalogFor = async (
     name: string,
-    type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver',
-    _relativePath: string,
+    blueprintPath: string,
     context: Record<string, any> = {}
   ) => {
-    // Get templates
     const { getBlueprintCatalogPath } = await import('@kompo/blueprints')
-    const candidatePath = getBlueprintCatalogPath(name, type)
+    const candidatePath = getBlueprintCatalogPath(blueprintPath)
 
     if (candidatePath) {
       mergeBlueprintCatalog(repoRoot, name, candidatePath)
       featuresToSync.push(name)
     }
-    // Inject org and app into context
-    await mergeScriptsFor(repoRoot, name, type, {
+    await mergeScriptsFor(repoRoot, blueprintPath, {
       scope: org,
       app: primaryAppName,
       ...context,
@@ -632,71 +634,64 @@ export async function runNewCommand(
       : fw.includes('vite')
         ? FRAMEWORKS.VITE
         : fw
-    await mergeCatalogFor(normalizedFw, 'app', '', { name: normalizedFw })
+    await mergeCatalogFor(normalizedFw, `apps/${normalizedFw}/framework`, { name: normalizedFw })
   }
 
   // Merge Shared Libs Catalogs (Core libs)
   const coreLibs = ['config', 'domains', 'utils']
   for (const lib of coreLibs) {
-    await mergeCatalogFor(lib, 'lib', '', { name: lib })
+    await mergeCatalogFor(lib, `libs/${lib}`, { name: lib })
   }
 
   // Merge Design System and its UI lib
   if (blueprintConfig?.designSystem) {
-    await mergeCatalogFor(blueprintConfig.designSystem, 'design-system', '', {
+    await mergeCatalogFor(blueprintConfig.designSystem, `libs/ui/${blueprintConfig.designSystem}`, {
       name: blueprintConfig.designSystem,
     })
-    await mergeCatalogFor(`ui/${blueprintConfig.designSystem}`, 'lib', '', {
-      name: `ui/${blueprintConfig.designSystem}`,
-    })
   }
 
-  // Merge Features, Adapters and Drivers from steps
+  // Merge catalogs from steps based on their type
   if (stepsToExecute) {
     for (const step of stepsToExecute) {
-      if (step.type === 'feature') {
-        await mergeCatalogFor(step.name, 'feature', '', step)
-      }
-      if (step.type === 'adapter') {
-        const cap = step.capability || ''
-        const adapterLookup = cap ? `${cap}/${step.name}` : step.name
-        await mergeCatalogFor(adapterLookup, 'adapter', '', step)
-        if (step.driver) {
-          const driverLookup = cap ? `${cap}/${step.driver}` : step.driver
-          await mergeCatalogFor(driverLookup, 'driver', '', step)
+      switch (step.type) {
+        case 'feature':
+          await mergeCatalogFor(step.name, `features/${step.name}`, step)
+          break
+
+        case 'adapter': {
+          const cap = step.capability || ''
+          const adapterLookup = cap ? `${cap}/providers/${step.name}` : step.name
+          const adapterBlueprintPath = `libs/adapters/${adapterLookup}`
+          await mergeCatalogFor(adapterLookup, adapterBlueprintPath, step)
+          if (step.driver) {
+            const driverLookup = cap ? `${cap}/${step.name}/${step.driver}` : step.driver
+            const driverBlueprintPath = `libs/drivers/${driverLookup}`
+            await mergeCatalogFor(driverLookup, driverBlueprintPath, step)
+          }
+          break
         }
+
+        case 'driver': {
+          const cap = step.capability || ''
+          const driverLookup = cap ? `${cap}/${step.name}` : step.name
+          const driverBlueprintPath = `libs/drivers/${driverLookup}`
+          await mergeCatalogFor(step.name, driverBlueprintPath, step)
+          break
+        }
+
+        case 'design-system':
+          await mergeCatalogFor(step.name, `libs/ui/${step.name}`, step)
+          break
+
+        // app, domain, port, case, entity, use-case — no dedicated catalogs
+        default:
+          break
       }
     }
   }
 
-  // 4b. Merge Selected Blueprint Catalog (Highest Priority)
-  // If the user selected a named blueprint (e.g. 'nft-marketplace'), it might have its own catalog.json
-  // that should override generic framework versions.
-  if (selectedStarter?.name) {
-    // The path to the blueprint itself.
-    // We need to know where 'nft-marketplace' lives.
-    // Standard blueprints are in 'packages/blueprints/apps/<name>'
-    // We can reuse the logic from mergeCatalogFor but pointing to the blueprint definition location.
-
-    const { getTemplatesDir } = await import('@kompo/blueprints')
-    const templatesDir = getTemplatesDir()
-
-    // Assumption: Blueprint name maps to folder in apps/
-    // TODO: Make this more robust by getting path from registry?
-    const blueprintCatalogPath = path.join(
-      templatesDir,
-      '../starters',
-      selectedStarter.name,
-      'catalog.json'
-    )
-
-    if (nodeFs.existsSync(blueprintCatalogPath)) {
-      // Use the blueprint name as the catalog group
-      mergeBlueprintCatalog(repoRoot, selectedStarter.name, blueprintCatalogPath)
-      featuresToSync.push(selectedStarter.name)
-    }
-  }
-
+  // Final catalog sync — merge all blueprint catalogs into pnpm-workspace.yaml
+  // (starter catalog was already pre-merged before step execution)
   updateCatalogFromFeatures(repoRoot, Array.from(new Set(featuresToSync)))
 
   await installDependencies(repoRoot)

@@ -1,7 +1,7 @@
 {
   "id": "chakra",
   "name": "Chakra UI",
-  "type": "app",
+  "type": "design-system",
   "description": "Chakra UI design system for Next.js",
   "framework": "nextjs"
 }

@@ -78,10 +78,6 @@
             "sharedDriver": {
               "type": "string"
             },
-            "params": {
-              "type": "object",
-              "additionalProperties": {}
-            },
             "drivers": {
               "type": "array",
               "items": {
@@ -161,6 +157,10 @@
                 "additionalProperties": false
               }
             },
+            "params": {
+              "type": "object",
+              "additionalProperties": {}
+            },
             "hooks": {
               "type": "object",
               "additionalProperties": {
@@ -238,6 +238,100 @@
             },
             "framework": {
               "type": "string"
+            }
+          },
+          "required": ["id", "name", "type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/id"
+            },
+            "name": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/name"
+            },
+            "version": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/version"
+            },
+            "description": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/description"
+            },
+            "tags": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/tags"
+            },
+            "path": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/path"
+            },
+            "type": {
+              "type": "string",
+              "const": "design-system"
+            },
+            "framework": {
+              "type": "string"
+            },
+            "env": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "required": ["id", "name", "type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/id"
+            },
+            "name": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/name"
+            },
+            "version": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/version"
+            },
+            "description": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/description"
+            },
+            "tags": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/tags"
+            },
+            "path": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/path"
+            },
+            "type": {
+              "type": "string",
+              "const": "feature"
+            }
+          },
+          "required": ["id", "name", "type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/id"
+            },
+            "name": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/name"
+            },
+            "version": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/version"
+            },
+            "description": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/description"
+            },
+            "tags": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/tags"
+            },
+            "path": {
+              "$ref": "#/definitions/Kompo Blueprint Schema/anyOf/0/properties/path"
+            },
+            "type": {
+              "type": "string",
+              "const": "lib"
             }
           },
           "required": ["id", "name", "type"],

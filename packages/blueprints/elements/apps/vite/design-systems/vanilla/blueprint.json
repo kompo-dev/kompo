@@ -1,7 +1,6 @@
 {
   "id": "vanilla",
   "name": "Vanilla (No Design System)",
-  "type": "app",
-  "description": "Base Vite application without specialized design system",
-  "framework": "vite"
+  "type": "ui",
+  "description": "Vanilla (No Design System)"
 }

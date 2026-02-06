@@ -1,5 +1,5 @@
 {
-  "name": "@<%= it.org%>/event-redis",
+  "name": "@<%= it.scope%>/event-redis",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
@@ -8,7 +8,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@<%= it.org%>/config": "workspace:*",
+    "@<%= it.scope%>/config": "workspace:*",
     "ioredis": "^5.4.1"
   },
   "devDependencies": {

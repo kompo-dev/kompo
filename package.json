@@ -28,7 +28,8 @@
     "sort": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\"",
     "test": "turbo run test",
     "test:e2e": "./scripts/test-e2e.sh",
-    "type-check": "turbo run type-check"
+    "type-check": "turbo run type-check",
+    "ui:add": "pnpm --filter=@org/ui exec pnpm dlx shadcn@latest add"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",

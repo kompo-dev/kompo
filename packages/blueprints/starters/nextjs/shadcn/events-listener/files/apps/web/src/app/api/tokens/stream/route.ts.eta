@@ -1,5 +1,5 @@
-import type { Chain } from '@<%= it.org%>/events'
-import { createRedisSubscriber } from '@<%= it.org%>/event-redis'
+import type { Chain } from '@<%= it.scope%>/events'
+import { createRedisSubscriber } from '@<%= it.scope%>/event-redis'
 
 import { tokenEventRepository } from '@/lib/dependencies'
 

@@ -1,11 +1,11 @@
 'use client'
 
-import { Button } from '@<%= it.org%>/ui/components/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@<%= it.org%>/ui/components/card'
-import { Navbar } from '@<%= it.org%>/ui/components/navbar'
-import { PricingCard } from '@<%= it.org%>/ui/components/pricing-card'
-import { Stat } from '@<%= it.org%>/ui/components/stat'
-import { Ticker } from '@<%= it.org%>/ui/components/ticker'
+import { Button } from '@<%= it.scope%>/ui/components/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@<%= it.scope%>/ui/components/card'
+import { Navbar } from '@<%= it.scope%>/ui/components/navbar'
+import { PricingCard } from '@<%= it.scope%>/ui/components/pricing-card'
+import { Stat } from '@<%= it.scope%>/ui/components/stat'
+import { Ticker } from '@<%= it.scope%>/ui/components/ticker'
 import { Box, Zap } from 'lucide-react'
 
 export default function TestComponentsPage() {

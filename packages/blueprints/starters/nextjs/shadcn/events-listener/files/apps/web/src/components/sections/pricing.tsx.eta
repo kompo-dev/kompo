@@ -1,6 +1,6 @@
 'use client'
 
-import { PricingCard } from '@<%= it.org%>/ui/components/pricing-card'
+import { PricingCard } from '@<%= it.scope%>/ui/components/pricing-card'
 import { motion } from 'framer-motion'
 
 export function PricingSection() {
