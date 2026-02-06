@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { spinner } from '@clack/prompts'
+import { FRAMEWORKS, type FrameworkId } from '@kompo/config/constants'
 import {
-  FRAMEWORKS,
-  type FrameworkId,
   getRequiredFeatures,
   LIBS_DIR,
   mergeBlueprintCatalog,
@@ -12,7 +11,7 @@ import {
 import color from 'picocolors'
 import { createFsEngine } from '../../engine/fs-engine'
 import { regenerateCatalog } from '../../utils/catalog.utils'
-import { mergeWithGlobals } from '../../utils/global-variables'
+import { type GLOBAL_VARIABLES, mergeWithGlobals } from '../../utils/global-variables'
 import { getTemplateEngine } from '../../utils/project'
 
 export interface FrameworkGeneratorContext {
@@ -30,6 +29,22 @@ export interface FrameworkGeneratorContext {
   apps?: Record<string, any>
   targetApp?: string
 }
+
+type TemplateData = {
+  packageName: string
+  projectName: string
+  scope: string
+  designSystem: { id: string; path: string } | null
+  ports: string[]
+  framework: FrameworkId
+  features: string[]
+  apps: Record<string, any>
+  targetApp?: string
+  hooks: Record<string, string>
+  env: Record<string, any>
+  tsconfigPath: string
+  getEnv: (fullKey: string) => any
+} & typeof GLOBAL_VARIABLES
 
 export async function generateFramework(ctx: FrameworkGeneratorContext) {
   const {
@@ -81,8 +96,8 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   let blueprintConfig: any = null
   const appConfigDir = `apps/${framework}`
 
-  // Base app configuration is now in shared/apps
-  const baseAppDir = `shared/apps/${framework}`
+  // Determine base app configuration directory (framework core files)
+  const baseAppDir = `apps/${framework}/framework`
   const blueprintJsonPath = `${baseAppDir}/blueprint.json`
 
   // Preliminary check for availability to init templateData
@@ -171,9 +186,10 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   }
 
   // Now create the FULL template data with the smart getEnv
-  const templateData = {
+  const templateData: TemplateData = {
     ...partialData,
     hooks, // Pass hooks to template engine
+    env: {}, // Initial empty env, will be populated below
     // Calculate relative path to libs/config/tsconfig.json
     // Apps extend the shared config package, not tsconfig.base.json directly
     // targetDir is like /repo/apps/my-app (2 levels deep from repo root)
@@ -275,14 +291,17 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
     }
   }
 
+  // Ensure templateData has the latest hooks and env before rendering
+  templateData.hooks = hooks
+  templateData.env = blueprintConfig?.env || {}
+
   // First, render base framework files (excluding .env as they are injected now)
-  const baseTemplateDir = `shared/apps/${framework}`
+  const baseTemplateDir = baseAppDir
 
   if (await templates.exists(`${baseTemplateDir}/files`)) {
     // Check if templates are in files/ subdirectory (new standard)
     await templates.renderDir(`${baseTemplateDir}/files`, targetDir, templateData, {
       merge: false,
-      exclude: envFiles,
     })
   } else if (await templates.exists(baseTemplateDir)) {
     await templates.renderDir(baseTemplateDir, targetDir, templateData, {
@@ -318,13 +337,24 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   if (await templates.exists(`${designSystemTemplateDir}/files`)) {
     await templates.renderDir(`${designSystemTemplateDir}/files`, targetDir, templateData, {
       merge: false,
-      exclude: envFiles,
     })
   } else if (await templates.exists(designSystemTemplateDir)) {
     await templates.renderDir(designSystemTemplateDir, targetDir, templateData, {
       merge: false,
       exclude: envFiles,
     })
+  }
+
+  // [STARTER OVERLAY] Apply specific files from the starter blueprint if available
+  // This allows starters to override or add files to the base framework/design system
+  if (ctx.blueprintPath) {
+    const starterFilesDir = path.join(ctx.blueprintPath, 'files')
+    if (await fs.fileExists(starterFilesDir)) {
+      s.message('Applying starter template files...')
+      await templates.renderDir(starterFilesDir, targetDir, templateData, {
+        merge: false, // Starters have full control over app files
+      })
+    }
   }
 
   // Cleanup shared directory if it was copied from template
@@ -365,7 +395,7 @@ export async function generateFramework(ctx: FrameworkGeneratorContext) {
   // Ensures core dependencies (react, next, vite, etc.) from the base template are added.
   try {
     const { getTemplatesDir } = await import('@kompo/blueprints')
-    const baseCatalogPath = path.join(getTemplatesDir(), `shared/apps/${framework}`, 'catalog.json')
+    const baseCatalogPath = path.join(getTemplatesDir(), baseAppDir, 'catalog.json')
 
     if (await fs.fileExists(baseCatalogPath)) {
       const baseGroup = `app-${framework}-base`

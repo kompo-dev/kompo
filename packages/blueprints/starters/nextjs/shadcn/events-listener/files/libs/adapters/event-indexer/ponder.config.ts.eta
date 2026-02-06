@@ -1,4 +1,4 @@
-import { env } from '@<%= it.org%>/config'
+import { env } from '@<%= it.scope%>/config'
 import { createConfig } from '@ponder/core'
 import { http, createPublicClient, fallback, webSocket } from 'viem'
 import { arbitrum, base, linea } from 'viem/chains'

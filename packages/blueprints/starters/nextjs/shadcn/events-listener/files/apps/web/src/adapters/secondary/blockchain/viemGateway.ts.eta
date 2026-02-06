@@ -5,8 +5,8 @@ import type {
   FetchNewTokensInput,
   SubscribeToNewTokensInput,
   Token,
-} from '@<%= it.org%>/events/client'
-import { createToken } from '@<%= it.org%>/events/client'
+} from '@<%= it.scope%>/events/client'
+import { createToken } from '@<%= it.scope%>/events/client'
 import { http, type PublicClient, createPublicClient } from 'viem'
 import { arbitrum, base, mainnet, optimism, polygon } from 'viem/chains'
 

@@ -1,7 +1,7 @@
 {
   "id": "radix",
   "name": "Radix UI",
-  "type": "feature",
+  "type": "design-system",
   "description": "Radix UI design system for Vite",
   "framework": "vite"
 }

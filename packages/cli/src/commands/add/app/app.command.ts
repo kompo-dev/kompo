@@ -1,10 +1,8 @@
 import path from 'node:path'
 import { cancel, isCancel, log, select, text } from '@clack/prompts'
+import { type DesignSystemId, FRAMEWORKS, type FrameworkId } from '@kompo/config/constants'
 import {
   addStep,
-  type DesignSystemId,
-  FRAMEWORKS,
-  type FrameworkId,
   getRequiredFeatures,
   mergeBlueprintCatalog,
   updateCatalogFromFeatures,
@@ -34,6 +32,7 @@ export function createAddAppCommand(): Command {
     .option('--design <name>', 'Design system (tailwind, shadcn, vanilla)')
     .option('--org <name>', 'Organization name')
     .option('-y, --yes', 'Skip prompts')
+    .option('--verbose', 'Verbose output')
     .action(async (name, options) => {
       await runAddApp(name, options)
     })
@@ -46,6 +45,7 @@ export interface AddAppOptions {
   yes?: boolean
   blueprintPath?: string
   skipInstall?: boolean
+  verbose?: boolean
 }
 
 export async function runAddApp(
@@ -222,13 +222,13 @@ export async function runAddApp(
 
   const mergeCatalogFor = async (
     name: string,
-    type: 'app' | 'design-system',
+    blueprintPath: string,
     context: Record<string, any> = {}
   ) => {
-    const catalogPath = getBlueprintCatalogPath(name, type)
+    const catalogPath = getBlueprintCatalogPath(blueprintPath)
     if (catalogPath) {
       mergeBlueprintCatalog(repoRoot, name, catalogPath)
-      await mergeBlueprintScripts(repoRoot, name, type, {
+      await mergeBlueprintScripts(repoRoot, blueprintPath, {
         scope: org,
         app: appName,
         ...context,
@@ -237,10 +237,10 @@ export async function runAddApp(
   }
 
   const frameworkId = framework as string
-  await mergeCatalogFor(frameworkId, 'app', { name: frameworkId })
+  await mergeCatalogFor(frameworkId, `apps/${frameworkId}/framework`, { name: frameworkId })
 
-  if (designSystem && designSystem !== 'vanilla') {
-    await mergeCatalogFor(designSystem, 'design-system', { name: designSystem })
+  if (designSystem) {
+    await mergeCatalogFor(designSystem, `libs/ui/${designSystem}`, { name: designSystem })
   }
   const features = getRequiredFeatures(framework as string, designSystem)
   updateCatalogFromFeatures(repoRoot, features)

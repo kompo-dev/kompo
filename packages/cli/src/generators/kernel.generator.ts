@@ -31,7 +31,7 @@ export async function generateKernel(repoRoot: string) {
   // 2. Align with latest dependency injection methods (Catalogs)
   try {
     const { getBlueprintCatalogPath } = await import('@kompo/blueprints')
-    const catalogPath = getBlueprintCatalogPath('kernel', 'lib')
+    const catalogPath = getBlueprintCatalogPath('libs/kernel')
     if (catalogPath) {
       mergeBlueprintCatalog(repoRoot, 'kernel', catalogPath)
       updateCatalogFromFeatures(repoRoot, ['kernel'])

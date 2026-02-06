@@ -2,5 +2,3 @@ packages:
   - apps/*
   - libs/**
   - packages/*
-
-catalog:

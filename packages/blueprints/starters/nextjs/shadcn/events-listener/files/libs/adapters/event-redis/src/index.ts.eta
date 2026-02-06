@@ -1,10 +1,10 @@
-import { env } from '@<%= it.org%>/config'
+import { env } from '@<%= it.scope%>/config'
 import Redis, { type RedisOptions } from 'ioredis'
 
 export type RedisConnectionOptions = RedisOptions
 
 // Central Redis configuration for BullMQ and other consumers.
-// All configuration comes from the libs @<%= it.org%>/config package.
+// All configuration comes from the libs @<%= it.scope%>/config package.
 
 function resolveRedisUrl(): string {
   return env.REDIS_URL

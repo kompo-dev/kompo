@@ -40,12 +40,7 @@ export {
 export type { FsEngine, KompoContext, TemplateEngine } from './context'
 // Helper functions
 export { defineKompoPlugin } from './define-plugin'
-export {
-  DESIGN_SYSTEMS,
-  type DesignSystemId,
-  FRAMEWORKS,
-  type FrameworkId,
-} from './definitions/constants'
+
 // Port Definitions
 export {
   KOMPO_RECOMMENDED_SUFFIXES,

@@ -3,7 +3,7 @@
  * Supports both Community and Enterprise blueprints
  */
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { type Dirent, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Blueprint, FeatureManifest, StarterManifest } from './types'
@@ -299,41 +299,12 @@ export function listDesignSystems(): string[] {
   if (!existsSync(uiDir)) return []
 
   return readdirSync(uiDir, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory() && !dirent.name.startsWith('.'))
-    .map((dirent) => dirent.name)
+    .filter((dirent: Dirent) => dirent.isDirectory() && !dirent.name.startsWith('.'))
+    .map((dirent: Dirent) => dirent.name)
 }
 
-export function getBlueprintCatalogPath(
-  name: string,
-  type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver',
-  filename = 'catalog.json'
-): string | null {
+export function getBlueprintCatalogPath(blueprintPath: string): string | null {
   const templatesDir = getTemplatesDir()
-  let candidatePath = ''
-
-  if (type === 'app') {
-    candidatePath = join(templatesDir, 'apps', name, filename)
-    if (!existsSync(candidatePath)) {
-      candidatePath = join(templatesDir, 'apps', name, 'blank', filename)
-    }
-  } else if (type === 'feature') {
-    candidatePath = join(templatesDir, 'features', name, filename)
-  } else if (type === 'lib' || type === 'design-system') {
-    if (type === 'design-system') {
-      candidatePath = join(templatesDir, 'libs', 'ui', name, filename)
-    } else {
-      candidatePath = join(templatesDir, 'libs', name, filename)
-    }
-  } else if (type === 'adapter') {
-    const parts = name.split('/')
-    if (parts.length === 2) {
-      candidatePath = join(templatesDir, 'libs', 'adapters', parts[0], parts[1], filename)
-    } else {
-      candidatePath = join(templatesDir, 'libs', 'adapters', name, filename)
-    }
-  } else if (type === 'driver') {
-    candidatePath = join(templatesDir, 'libs', 'drivers', name, filename)
-  }
-
+  const candidatePath = join(templatesDir, blueprintPath, 'catalog.json')
   return existsSync(candidatePath) ? candidatePath : null
 }

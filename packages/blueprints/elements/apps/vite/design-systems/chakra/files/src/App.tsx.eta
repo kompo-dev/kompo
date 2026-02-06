@@ -21,6 +21,9 @@ function App() {
         {/* Footer */}
         <Box as="footer" mt="auto" borderTop="1px" borderColor="gray.800">
           <Flex maxW="7xl" mx="auto" px={6} py={6} direction={{ base: 'column', md: 'row' }} align="center" justify="space-between">
+            <Text color="gray.400" fontSize="sm" mt={{ base: 4, md: 0 }}>
+              Built with <Link href="https://kompo.dev" isExternal color="emerald.500" _hover={{ color: 'emerald.400' }}>Kompo</Link>
+            </Text>
             <HStack spacing={6} order={{ base: 1, md: 2 }}>
               <Link href="<%= it.socialLinks.github %>" isExternal color="gray.400" _hover={{ color: 'white' }}>
                 <Box as="span" srOnly>GitHub</Box>
@@ -41,9 +44,6 @@ function App() {
                 </svg>
               </Link>
             </HStack>
-            <Text color="gray.400" fontSize="sm" mt={{ base: 4, md: 0 }} order={{ base: 2, md: 1 }}>
-              Built with <Link href="https://kompo.dev" isExternal color="emerald.500" _hover={{ color: 'emerald.400' }}>Kompo</Link>
-            </Text>
           </Flex>
         </Box>
       </Box>

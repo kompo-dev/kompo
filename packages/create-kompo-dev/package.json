@@ -18,7 +18,8 @@
   },
   "scripts": {
     "clean": "rimraf dist node_modules",
-    "test": "echo \"Skipping tests for create-kompo-dev public wrapper\" && exit 0"
+    "test": "echo \"Skipping tests for create-kompo-dev public wrapper\" && exit 0",
+    "test:coverage": "mkdir -p coverage && echo \"Skipped\" > coverage/placeholder && echo \"Skipping coverage for create-kompo-dev public wrapper\" && exit 0"
   },
   "keywords": [
     "kompo",

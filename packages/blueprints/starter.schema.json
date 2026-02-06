@@ -19,67 +19,161 @@
         "steps": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "command": {
-                "type": "string",
-                "enum": ["new", "add", "remove", "wire", "generate"]
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "enum": ["new", "add", "remove", "wire", "generate"]
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "driver": {
+                    "type": "string"
+                  },
+                  "sharedDriver": {
+                    "type": "string"
+                  },
+                  "port": {
+                    "type": "string"
+                  },
+                  "domain": {
+                    "type": "string"
+                  },
+                  "capability": {
+                    "type": "string",
+                    "enum": [
+                      "account",
+                      "ai",
+                      "analytics",
+                      "auth",
+                      "cache",
+                      "events",
+                      "explorer",
+                      "flags",
+                      "gateway",
+                      "graphql",
+                      "http",
+                      "identity",
+                      "indexer",
+                      "jobs",
+                      "media",
+                      "nosql",
+                      "notifications",
+                      "observability",
+                      "orm",
+                      "payments",
+                      "rpc",
+                      "search",
+                      "storage",
+                      "wallet"
+                    ]
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "alias": {
+                    "type": "string"
+                  },
+                  "designSystem": {
+                    "type": "string"
+                  },
+                  "design": {
+                    "type": "string"
+                  },
+                  "framework": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "port"
+                  },
+                  "portType": {
+                    "type": "string",
+                    "enum": [
+                      "repository",
+                      "index",
+                      "cache",
+                      "gateway",
+                      "http",
+                      "graphql",
+                      "processor",
+                      "provider",
+                      "bus",
+                      "sender",
+                      "monitor",
+                      "executor",
+                      "other"
+                    ]
+                  }
+                },
+                "required": ["command", "name", "type", "portType"],
+                "additionalProperties": false
               },
-              "type": {
-                "type": "string",
-                "enum": [
-                  "app",
-                  "feature",
-                  "domain",
-                  "port",
-                  "adapter",
-                  "case",
-                  "entity",
-                  "driver",
-                  "design-system",
-                  "use-case"
-                ]
-              },
-              "name": {
-                "type": "string",
-                "minLength": 1
-              },
-              "driver": {
-                "type": "string"
-              },
-              "sharedDriver": {
-                "type": "string"
-              },
-              "port": {
-                "type": "string"
-              },
-              "domain": {
-                "type": "string"
-              },
-              "capability": {
-                "type": "string"
-              },
-              "app": {
-                "type": "string"
-              },
-              "alias": {
-                "type": "string"
-              },
-              "designSystem": {
-                "type": "string"
-              },
-              "design": {
-                "type": "string"
-              },
-              "portType": {
-                "type": "string"
-              },
-              "framework": {
-                "type": "string"
+              {
+                "type": "object",
+                "properties": {
+                  "command": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/command"
+                  },
+                  "name": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/name"
+                  },
+                  "driver": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/driver"
+                  },
+                  "sharedDriver": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/sharedDriver"
+                  },
+                  "port": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/port"
+                  },
+                  "domain": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/domain"
+                  },
+                  "capability": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/capability"
+                  },
+                  "app": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/app"
+                  },
+                  "alias": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/alias"
+                  },
+                  "designSystem": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/designSystem"
+                  },
+                  "design": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/design"
+                  },
+                  "framework": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/framework"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "app",
+                      "feature",
+                      "domain",
+                      "adapter",
+                      "case",
+                      "entity",
+                      "driver",
+                      "design-system",
+                      "use-case"
+                    ]
+                  },
+                  "portType": {
+                    "$ref": "#/definitions/Kompo Starter Schema/properties/steps/items/anyOf/0/properties/portType"
+                  }
+                },
+                "required": ["command", "name", "type"],
+                "additionalProperties": false
               }
-            },
-            "required": ["command", "type", "name"],
-            "additionalProperties": {}
+            ]
           },
           "minItems": 1
         },

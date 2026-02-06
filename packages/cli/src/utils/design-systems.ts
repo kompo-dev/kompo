@@ -1,4 +1,3 @@
-import type { DesignSystemId } from '@kompo/kit'
 export type { DesignSystemId }
 
 /**
@@ -14,6 +13,7 @@ export interface DesignSystem {
 }
 
 import { listDesignSystems } from '@kompo/blueprints'
+import type { DesignSystemId } from '@kompo/config/constants'
 
 /**
  * Metadata for hardcoded descriptions (fallback/enrichment)

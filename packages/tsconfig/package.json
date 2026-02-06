@@ -8,8 +8,21 @@
     "react.json"
   ],
   "scripts": {
-    "format": "prettier --write \"*.json\"",
-    "format:check": "prettier --check \"*.json\"",
-    "clean": "rimraf .turbo node_modules tsconfig.tsbuildinfo"
+    "format": "pnpm exec prettier --write \"*.json\"",
+    "format:check": "pnpm exec prettier --check \"*.json\"",
+    "clean": "rimraf .turbo node_modules tsconfig.tsbuildinfo",
+    "release:publish": "pnpm -w turbo run build:kompo && pnpm -w changeset publish",
+    "release:version": "pnpm -w changeset version && pnpm -w install --no-frozen-lockfile",
+    "release:beta-enter": "pnpm -w changeset pre enter beta",
+    "release:beta-exit": "pnpm -w changeset pre exit",
+    "changeset": "pnpm -w changeset",
+    "test:kompo:coverage": "pnpm -w exec turbo run test:coverage --filter='./packages/*'",
+    "test:kompo:watch": "pnpm -w exec vitest -c packages/vitest.config.ts",
+    "test:kompo": "pnpm -w exec turbo run test --filter='./packages/*'",
+    "type-check:kompo": "pnpm -w exec turbo run type-check --filter='./packages/*'"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.0",
+    "rimraf": "^6.1.2"
   }
 }

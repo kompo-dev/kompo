@@ -20,13 +20,15 @@
   ],
   "scripts": {
     "type-check": "tsc --noEmit",
-    "test": "vitest run -c ../vitest.config.ts",
+    "test": "vitest run -c ../vitest.config.ts --passWithNoTests",
+    "test:coverage": "vitest run -c ../vitest.config.ts --coverage --passWithNoTests",
     "kompo": "tsx src/bin/kompo.ts",
     "clean": "rimraf .turbo node_modules dist build .next coverage"
   },
   "dependencies": {
     "@clack/prompts": "1.0.0-alpha.9",
     "@kompo/blueprints": "workspace:*",
+    "@kompo/config": "workspace:*",
     "@kompo/kit": "workspace:*",
     "cfonts": "^3.3.1",
     "commander": "^11.1.0",

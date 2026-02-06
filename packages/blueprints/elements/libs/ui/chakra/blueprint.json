@@ -1,6 +1,6 @@
 {
   "name": "chakra",
   "version": "1.0.0",
-  "type": "library",
+  "type": "ui",
   "id": "chakra"
 }

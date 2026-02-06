@@ -32,6 +32,9 @@ function App() {
         {/* Footer */}
         <Box component="footer" sx={{ mt: 'auto', borderTop: '1px solid #374151' }}>
           <Container maxWidth="lg" sx={{ py: 3, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography variant="body2" sx={{ color: '#9ca3af', mt: { xs: 2, md: 0 } }}>
+              Built with <Link href="https://kompo.dev" target="_blank" rel="noopener" sx={{ color: '#10b981', textDecoration: 'none', '&:hover': { color: '#34d399' } }}>Kompo</Link>
+            </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, order: { xs: 1, md: 2 } }}>
               <Link href="<%= it.socialLinks.github %>" target="_blank" rel="noopener" sx={{ color: '#9ca3af', '&:hover': { color: 'white' } }}>
                 <svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
@@ -49,9 +52,6 @@ function App() {
                 </svg>
               </Link>
             </Box>
-            <Typography variant="body2" sx={{ color: '#9ca3af', mt: { xs: 2, md: 0 }, order: { xs: 2, md: 1 } }}>
-              Built with <Link href="https://kompo.dev" target="_blank" rel="noopener" sx={{ color: '#10b981', textDecoration: 'none', '&:hover': { color: '#34d399' } }}>Kompo</Link>
-            </Typography>
           </Container>
         </Box>
       </Box>

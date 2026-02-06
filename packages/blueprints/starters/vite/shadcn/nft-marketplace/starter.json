@@ -1,0 +1,57 @@
+{
+  "description": "NFT Marketplace with buying, selling and minting features",
+  "steps": [
+    {
+      "command": "add",
+      "type": "app",
+      "name": "web",
+      "driver": "vite",
+      "designSystem": "shadcn"
+    },
+    {
+      "command": "add",
+      "type": "domain",
+      "name": "nft",
+      "app": "web"
+    },
+    {
+      "command": "add",
+      "type": "port",
+      "name": "chain",
+      "domain": "nft",
+      "portType": "gateway"
+    },
+    {
+      "command": "add",
+      "type": "port",
+      "name": "database",
+      "domain": "nft",
+      "portType": "repository"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "viem",
+      "capability": "rpc",
+      "port": "chain-gateway",
+      "driver": "http"
+    },
+    {
+      "command": "add",
+      "type": "adapter",
+      "name": "drizzle",
+      "alias": "main",
+      "capability": "orm",
+      "port": "database-repository",
+      "driver": "pglite"
+    },
+    {
+      "command": "wire",
+      "type": "domain",
+      "name": "nft",
+      "app": "web"
+    }
+  ],
+  "name": "Nft Marketplace",
+  "id": "vite.shadcn.nft-marketplace"
+}

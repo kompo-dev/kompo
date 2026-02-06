@@ -2,7 +2,7 @@
  * Apply config utilities - shared between --template and kompo apply
  */
 
-import { DESIGN_SYSTEMS, FRAMEWORKS } from './definitions/constants'
+import { DESIGN_SYSTEMS, FRAMEWORKS } from '@kompo/config/constants'
 import { PORT_DEFINITIONS } from './definitions/port.definitions'
 import type { StepEntry } from './kompo-config'
 

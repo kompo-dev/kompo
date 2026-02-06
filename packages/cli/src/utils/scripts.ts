@@ -35,17 +35,12 @@ import { Eta } from 'eta'
 
 export async function mergeBlueprintScripts(
   repoRoot: string,
-  name: string,
-  type: 'app' | 'feature' | 'design-system' | 'lib' | 'adapter' | 'driver',
+  blueprintPath: string,
   context: Record<string, any> = {}
 ) {
   try {
-    const { getBlueprintCatalogPath } = await import('@kompo/blueprints')
-    const catalogPath = getBlueprintCatalogPath(name, type)
-
-    if (!catalogPath) return
-
-    const blueprintDir = path.dirname(catalogPath)
+    const { getTemplatesDir } = await import('@kompo/blueprints')
+    const blueprintDir = path.join(getTemplatesDir(), blueprintPath)
     const fs = createFsEngine()
 
     // 1. Check for snippets/root-scripts.eta
@@ -63,7 +58,7 @@ export async function mergeBlueprintScripts(
 
         await addPackageScript(repoRoot, scripts)
       } catch (e) {
-        log.warn(`Failed to process root-scripts.eta for ${name}: ${e}`)
+        log.warn(`Failed to process root-scripts.eta for ${blueprintPath}: ${e}`)
       }
     }
   } catch (_error) {

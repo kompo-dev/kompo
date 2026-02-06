@@ -13,6 +13,7 @@ export default defineConfig({
       '**/node_modules/**',
       '**/dist/**',
       'packages/**',  // Exclude Framework tests (handled by packages/vitest.config.ts)
+      '.archived/**',
     ],
     coverage: {
       provider: 'v8',

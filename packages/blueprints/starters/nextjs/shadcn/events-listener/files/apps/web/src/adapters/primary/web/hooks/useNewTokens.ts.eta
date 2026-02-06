@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
-import type { ChainId } from '@<%= it.org%>/events/client'
-import { createFetchNewTokensUseCase } from '@<%= it.org%>/events/client'
+import type { ChainId } from '@<%= it.scope%>/events/client'
+import { createFetchNewTokensUseCase } from '@<%= it.scope%>/events/client'
 
 import { useTokenStore } from '@/adapters/primary/web/stores/tokenStore'
 import { createInMemoryTokenRepository } from '@/adapters/secondary/api/inMemoryTokenRepository'

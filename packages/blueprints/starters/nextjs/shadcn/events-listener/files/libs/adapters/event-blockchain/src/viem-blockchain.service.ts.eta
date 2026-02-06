@@ -1,7 +1,7 @@
 import { http, createPublicClient } from 'viem'
 import { arbitrum, base, linea } from 'viem/chains'
 
-import type { BlockchainService } from '@<%= it.org%>/events'
+import type { BlockchainService } from '@<%= it.scope%>/events'
 
 // Viem Blockchain Service Adapter
 export type ViemBlockchainServiceConfig = {

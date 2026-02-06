@@ -1,3 +1,0 @@
-import { ipfsToHttp } from '@<%= it.org%>/utils'
-import { createWalletClient, custom } from 'viem'
-import { baseSepolia } from 'viem/chains'

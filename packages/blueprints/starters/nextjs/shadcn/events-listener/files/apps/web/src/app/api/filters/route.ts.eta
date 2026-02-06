@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-import { type Chain, createCreateUserFilterUseCase } from '@<%= it.org%>/events'
+import { type Chain, createCreateUserFilterUseCase } from '@<%= it.scope%>/events'
 
 import { userFilterRepository } from '@/lib/dependencies'
 

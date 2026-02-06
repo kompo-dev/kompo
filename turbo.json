@@ -22,10 +22,14 @@
     "type-check": {
       "dependsOn": ["^build"]
     },
+    "format": {},
     "clean": {
       "cache": false
     },
     "test": {
+      "dependsOn": ["^build"]
+    },
+    "test:coverage": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },

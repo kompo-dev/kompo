@@ -1,4 +1,4 @@
-import type { ChainId, Token, TokenRepository } from '@<%= it.org%>/events/client'
+import type { ChainId, Token, TokenRepository } from '@<%= it.scope%>/events/client'
 
 // In-memory implementation (for development)
 export const createInMemoryTokenRepository = (): TokenRepository => {

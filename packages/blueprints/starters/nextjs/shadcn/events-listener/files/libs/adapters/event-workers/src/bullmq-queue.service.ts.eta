@@ -1,7 +1,7 @@
-import type { RedisConnectionOptions } from '@<%= it.org%>/event-redis'
+import type { RedisConnectionOptions } from '@<%= it.scope%>/event-redis'
 import { Queue, type QueueOptions } from 'bullmq'
 
-import type { NotificationJob, ProcessTokenJob, QueueService } from '@<%= it.org%>/events'
+import type { NotificationJob, ProcessTokenJob, QueueService } from '@<%= it.scope%>/events'
 
 // BullMQ Queue Service Adapter
 export type BullMQQueueServiceConfig = {

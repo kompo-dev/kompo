@@ -6,11 +6,15 @@ import { execSync } from 'node:child_process'
  */
 export function runFormat(cwd: string) {
   try {
-    // biome check --write . (handles formatting + import sorting)
+    // 1. Try running 'check' script (standard in this repo)
     execSync('pnpm check', { cwd, stdio: 'ignore' })
   } catch (_error) {
-    // Ignore formatting errors (maybe no formatter installed or config issue)
-    // We don't want to break the command flow if formatting fails
+    try {
+      // 2. Fallback: Run biome directly via pnpm exec
+      execSync('pnpm exec biome check --write .', { cwd, stdio: 'ignore' })
+    } catch (_e) {
+      // Ignore
+    }
   }
 }
 
@@ -19,8 +23,14 @@ export function runFormat(cwd: string) {
  */
 export function runSort(cwd: string) {
   try {
+    // 1. Try running 'sort' script
     execSync('pnpm sort', { cwd, stdio: 'ignore' })
   } catch (_error) {
-    // Ignore errors
+    try {
+      // 2. Fallback: Run sort-package-json directly
+      execSync('pnpm exec sort-package-json package.json', { cwd, stdio: 'ignore' })
+    } catch (_e) {
+      // Ignore
+    }
   }
 }

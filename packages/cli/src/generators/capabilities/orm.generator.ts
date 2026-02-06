@@ -43,6 +43,29 @@ stepRegistry.register({
   },
 })
 
+stepRegistry.register({
+  id: 'orm:configure-pglite',
+  execute: async (context: AdapterGeneratorContext, utils: GeneratorUtils) => {
+    const { templateData, repoRoot } = context
+    // Only run for pglite provider
+    if (templateData.driver !== 'pglite') return
+
+    // Find all Vite apps (heuristic: apps that have vite.config.ts)
+    const appsDir = path.join(repoRoot, 'apps')
+    if (await utils.fs.fileExists(appsDir)) {
+      const appNames = await utils.fs.readDir(appsDir)
+      for (const appName of appNames) {
+        const viteConfigPath = path.join(appsDir, appName, 'vite.config.ts')
+        if (await utils.fs.fileExists(viteConfigPath)) {
+          const { ensureOptimizeDepsExclude } = await import('../../utils/vite')
+          await ensureOptimizeDepsExclude(viteConfigPath, '@electric-sql/pglite')
+          utils.addSummary(`   Updated vite.config.ts for app: ${appName}`)
+        }
+      }
+    }
+  },
+})
+
 export const ormCapability: CapabilityManifest = {
   id: 'orm',
   name: 'ORM',
@@ -61,7 +84,7 @@ export const ormCapability: CapabilityManifest = {
 export const generateOrmAdapter = createAdapterGenerator({
   capability: ormCapability,
   envInjectionPolicy: 'all',
-  customSteps: ['orm:generate-schema'],
+  customSteps: ['orm:generate-schema', 'orm:configure-pglite'],
 })
 
 registerAdapterGenerator(ormCapability, generateOrmAdapter)

@@ -1,9 +1,9 @@
 {
   "id": "antd",
   "name": "Ant Design",
-  "type": "feature",
-  "description": "Ant Design system for Vite",
-  "framework": "vite",
+  "type": "design-system",
+  "description": "Ant Design system for Next.js",
+  "framework": "nextjs",
   "env": {
     "VITE_ANTD_THEME": {
       "validation": "z.string()",

@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@<%= it.org%>/ui/components/button'
-import { Card } from '@<%= it.org%>/ui/components/card'
-import { Stat } from '@<%= it.org%>/ui/components/stat'
+import { Button } from '@<%= it.scope%>/ui/components/button'
+import { Card } from '@<%= it.scope%>/ui/components/card'
+import { Stat } from '@<%= it.scope%>/ui/components/stat'
 import { motion } from 'framer-motion'
 
 export function HeroSection() {

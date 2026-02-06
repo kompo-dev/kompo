@@ -1,6 +1,6 @@
 'use client'
 
-import { Card } from '@<%= it.org%>/ui/components/card'
+import { Card } from '@<%= it.scope%>/ui/components/card'
 import { motion } from 'framer-motion'
 import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer } from 'recharts'
 

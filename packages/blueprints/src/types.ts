@@ -7,7 +7,11 @@ import type {
   AdapterBlueprint,
   AppBlueprint,
   Blueprint,
+  BlueprintType,
+  DesignSystemBlueprint,
   DriverBlueprint,
+  FeatureBlueprint,
+  LibBlueprint,
 } from './schemas/blueprint.schema'
 import type { FeatureManifest } from './schemas/feature.schema'
 import type { StarterManifest } from './schemas/starter.schema'
@@ -18,6 +22,8 @@ export type { Step as BlueprintStep }
 export type { StarterManifest }
 export type { FeatureManifest }
 export type { Blueprint, AppBlueprint, AdapterBlueprint, DriverBlueprint }
+export type { DesignSystemBlueprint, FeatureBlueprint, LibBlueprint }
+export type { BlueprintType }
 
 export interface BlueprintOptions {
   framework?: string

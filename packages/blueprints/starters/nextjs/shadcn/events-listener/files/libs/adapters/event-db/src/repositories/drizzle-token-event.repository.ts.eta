@@ -1,4 +1,4 @@
-import { and, db, desc, eq, inArray, tokenEvents } from '@<%= it.org%>/event-db'
+import { and, db, desc, eq, inArray, tokenEvents } from '@<%= it.scope%>/event-db'
 
 import type { Chain, TokenCreatedEvent } from '@/domain/types/token.types'
 import type {

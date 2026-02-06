@@ -1,7 +1,7 @@
 {
   "id": "antd",
   "name": "Ant Design",
-  "type": "feature",
+  "type": "design-system",
   "description": "Ant Design system for Vite",
   "framework": "vite",
   "env": {

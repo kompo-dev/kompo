@@ -1,5 +1,5 @@
 {
-  "name": "@<%= it.org%>/event-db",
+  "name": "@<%= it.scope%>/event-db",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
@@ -13,8 +13,8 @@
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@<%= it.org%>/events": "workspace:*",
-    "@<%= it.org%>/config": "workspace:*",
+    "@<%= it.scope%>/events": "workspace:*",
+    "@<%= it.scope%>/config": "workspace:*",
     "drizzle-orm": "^0.39.0",
     "postgres": "^3.4.7",
     "@neondatabase/serverless": "^0.10.0"

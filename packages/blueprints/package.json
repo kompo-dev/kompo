@@ -29,6 +29,8 @@
     "clean": "rimraf .turbo node_modules tsconfig.tsbuildinfo",
     "dev:blueprint": "tsx watch scripts/generate-schemas.ts",
     "generate-schemas": "tsx scripts/generate-schemas.ts",
+    "test": "vitest run -c ../vitest.config.ts --passWithNoTests",
+    "test:coverage": "vitest run -c ../vitest.config.ts --coverage --passWithNoTests",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

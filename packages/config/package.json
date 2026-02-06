@@ -9,15 +9,17 @@
     ".": "./index.ts",
     "./client": "./client.ts",
     "./server": "./server.ts",
-    "./loader": "./loader.ts"
+    "./loader": "./loader.ts",
+    "./constants": "./constants.ts"
   },
   "scripts": {
     "format": "prettier --write \"*.{ts,js,json}\"",
     "format:check": "prettier --check \"*.{ts,js,json}\"",
+    "test": "vitest run -c ../vitest.config.ts --passWithNoTests",
+    "test:coverage": "vitest run -c ../vitest.config.ts --coverage --passWithNoTests",
     "clean": "rimraf .turbo node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@kompo/kit": "workspace:*",
     "@t3-oss/env-core": "^0.11.1",
     "dotenv": "^16.4.5",
     "zod": "^3.22.4"

@@ -1,5 +1,5 @@
-import { Navbar } from '@<%= it.org%>/ui/components/navbar'
-import { Ticker } from '@<%= it.org%>/ui/components/ticker'
+import { Navbar } from '@<%= it.scope%>/ui/components/navbar'
+import { Ticker } from '@<%= it.scope%>/ui/components/ticker'
 
 import { AnalyticsSection } from '@/components/sections/analytics'
 import { ComparisonSection } from '@/components/sections/comparison'

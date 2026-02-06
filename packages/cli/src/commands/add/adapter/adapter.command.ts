@@ -37,6 +37,7 @@ export async function runAddAdapter(
     alias?: string
     driver?: string
     sharedDriver?: string
+    verbose?: boolean
   } = {}
 ) {
   const cwd = process.cwd()
@@ -605,7 +606,8 @@ export async function runAddAdapter(
 
     const providerDir = selectedProvider.id
     const adapterLookup = `${capability.id}/providers/${providerDir}`
-    const adapterCatalogPath = getBlueprintCatalogPath(adapterLookup, 'adapter')
+    const adapterBlueprintPath = `libs/adapters/${adapterLookup}`
+    const adapterCatalogPath = getBlueprintCatalogPath(adapterBlueprintPath)
     const { repoRoot, config } = await ensureProjectContext(cwd)
 
     if (adapterCatalogPath) {
@@ -643,7 +645,7 @@ export async function runAddAdapter(
       const adapterGroup = `adapter-${capability.id}-${selectedProvider.id}`
       mergeBlueprintCatalog(repoRoot, adapterGroup, adapterCatalogPath)
       catalogGroups.push(adapterGroup)
-      await mergeBlueprintScripts(repoRoot, adapterLookup, 'adapter', context)
+      await mergeBlueprintScripts(repoRoot, adapterBlueprintPath, context)
 
       if (selectedDriverId) {
         // Use shared driver if available for catalog lookup (e.g. supabase -> postgres)
@@ -652,13 +654,14 @@ export async function runAddAdapter(
             ?.sharedDriver as string) || selectedDriverId
 
         const driverLookup = `${capability.id}/${selectedProvider.id}/${driverId}`
-        const driverCatalogPath = getBlueprintCatalogPath(driverLookup, 'driver')
+        const driverBlueprintPath = `libs/drivers/${driverLookup}`
+        const driverCatalogPath = getBlueprintCatalogPath(driverBlueprintPath)
 
         if (driverCatalogPath) {
           const driverGroup = `driver-${selectedDriverId}`
           mergeBlueprintCatalog(repoRoot, driverGroup, driverCatalogPath)
           catalogGroups.push(driverGroup)
-          await mergeBlueprintScripts(repoRoot, driverLookup, 'driver', context)
+          await mergeBlueprintScripts(repoRoot, driverBlueprintPath, context)
         }
       }
 
@@ -667,12 +670,8 @@ export async function runAddAdapter(
       }
     }
 
-    adapterBlueprintDir = adapterCatalogPath ? path.dirname(adapterCatalogPath) : undefined
-
-    if (!adapterBlueprintDir) {
-      const fallbackPath = getBlueprintCatalogPath(adapterLookup, 'adapter', 'blueprint.json')
-      if (fallbackPath) adapterBlueprintDir = path.dirname(fallbackPath)
-    }
+    const { getTemplatesDir } = await import('@kompo/blueprints')
+    adapterBlueprintDir = path.join(getTemplatesDir(), adapterBlueprintPath)
   } catch {
     // Ignore catalog errors
   }
@@ -722,6 +721,7 @@ export async function runAddAdapter(
     isNewAlias,
     isSpecializedClient,
     templateData: additionalTemplateData, // Pass captured template data
+    verbose: options.verbose,
   })
 
   // Smart Port Injection
